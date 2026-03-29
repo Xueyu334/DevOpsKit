@@ -7,6 +7,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import viteCompression from 'vite-plugin-compression'
 
 // https://vite.dev/config/
 export default defineConfig(({ command, mode }) => {
@@ -24,6 +25,14 @@ export default defineConfig(({ command, mode }) => {
       }),
       Components({
         resolvers: [ElementPlusResolver()],
+      }),
+      // 配置 gzip 压缩，体积大于 10KB 的文件进行压缩
+      viteCompression({
+        verbose: true,
+        disable: false,
+        threshold: 10240,
+        algorithm: 'gzip',
+        ext: '.gz',
       }),
     ],
     resolve: {
