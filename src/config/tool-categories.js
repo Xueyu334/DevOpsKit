@@ -105,5 +105,24 @@ export const toolCategories = [
                 tagTip: '定时任务相关工具'
             }
         ]
+    },
+    {
+        name: '便民与生成',
+        menuKey: 'utility',
+        tools: [
+            {
+                id: 'id-card-generator',
+                name: '身份证号码生成器',
+                menuTitle: '身份证号码生成器',
+                desc: '手动输入区域码、生日和性别，快速生成符合校验位规则的身份证号码。',
+                keywords: ['身份证', '身份证号', '身份证号码生成', '公民身份号码', 'identity card', 'id card'],
+                route: '/id-card-generator',
+                svgIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h6"/><path d="M7 13h4"/><circle cx="17" cy="12" r="2.5"/></svg>',
+                color: '#5B8FF9',
+                tag: 'New',
+                tagType: 'primary',
+                tagTip: '新上线的便民生成工具'
+            }
+        ]
     }
 ]

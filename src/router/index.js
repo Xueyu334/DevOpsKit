@@ -6,6 +6,7 @@ import TextDiff from '../views/text-diff/index.vue'
 import JsonTools from '../views/json-tools/index.vue'
 import Base64 from '../views/base64/index.vue'
 import UrlEncode from '../views/url-encode/index.vue'
+import IdCardGenerator from '../views/id-card-generator/index.vue'
 import NotFound from '../views/not-found/index.vue'
 
 const routes = [
@@ -43,6 +44,12 @@ const routes = [
                 name: 'urlEncode',
                 component: UrlEncode,
                 meta: {title: 'URL 编解码'}
+            },
+            {
+                path: '/id-card-generator',
+                name: 'idCardGenerator',
+                component: IdCardGenerator,
+                meta: {title: '身份证号码生成器'}
             }
         ]
     },
