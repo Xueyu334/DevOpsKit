@@ -26,7 +26,7 @@
           {{ category.name }}
         </h2>
 
-        <el-row :gutter="24">
+        <el-row :gutter="16">
           <el-col v-for="tool in category.tools" :key="tool.id" v-bind="{ xs: 24, sm: 12, md: 8, lg: 6, xl: 6 }"
             class="tool-col">
             <div class="tool-card" @click="handleNavigate(tool.route)">
@@ -188,24 +188,24 @@ const handleNavigate = (route) => {
 
 <style scoped>
 .home-container {
-  padding: 32px 48px;
-  min-height: calc(100vh - 40px);
-  background: var(--el-bg-color-page);
+  padding: 16px 24px;
+  min-height: auto;
+  background-color: transparent;
   /* 轻微的径向渐变背景增加层次感 */
   background-image: radial-gradient(circle at 50% -20%, var(--el-color-primary-light-9) 0%, transparent 60%);
   background-repeat: no-repeat;
-  background-size: 100% 500px;
+  background-size: 100% 300px;
 }
 
 /* 欢迎区样式 */
 .hero-section {
   text-align: center;
-  padding: 60px 0 70px 0;
+  padding: 16px 0 24px 0;
   animation: fadeInDown 0.6s ease-out;
 }
 
 .hero-title {
-  font-size: 48px;
+  font-size: 32px;
   font-weight: 800;
   margin: 0;
   /* 动态文字渐变 */
@@ -215,17 +215,17 @@ const handleNavigate = (route) => {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   animation: bgPan 6s linear infinite;
 }
 
 .hero-subtitle {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 400;
   color: var(--el-text-color-secondary);
-  margin-top: 16px;
-  margin-bottom: 40px;
-  letter-spacing: 1px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
 }
 
 .search-bar {
@@ -234,10 +234,10 @@ const handleNavigate = (route) => {
 }
 
 :deep(.search-bar .el-input__wrapper) {
-  border-radius: 24px;
-  padding: 4px 20px;
-  font-size: 16px;
-  height: 52px;
+  border-radius: 20px;
+  padding: 4px 16px;
+  font-size: 14px;
+  height: 40px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
   border: 1px solid var(--el-border-color-lighter);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -266,15 +266,15 @@ const handleNavigate = (route) => {
 }
 
 .category-block {
-  margin-bottom: 48px;
+  margin-bottom: 20px;
 }
 
 .category-title {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--el-text-color-primary);
-  margin-bottom: 24px;
-  padding-left: 14px;
+  margin-bottom: 12px;
+  padding-left: 10px;
   position: relative;
   letter-spacing: 0.5px;
 }
@@ -286,22 +286,22 @@ const handleNavigate = (route) => {
   top: 50%;
   transform: translateY(-50%);
   width: 4px;
-  height: 20px;
+  height: 16px;
   background-color: var(--el-color-primary);
   border-radius: 4px;
 }
 
 .tool-col {
-  margin-bottom: 24px;
+  margin-bottom: 12px;
 }
 
 /* 漂亮的发光悬浮卡片 */
 .tool-card {
   display: flex;
   align-items: flex-start;
-  padding: 24px;
+  padding: 16px 12px;
   background-color: var(--el-bg-color);
-  border-radius: 16px;
+  border-radius: 10px;
   border: 1px solid var(--el-border-color-lighter);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -310,25 +310,25 @@ const handleNavigate = (route) => {
 }
 
 .tool-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
   border-color: var(--el-color-primary-light-5);
 }
 
 .card-icon {
   flex-shrink: 0;
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 20px;
+  margin-right: 12px;
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .tool-card:hover .card-icon {
-  transform: scale(1.15) rotate(-5deg);
+  transform: scale(1.1) rotate(-5deg);
 }
 
 .card-content {
@@ -341,12 +341,12 @@ const handleNavigate = (route) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
-  gap: 8px;
+  margin-bottom: 4px;
+  gap: 6px;
 }
 
 .tool-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--el-text-color-primary);
   margin: 0;
@@ -361,10 +361,10 @@ const handleNavigate = (route) => {
 }
 
 .tool-desc {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--el-text-color-regular);
   margin: 0;
-  line-height: 1.6;
+  line-height: 1.5;
   /* 多行文本截断 */
   display: -webkit-box;
   line-clamp: 2;

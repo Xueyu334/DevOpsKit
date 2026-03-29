@@ -312,7 +312,8 @@ const stopResizing = () => {
 <style scoped>
 .app-container {
   padding: 24px;
-  height: calc(100vh - 84px);
+  height: calc(100vh - 121px);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
 }
@@ -406,7 +407,9 @@ html.dark .icon-bracket {
 .panel-header {
   background: var(--el-fill-color-light);
   color: var(--el-text-color-regular);
-  padding: 8px 16px;
+  height: 42px;
+  padding: 0 16px;
+  box-sizing: border-box;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.03em;

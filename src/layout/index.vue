@@ -37,7 +37,7 @@ const handleSelect = (key) => {
     </el-header>
 
     <!-- 中间主要内容区域（路由页面） -->
-    <el-main class="app-main">
+    <el-main style="--el-main-padding: 0;">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
@@ -46,7 +46,8 @@ const handleSelect = (key) => {
     </el-main>
 
     <!-- 全局底部 -->
-    <el-footer class="app-footer">
+    <!-- 清除 el-footer 自带的 20px 左右 padding 和高度限制 -->
+    <el-footer class="app-footer" style="--el-footer-padding: 0; height: auto;padding-bottom: 10px;">
       <p>&copy; {{ new Date().getFullYear() }} DevOpsKit. All rights reserved.</p>
     </el-footer>
   </el-container>
@@ -54,10 +55,12 @@ const handleSelect = (key) => {
 
 <style scoped>
 .layout-wrapper {
-  min-height: 100vh;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  background-color: var(--el-fill-color-light);
+  background-color: var(--el-bg-color-page);
 }
 
 .app-header {
@@ -81,10 +84,7 @@ const handleSelect = (key) => {
   background-color: transparent;
 }
 
-.app-main {
-  flex: 1;
-  padding: 0;
-}
+
 
 .app-footer {
   display: flex;
@@ -93,6 +93,10 @@ const handleSelect = (key) => {
   height: 60px;
   color: var(--el-text-color-secondary);
   font-size: 14px;
+}
+
+.app-footer p {
+  margin: 0;
 }
 
 /* 简单的路由切换动画 */
