@@ -36,9 +36,15 @@
               <div class="card-content">
                 <div class="card-header">
                   <h3 class="tool-title">{{ tool.name }}</h3>
-                  <el-tag v-if="tool.tag" size="small" :type="tool.tagType" effect="light" round>
-                    {{ tool.tag }}
-                  </el-tag>
+                  <el-tooltip
+                      v-if="tool.tag"
+                      :content="tool.tagTip || tagTypeHints[tool.tagType || '']"
+                      placement="top"
+                  >
+                    <el-tag size="small" :type="tool.tagType" effect="light" round>
+                      {{ tool.tag }}
+                    </el-tag>
+                  </el-tooltip>
                 </div>
                 <p class="tool-desc" :title="tool.desc">{{ tool.desc }}</p>
               </div>
@@ -69,7 +75,7 @@
 import Fuse from 'fuse.js'
 import {computed, ref} from 'vue'
 import {useRouter} from 'vue-router'
-import {toolCategories} from '../config/tool-categories'
+import {tagTypeHints, toolCategories} from '../config/tool-categories'
 
 const router = useRouter()
 const searchQuery = ref('')
