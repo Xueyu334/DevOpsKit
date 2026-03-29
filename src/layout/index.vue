@@ -31,7 +31,7 @@ const handleSelect = (key) => {
 
         <el-sub-menu index="network">
           <template #title>网络与其它配置</template>
-          <el-menu-item index="" disabled>敬请期待...</el-menu-item>
+          <el-menu-item index="/url-encode">URL 编解码</el-menu-item>
         </el-sub-menu>
       </el-menu>
     </el-header>

@@ -5,6 +5,7 @@ import Home from '../views/Home.vue'
 import TextDiff from '../views/text-diff/index.vue'
 import JsonTools from '../views/json-tools/index.vue'
 import Base64 from '../views/base64/index.vue'
+import UrlEncode from '../views/url-encode/index.vue'
 
 const routes = [
   {
@@ -35,6 +36,12 @@ const routes = [
         name: 'base64',
         component: Base64,
         meta: { title: 'Base64 编解码' }
+      },
+      {
+        path: '/url-encode',
+        name: 'urlEncode',
+        component: UrlEncode,
+        meta: { title: 'URL 编解码' }
       }
     ]
   }
