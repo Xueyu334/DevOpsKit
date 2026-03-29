@@ -37,7 +37,7 @@ const handleSelect = (key) => {
     </el-header>
 
     <!-- 中间主要内容区域（路由页面） -->
-    <el-main style="--el-main-padding: 0;">
+    <el-main class="app-main" style="--el-main-padding: 0;">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
@@ -61,6 +61,12 @@ const handleSelect = (key) => {
   display: flex;
   flex-direction: column;
   background-color: var(--el-bg-color-page);
+}
+
+.app-main {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
 }
 
 .app-header {
