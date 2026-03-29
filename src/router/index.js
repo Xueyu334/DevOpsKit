@@ -4,6 +4,7 @@ import Layout from '../layout/index.vue'
 import Home from '../views/Home.vue'
 import TextDiff from '../views/text-diff/index.vue'
 import JsonTools from '../views/json-tools/index.vue'
+import Base64 from '../views/base64/index.vue'
 
 const routes = [
   {
@@ -28,6 +29,12 @@ const routes = [
         name: 'jsonTools',
         component: JsonTools,
         meta: { title: 'JSON 工具' }
+      },
+      {
+        path: '/base64',
+        name: 'base64',
+        component: Base64,
+        meta: { title: 'Base64 编解码' }
       }
     ]
   }

@@ -26,7 +26,7 @@ const handleSelect = (key) => {
 
         <el-sub-menu index="crypto">
           <template #title>编解码与加密</template>
-          <el-menu-item index="" disabled>敬请期待...</el-menu-item>
+          <el-menu-item index="/base64">Base64 编解码</el-menu-item>
         </el-sub-menu>
 
         <el-sub-menu index="network">
