@@ -1,8 +1,19 @@
 <script setup>
-import { useRouter, useRoute } from 'vue-router'
+import {computed} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
+import {toolCategories} from '../config/tool-categories'
 
 const router = useRouter()
 const route = useRoute()
+
+const menuCategories = computed(() =>
+    toolCategories
+        .map(category => ({
+          ...category,
+          tools: category.tools.filter(tool => tool.route)
+        }))
+        .filter(category => category.tools.length > 0)
+)
 
 const handleSelect = (key) => {
   router.push(key)
@@ -15,23 +26,14 @@ const handleSelect = (key) => {
     <el-header class="app-header">
       <div class="logo">DevOpsKit</div>
       <el-menu :default-active="route.path" mode="horizontal" @select="handleSelect" class="header-menu"
-        :ellipsis="false">
+               :ellipsis="false">
         <el-menu-item index="/home">首页</el-menu-item>
 
-        <el-sub-menu index="text-and-code">
-          <template #title>文本与代码处理</template>
-          <el-menu-item index="/text-diff">文本比对</el-menu-item>
-          <el-menu-item index="/json-tools">JSON 工具</el-menu-item>
-        </el-sub-menu>
-
-        <el-sub-menu index="crypto">
-          <template #title>编解码与加密</template>
-          <el-menu-item index="/base64">Base64 编解码</el-menu-item>
-        </el-sub-menu>
-
-        <el-sub-menu index="network">
-          <template #title>网络与其它配置</template>
-          <el-menu-item index="/url-encode">URL 编解码</el-menu-item>
+        <el-sub-menu v-for="category in menuCategories" :key="category.menuKey" :index="category.menuKey">
+          <template #title>{{ category.name }}</template>
+          <el-menu-item v-for="tool in category.tools" :key="tool.id" :index="tool.route">
+            {{ tool.menuTitle || tool.name }}
+          </el-menu-item>
         </el-sub-menu>
       </el-menu>
     </el-header>
@@ -40,7 +42,7 @@ const handleSelect = (key) => {
     <el-main class="app-main" style="--el-main-padding: 0;">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
-          <component :is="Component" />
+          <component :is="Component"/>
         </transition>
       </router-view>
     </el-main>
@@ -89,7 +91,6 @@ const handleSelect = (key) => {
   border-bottom: none;
   background-color: transparent;
 }
-
 
 
 .app-footer {
