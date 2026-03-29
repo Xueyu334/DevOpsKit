@@ -53,14 +53,13 @@ const router = createRouter({
 })
 
 // 添加路由前置守卫用于动态更新标题
-router.beforeEach((to, from, next) => {
+router.beforeEach((to) => {
   const title = to.meta.title
   if (title) {
     document.title = `${title} - DevOpsKit`
   } else {
     document.title = 'DevOpsKit'
   }
-  next()
 })
 
 export default router
