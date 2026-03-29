@@ -1,0 +1,182 @@
+<template>
+    <div class="app-container">
+        <el-form :model="data" label-position="right" label-suffix=":" label-width="auto" size="default">
+            <el-row :gutter="12" justify="start">
+                <el-col v-bind="{ xs: 24, sm: 24, md: 8, lg: 6, xl: 4 }">
+                    <el-form-item label="差异比对模式" prop="diffMode">
+                        <el-radio-group v-model="data.diffMode">
+                            <el-radio size="default" value="split">并排</el-radio>
+                            <el-radio size="default" value="unified">统一</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                </el-col>
+                <el-col v-bind="{ xs: 24, sm: 24, md: 8, lg: 6, xl: 6 }">
+                    <el-form-item label="是否折叠未变更段" prop="folding">
+                        <el-radio-group v-model="data.folding">
+                            <el-radio :value="true" size="default">是</el-radio>
+                            <el-radio :value="false" size="default">否</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                </el-col>
+                <el-col v-bind="{ xs: 24, sm: 24, md: 8, lg: 6, xl: 6 }">
+                    <el-form-item label="主题" prop="theme">
+                        <el-radio-group v-model="data.theme">
+                            <el-radio size="default" value="light">纯白</el-radio>
+                            <el-radio size="default" value="dark">暗黑</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                </el-col>
+                <el-col v-bind="{ xs: 24, sm: 24, md: 8, lg: 6, xl: 6 }">
+                    <el-form-item label="语言" prop="language">
+                        <el-select v-model="data.language" class="language-select" placeholder="请选择语言">
+                            <el-option label="纯文本" value="plaintext" />
+                            <el-option label="JSON" value="json" />
+                            <el-option label="JavaScript" value="javascript" />
+                            <el-option label="TypeScript" value="typescript" />
+                            <el-option label="XML / HTML" value="xml" />
+                            <el-option label="CSS" value="css" />
+                            <el-option label="Markdown" value="markdown" />
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="24">
+                    <el-row :gutter="12">
+                        <el-col :xs="24" :md="12">
+                            <el-form-item label="左侧内容" prop="prevText">
+                                <el-input v-model="data.prevText" :autosize="{ minRows: 4, maxRows: 10 }"
+                                    class="text-input" type="textarea" :maxlength="MAX_TEXT_LENGTH" show-word-limit />
+                            </el-form-item>
+                        </el-col>
+                        <el-col :xs="24" :md="12">
+                            <el-form-item label="右侧内容" prop="currText">
+                                <el-input v-model="data.currText" :autosize="{ minRows: 4, maxRows: 10 }"
+                                    class="text-input" type="textarea" :maxlength="MAX_TEXT_LENGTH" show-word-limit />
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-col>
+            </el-row>
+        </el-form>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <h2 style="margin: 0;">内容对比</h2>
+                <!-- 使用 element-plus 自带的 fade-in 加上简单转场动画 -->
+                <transition name="el-fade-in">
+                    <el-tag v-if="isIdentical" type="success" size="large" effect="light" round>✨ 内容完全一致</el-tag>
+                </transition>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <el-button type="primary" @click="handleSwapText" plain>左右对调</el-button>
+                <el-button type="danger" @click="handleClearText" plain>一键清空</el-button>
+            </div>
+        </div>
+        <el-row>
+            <el-col :span="24">
+                <VueDiff :current="data.currText" :folding="data.folding" :input-delay="data.inputDelay"
+                    :language="data.language" :mode="data.diffMode" :prev="data.prevText" :theme="data.theme"
+                    :virtual-scroll="virtualScrollOptions" />
+            </el-col>
+        </el-row>
+    </div>
+</template>
+
+<script setup>
+// 定义全局文本最大长度限制常量
+const MAX_TEXT_LENGTH = 1000000;
+
+const data = reactive({
+    // 差异比对模式：'split'（并排）或 'unified'（统一）
+    diffMode: 'split',
+    // 是否折叠未变更段
+    folding: false,
+    // 主题：'light'、'dark' 或自定义
+    theme: 'dark',
+    // 语言类型（高亮用）
+    language: 'plaintext',
+    // 输入延迟时间（毫秒），用于降低大文本输入时的频繁重算
+    inputDelay: 500,
+    //历史版本文本 左侧
+    prevText: '',
+    // 当前版本文本 右侧
+    currText: ''
+})
+// 虚拟滚动配置，用于大文本场景提升性能
+const virtualScrollOptions = ref({
+    height: 500,         // 滚动区域高度
+    lineMinHeight: 24,   // 每行最小高度（影响行数渲染）
+    delay: 100           // 滚动延迟时间，避免频繁计算
+});
+
+
+const text1 = `合同编号：ABC-2025-001
+
+第一条 付款条款
+甲方应在合同签订后 5 个工作日内支付合同总金额的 30% 作为预付款，剩余款项在项目验收合格后 7 个工作日内支付。
+
+第二条 服务内容
+乙方应根据甲方要求，提供软件开发、系统测试、上线部署等服务，确保系统功能完整、运行稳定。
+
+第三条 保密条款
+双方应对在履行合同过程中知悉的商业秘密予以严格保密，未经对方书面同意不得向第三方披露。
+
+第四条 违约责任
+任何一方违反本合同约定，须支付合同总金额 10% 的违约金，并赔偿因此造成的全部损失。
+
+第五条 争议解决
+合同履行过程中发生争议的，双方应友好协商解决；协商不成的，提交甲方所在地人民法院诉讼解决。
+`;
+
+const text2 = `合同编号：ABC-2025-001
+
+第一条 付款条款
+甲方应在合同签订后 7 个工作日内支付合同总金额的 40% 作为预付款，剩余款项在项目验收完成且无重大缺陷后 10 个工作日内支付。
+
+第二条 服务内容
+乙方应根据甲方需求，提供软件开发、系统测试、上线部署以及后续运维支持服务，确保系统功能完整、运行稳定。
+
+第三条 保密条款
+双方应对在履行合同过程中知悉的商业秘密予以严格保密，未经对方书面许可不得向任何第三方披露，且保密义务持续至合同终止后两年内。
+
+第四条 违约责任
+任何一方违反本合同约定，须支付合同总金额 15% 的违约金，并赔偿因此造成的全部经济损失。
+
+第五条 争议解决
+合同履行过程中发生争议的，双方应协商解决；协商不成的，提交合同签订地人民法院诉讼解决。
+`;
+onMounted(() => {
+    if (!data.prevText.trim() && !data.currText.trim()) {
+        data.prevText = text1
+        data.currText = text2
+    }
+})
+
+// 计算两个框内的文本是否输入了对应内容且完全一致
+const isIdentical = computed(() => {
+    return data.prevText === data.currText && data.prevText.trim() !== ''
+})
+
+// 左右文本对调
+const handleSwapText = () => {
+    const temp = data.prevText
+    data.prevText = data.currText
+    data.currText = temp
+}
+
+// 一键清空左右对别文本
+const handleClearText = () => {
+    data.prevText = ''
+    data.currText = ''
+}
+</script>
+
+<style scoped>
+.language-select {
+    width: 100%;
+    max-width: 240px;
+}
+
+.text-input {
+    width: 100%;
+    max-width: 600px;
+}
+</style>
