@@ -10,9 +10,9 @@
         <el-input v-model="searchQuery" placeholder="搜索您需要的工具，例如：文本比对..." size="large" clearable>
           <template #prefix>
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
           </template>
         </el-input>
@@ -28,10 +28,10 @@
 
         <el-row :gutter="16">
           <el-col v-for="tool in category.tools" :key="tool.id" v-bind="{ xs: 24, sm: 12, md: 8, lg: 6, xl: 6 }"
-            class="tool-col">
+                  class="tool-col">
             <div class="tool-card" @click="handleNavigate(tool.route)">
               <div class="card-icon" :style="{ background: tool.color + '1A', color: tool.color }"
-                v-html="tool.svgIcon">
+                   v-html="tool.svgIcon">
               </div>
               <div class="card-content">
                 <div class="card-header">
@@ -51,12 +51,12 @@
       <el-empty v-if="hasNoResults" description="未找到相关工具，请尝试其他关键词">
         <template #image>
           <svg style="width: 120px; height: 120px; color: var(--el-text-color-placeholder)" viewBox="0 0 1024 1024"
-            xmlns="http://www.w3.org/2000/svg" data-v-ea893728="">
+               xmlns="http://www.w3.org/2000/svg" data-v-ea893728="">
             <path fill="currentColor"
-              d="M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768zm0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896z">
+                  d="M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768zm0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896z">
             </path>
             <path fill="currentColor"
-              d="M363.84 517.248l-45.248-45.248L512 278.592l193.408 193.408-45.248 45.248L512 369.088z"></path>
+                  d="M363.84 517.248l-45.248-45.248L512 278.592l193.408 193.408-45.248 45.248L512 369.088z"></path>
             <path fill="currentColor" d="M512 302.272V736h-64V302.272z"></path>
           </svg>
         </template>
@@ -66,8 +66,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import Fuse from 'fuse.js'
+import {computed, ref} from 'vue'
+import {useRouter} from 'vue-router'
 
 const router = useRouter()
 const searchQuery = ref('')
@@ -81,6 +82,7 @@ const toolCategories = ref([
         id: 'text-diff',
         name: '文本比对 (Text Diff)',
         desc: '支持大文本、多语言的代码和普通文本差异对比，提供并排和统一模式。',
+        keywords: ['diff', 'text diff', 'compare', '文本对比', '差异比对', '代码比对'],
         route: '/text-diff',
         svgIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="13" x2="12" y2="17"/><line x1="10" y1="15" x2="14" y2="15"/></svg>',
         color: '#409EFF',
@@ -91,6 +93,7 @@ const toolCategories = ref([
         id: 'json-tools',
         name: 'JSON 工具',
         desc: 'JSON 格式化、压缩、转译、解析以及结构校验。',
+        keywords: ['json', 'format json', 'json格式化', 'json压缩', 'json校验', 'json解析'],
         route: '/json-tools', // 预留
         svgIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></svg>',
         color: '#67C23A',
@@ -106,6 +109,7 @@ const toolCategories = ref([
         id: 'base64',
         name: 'Base64 编解码',
         desc: '快速进行 Base64 字符串的编码与解码转换。',
+        keywords: ['base64', 'b64', '编码', '解码', 'encode', 'decode'],
         route: '/base64',
         svgIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>',
         color: '#E6A23C',
@@ -116,6 +120,7 @@ const toolCategories = ref([
         id: 'hash-gen',
         name: 'Hash 生成器',
         desc: '计算文本的 MD5, SHA1, SHA256 等常见信息摘要。',
+        keywords: ['hash', 'md5', 'sha1', 'sha256', '摘要', '加密摘要'],
         route: '',
         svgIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>',
         color: '#F56C6C',
@@ -131,6 +136,7 @@ const toolCategories = ref([
         id: 'url-encode',
         name: 'URL 编解码',
         desc: '对 URI 字符串中的特殊字符进行批量转义处理。',
+        keywords: ['url', 'uri', 'url encode', 'url decode', 'urlencode', 'urldecode', 'percent encoding', 'percent decode', '链接编码', '链接解码'],
         route: '/url-encode',
         svgIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
         color: '#909399',
@@ -141,6 +147,7 @@ const toolCategories = ref([
         id: 'cron',
         name: 'Cron 表达式',
         desc: '在线生成、反解析以及测试 Cron 定时任务执行时间表。',
+        keywords: ['cron', 'crontab', '定时任务', '计划任务', '表达式'],
         route: '',
         svgIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
         color: '#8E44AD',
@@ -151,28 +158,48 @@ const toolCategories = ref([
   }
 ])
 
-// 过滤搜索逻辑，支持忽略大小写
+const flatTools = computed(() =>
+    toolCategories.value.flatMap(category =>
+        category.tools.map(tool => ({
+          ...tool,
+          categoryName: category.name
+        }))
+    )
+)
+
+const toolsFuse = computed(() => new Fuse(flatTools.value, {
+  includeScore: true,
+  threshold: 0.35,
+  ignoreLocation: true,
+  minMatchCharLength: 2,
+  keys: [
+    {name: 'name', weight: 0.5},
+    {name: 'desc', weight: 0.3},
+    {name: 'keywords', weight: 0.2}
+  ]
+}))
+
+// 过滤搜索逻辑，支持模糊搜索和关键词别名
 const filteredCategories = computed(() => {
-  if (!searchQuery.value) return toolCategories.value
+  const query = searchQuery.value.trim()
+  if (!query) {
+    return toolCategories.value
+  }
 
-  const query = searchQuery.value.toLowerCase()
-  return toolCategories.value.map(category => {
-    return {
-      ...category,
-      tools: category.tools.filter(tool =>
-        tool.name.toLowerCase().includes(query) ||
-        tool.desc.toLowerCase().includes(query)
-      )
-    }
-  })
+  const matchedToolIds = new Set(
+      toolsFuse.value.search(query).map(result => result.item.id)
+  )
+
+  return toolCategories.value.map(category => ({
+    ...category,
+    tools: category.tools.filter(tool => matchedToolIds.has(tool.id))
+  }))
 })
 
-const hasNoResults = computed(() => {
-  return filteredCategories.value.every(cat => cat.tools.length === 0)
-})
+const hasNoResults = computed(() => filteredCategories.value.every(cat => cat.tools.length === 0))
 
 // 卡片点击跳转逻辑
-const handleNavigate = (route) => {
+const handleNavigate = route => {
   if (!route) {
     ElMessage({
       message: '该工具功能还在努力开发中，敬请期待！',
