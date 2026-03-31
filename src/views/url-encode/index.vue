@@ -45,10 +45,12 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useCopyText } from '@/composables/useCopyText'
 
 const leftText = ref('')
 const rightText = ref('')
 const activePane = ref('left') // Tracks which pane is currently being used
+const { copyText } = useCopyText()
 
 const options = reactive({
   multiLine: false,
@@ -77,29 +79,7 @@ const rightStats = computed(() => {
   return `${chars} 字符  |  约 ${formatSize(bytes)}`
 })
 
-const handleCopy = async (text) => {
-  if (!text) return
-  try {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(text)
-      ElMessage.success('已复制到剪贴板')
-    } else {
-      const textArea = document.createElement("textarea")
-      textArea.value = text
-      textArea.style.position = "fixed"
-      textArea.style.left = "-999999px"
-      textArea.style.top = "-999999px"
-      document.body.appendChild(textArea)
-      textArea.focus()
-      textArea.select()
-      document.execCommand('copy')
-      textArea.remove()
-      ElMessage.success('已复制到剪贴板')
-    }
-  } catch (err) {
-    ElMessage.error('复制失败')
-  }
-}
+const handleCopy = (text) => copyText(text)
 
 const handleClear = () => {
   leftText.value = ''

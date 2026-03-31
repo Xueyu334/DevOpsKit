@@ -1,8 +1,8 @@
 <script setup>
-import useClipboard from 'vue-clipboard3'
 import {computed, reactive, shallowRef, useTemplateRef} from "vue";
 import {ElMessage} from "element-plus";
 import areaData from 'china-area-data'
+import { useCopyText } from '@/composables/useCopyText'
 
 const form = reactive({
   regionCode: '',
@@ -12,7 +12,9 @@ const form = reactive({
 
 const generatedId = shallowRef('')
 const formRef = useTemplateRef('formRef')
-const {toClipboard} = useClipboard()
+const { copyText } = useCopyText({
+  errorMessage: '复制失败，请手动复制结果'
+})
 
 const REGION_SEARCH_LIMIT = 20
 
@@ -289,12 +291,7 @@ const handleCopy = async () => {
   if (!generatedId.value) {
     return
   }
-  try {
-    await toClipboard(generatedId.value)
-    ElMessage.success('已复制到剪贴板')
-  } catch {
-    ElMessage.error('复制失败，请手动复制结果')
-  }
+  await copyText(generatedId.value)
 }
 
 </script>
