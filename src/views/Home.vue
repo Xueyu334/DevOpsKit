@@ -7,13 +7,11 @@
 
       <!-- 搜索框 -->
       <div class="search-bar">
-        <el-input v-model="searchQuery" placeholder="搜索您需要的工具，例如：文本比对..." size="large" clearable>
+        <el-input v-model="searchQuery" clearable placeholder="搜索您需要的工具，例如：文本比对..." size="large">
           <template #prefix>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
+            <el-icon class="search-prefix-icon">
+              <IconEpSearch/>
+            </el-icon>
           </template>
         </el-input>
       </div>
@@ -21,64 +19,78 @@
 
     <!-- 工具分类展示区 -->
     <div class="tools-section">
-      <div v-for="(category, index) in filteredCategories" :key="index" class="category-block">
-        <h2 class="category-title" v-if="category.tools.length > 0">
-          {{ category.name }}
-        </h2>
-
-        <el-row :gutter="16">
-          <el-col v-for="tool in category.tools" :key="tool.id" v-bind="{ xs: 24, sm: 12, md: 8, lg: 6, xl: 6 }"
-                  class="tool-col">
-            <div class="tool-card" @click="handleNavigate(tool.route)">
-              <div class="card-icon" :style="{ background: tool.color + '1A', color: tool.color }"
-                   v-html="tool.svgIcon">
-              </div>
-              <div class="card-content">
-                <div class="card-header">
-                  <h3 class="tool-title">{{ tool.name }}</h3>
-                  <el-tooltip
-                      v-if="tool.tag"
-                      :content="tool.tagTip || tagTypeHints[tool.tagType || '']"
-                      placement="top"
-                  >
-                    <el-tag size="small" :type="tool.tagType" effect="light" round>
-                      {{ tool.tag }}
-                    </el-tag>
-                  </el-tooltip>
+      <el-scrollbar class="tools-scrollbar">
+        <div class="tools-scroll-content">
+          <div v-for="(category, index) in filteredCategories" :key="index" class="category-block">
+            <h2 v-if="category.tools.length > 0" class="category-title">
+              {{ category.name }}
+            </h2>
+            <el-row :gutter="16">
+              <el-col v-for="tool in category.tools" :key="tool.id" class="tool-col"
+                      v-bind="{ xs: 24, sm: 12, md: 8, lg: 6, xl: 6 }">
+                <div class="tool-card" @click="handleNavigate(tool.route)">
+                  <div :style="{ background: tool.color + '1A', color: tool.color }" class="card-icon">
+                    <component :is="toolIconMap[tool.icon] || IconEpTools" class="tool-icon"/>
+                  </div>
+                  <div class="card-content">
+                    <div class="card-header">
+                      <h3 class="tool-title">{{ tool.name }}</h3>
+                      <el-tooltip
+                          v-if="tool.tag"
+                          :content="tool.tagTip || tagTypeHints[tool.tagType || '']"
+                          placement="top"
+                      >
+                        <el-tag :type="tool.tagType" effect="light" round size="small">
+                          {{ tool.tag }}
+                        </el-tag>
+                      </el-tooltip>
+                    </div>
+                    <p :title="tool.desc" class="tool-desc">{{ tool.desc }}</p>
+                  </div>
                 </div>
-                <p class="tool-desc" :title="tool.desc">{{ tool.desc }}</p>
-              </div>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
+              </el-col>
+            </el-row>
+          </div>
 
-      <!-- 搜索无结果时的空状态 -->
-      <el-empty v-if="hasNoResults" description="未找到相关工具，请尝试其他关键词">
-        <template #image>
-          <svg style="width: 120px; height: 120px; color: var(--el-text-color-placeholder)" viewBox="0 0 1024 1024"
-               xmlns="http://www.w3.org/2000/svg" data-v-ea893728="">
-            <path fill="currentColor"
-                  d="M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768zm0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896z">
-            </path>
-            <path fill="currentColor"
-                  d="M363.84 517.248l-45.248-45.248L512 278.592l193.408 193.408-45.248 45.248L512 369.088z"></path>
-            <path fill="currentColor" d="M512 302.272V736h-64V302.272z"></path>
-          </svg>
-        </template>
-      </el-empty>
+          <!-- 搜索无结果时的空状态 -->
+          <el-empty v-if="hasNoResults" description="未找到相关工具，请尝试其他关键词">
+            <template #image>
+              <el-icon class="empty-icon">
+                <IconEpSearch/>
+              </el-icon>
+            </template>
+          </el-empty>
+        </div>
+      </el-scrollbar>
     </div>
   </div>
 </template>
 
 <script setup>
+import IconEpCreditCard from '~icons/ep/credit-card'
+import IconEpDocumentCopy from '~icons/ep/document-copy'
+import IconEpKey from '~icons/ep/key'
+import IconEpLink from '~icons/ep/link'
+import IconEpPostcard from '~icons/ep/postcard'
+import IconEpTickets from '~icons/ep/tickets'
+import IconEpTimer from '~icons/ep/timer'
+import IconEpTools from '~icons/ep/tools'
 import Fuse from 'fuse.js'
-import {computed, ref} from 'vue'
-import {useRouter} from 'vue-router'
 import {tagTypeHints, toolCategories} from '../config/tool-categories'
 
 const router = useRouter()
+
 const searchQuery = ref('')
+
+const toolIconMap = {
+  CreditCard: IconEpCreditCard,
+  DocumentCopy: IconEpDocumentCopy,
+  Key: IconEpKey,
+  Link: IconEpLink,
+  Postcard: IconEpPostcard,
+  Tickets: IconEpTickets,
+  Timer: IconEpTimer,
+}
 
 const flatTools = computed(() =>
     toolCategories.flatMap(category =>
@@ -109,8 +121,7 @@ const filteredCategories = computed(() => {
   }
 
   const matchedToolIds = new Set(
-      toolsFuse.value.search(query).map(result => result.item.id)
-  )
+      toolsFuse.value.search(query).map(result => result.item.id))
 
   return toolCategories.map(category => ({
     ...category,
@@ -137,19 +148,48 @@ const handleNavigate = route => {
 
 <style scoped>
 .home-container {
-  padding: 16px 24px;
-  min-height: auto;
-  background-color: transparent;
-  /* 轻微的径向渐变背景增加层次感 */
-  background-image: radial-gradient(circle at 50% -20%, var(--el-color-primary-light-9) 0%, transparent 60%);
-  background-repeat: no-repeat;
-  background-size: 100% 300px;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 12px 20px;
+  overflow: hidden;
+}
+
+.home-container::before {
+  content: '';
+  position: absolute;
+  top: -180px;
+  left: 50%;
+  z-index: 0;
+  width: min(1200px, 96vw);
+  height: 520px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--el-color-primary) 14%, white) 0%,
+      color-mix(in srgb, var(--el-color-primary) 8%, transparent) 38%,
+      transparent 74%
+  );
+  filter: blur(16px);
+  pointer-events: none;
+}
+
+.hero-section,
+.tools-section {
+  position: relative;
+  z-index: 1;
 }
 
 /* 欢迎区样式 */
 .hero-section {
+  flex-shrink: 0;
   text-align: center;
-  padding: 16px 0 24px 0;
+  padding: 8px 0 18px;
   animation: fadeInDown 0.6s ease-out;
 }
 
@@ -172,14 +212,13 @@ const handleNavigate = route => {
   font-size: 14px;
   font-weight: 400;
   color: var(--el-text-color-secondary);
-  margin-top: 8px;
-  margin-bottom: 16px;
+  margin: 8px 0 12px;
   letter-spacing: 0.5px;
 }
 
 .search-bar {
   max-width: 600px;
-  margin: 0 auto;
+  margin-inline: auto;
 }
 
 :deep(.search-bar .el-input__wrapper) {
@@ -189,7 +228,8 @@ const handleNavigate = route => {
   height: 40px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
   border: 1px solid var(--el-border-color-lighter);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: border-color 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+  box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   background-color: var(--el-bg-color);
 }
 
@@ -207,11 +247,35 @@ const handleNavigate = route => {
   margin-right: 12px;
 }
 
-/* 分类与卡片样式 */
+.search-prefix-icon {
+  font-size: 18px;
+}
+
 .tools-section {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
   max-width: 1400px;
   margin: 0 auto;
   animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+.tools-scrollbar {
+  height: 100%;
+}
+
+.tools-scroll-content {
+  padding: 2px 4px 16px;
+  overflow-x: hidden;
+}
+
+:deep(.tools-scrollbar .el-scrollbar__wrap),
+:deep(.tools-scrollbar .el-scrollbar__view) {
+  overflow-x: hidden;
+}
+
+:deep(.tools-scrollbar .el-scrollbar__bar.is-horizontal) {
+  display: none;
 }
 
 .category-block {
@@ -253,7 +317,9 @@ const handleNavigate = route => {
   border-radius: 10px;
   border: 1px solid var(--el-border-color-lighter);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+  border-color 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+  box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   height: 100%;
   box-sizing: border-box;
 }
@@ -274,6 +340,11 @@ const handleNavigate = route => {
   justify-content: center;
   margin-right: 12px;
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tool-icon {
+  width: 28px;
+  height: 28px;
 }
 
 .tool-card:hover .card-icon {
@@ -307,6 +378,11 @@ const handleNavigate = route => {
 
 .tool-card:hover .tool-title {
   color: var(--el-color-primary);
+}
+
+.empty-icon {
+  font-size: 120px;
+  color: var(--el-text-color-placeholder);
 }
 
 .tool-desc {
@@ -361,9 +437,14 @@ const handleNavigate = route => {
   }
 }
 
-/* 暗色模式适配 */
-html.dark .home-container {
-  background-image: radial-gradient(circle at 50% -20%, rgba(64, 158, 255, 0.1) 0%, transparent 60%);
+html.dark .home-container::before {
+  background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--el-color-primary) 20%, transparent) 0%,
+      color-mix(in srgb, var(--el-color-primary) 12%, transparent) 36%,
+      transparent 74%
+  );
+  filter: blur(20px);
 }
 
 html.dark .tool-card {
@@ -379,15 +460,19 @@ html.dark .tool-card:hover {
 /* 响应式调整 */
 @media (max-width: 768px) {
   .home-container {
-    padding: 20px 24px;
+    padding: 12px 16px;
   }
 
   .hero-title {
-    font-size: 36px;
+    font-size: 30px;
   }
 
   .hero-section {
-    padding: 40px 0 50px 0;
+    padding: 12px 0 20px;
+  }
+
+  .tools-scroll-content {
+    padding-bottom: 12px;
   }
 
   .tool-card {
