@@ -39,3 +39,6 @@ __screenshots__/
 *.timestamp-*-*.mjs
 
 AGENTS.md
+#自动导入生成的dts
+components.d.ts
+auto-imports.d.ts
