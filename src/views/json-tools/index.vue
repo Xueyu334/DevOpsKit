@@ -1,83 +1,16 @@
-<template>
-  <div class="app-container">
-    <div class="tool-header mb-4">
-      <div class="tool-title">
-        <span class="icon-bracket">{ }</span>
-        JSON在线解析
-        <span class="subtitle">(双击自动格式化)</span>
-      </div>
-      <div>
-        <el-popover :width="180" placement="bottom-end" title="渲染设置" trigger="click">
-          <template #reference>
-            <el-button plain>
-              <template #icon>
-                <el-icon>
-                  <IconEpSetting/>
-                </el-icon>
-              </template>
-              显示选项
-            </el-button>
-          </template>
-          <div style="display: flex; flex-direction: column; padding-top: 8px;">
-            <el-checkbox v-model="options.color" style="margin-right: 0;" @change="debouncedUpdate">JSON
-              着色渲染
-            </el-checkbox>
-            <el-checkbox v-model="options.showIndex" style="margin-right: 0;"
-                         @change="debouncedUpdate">显示数组索引
-            </el-checkbox>
-            <el-checkbox v-model="options.showType" style="margin-right: 0;"
-                         @change="debouncedUpdate">显示数据类型
-            </el-checkbox>
-            <el-checkbox v-model="options.compress" style="margin-right: 0;"
-                         @change="debouncedUpdate">同行紧凑输出
-            </el-checkbox>
-          </div>
-        </el-popover>
-      </div>
-    </div>
-
-    <div ref="containerRef" class="panel-container">
-      <div :style="{ flex: `0 0 ${leftWidth}px` }" class="panel left-panel">
-        <div class="panel-header">
-          <div class="font-bold">RAW INPUT</div>
-          <div class="flex gap-2">
-            <el-button plain size="small" @click="handleFormat">格式化</el-button>
-            <el-button plain size="small" @click="handleCompress">压缩</el-button>
-            <el-button plain size="small" @click="handleEscape">转义</el-button>
-            <el-button plain size="small" @click="handleUnescape">去转义</el-button>
-            <el-button plain size="small" style="padding: 5px 8px;" title="清空" type="danger" @click="handleClear">
-              <el-icon>
-                <IconEpDelete/>
-              </el-icon>
-            </el-button>
-          </div>
-        </div>
-        <textarea v-model="rawInput" class="editor-area"
-                  placeholder="在此输入或粘贴您的 JSON 数据... (双击任意处自动格式化)"
-                  spellcheck="false" @dblclick="handleFormat"
-                  @input="debouncedUpdate"></textarea>
-      </div>
-
-      <div class="gutter" @mousedown="startResizing"></div>
-
-      <div class="panel right-panel">
-        <div :class="{ 'error-header': hasError }" class="panel-header">
-          <div style="flex: 1;">String Parse (Strict)</div>
-          <div style="flex: 1; padding-left: 8px;">JS Eval (Relaxed)</div>
-        </div>
-        <div class="result-area">
-          <div class="parse-col" @click="handleToggle" v-html="stringResultHtml"></div>
-          <div class="eval-col" @click="handleToggle" v-html="evalResultHtml"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup>
 import {onMounted, onUnmounted, reactive, ref} from 'vue';
 import {ElMessage} from 'element-plus';
 import JsonWorker from './json.worker.js?worker';
+
+const EMPTY_STATE_HTML = '<span class="status-tip">等待输入...</span>';
+
+const renderOptionItems = [
+  {key: 'color', label: 'JSON 着色渲染'},
+  {key: 'showIndex', label: '显示数组索引'},
+  {key: 'showType', label: '显示数据类型'},
+  {key: 'compress', label: '同行紧凑输出'}
+];
 
 const rawInput = ref('');
 const options = reactive({
@@ -87,56 +20,32 @@ const options = reactive({
   showType: false
 });
 
-const stringResultHtml = ref('<span class="status-tip">等待输入...</span>');
-const evalResultHtml = ref('<span class="status-tip">等待输入...</span>');
+const stringResultHtml = ref(EMPTY_STATE_HTML);
+const evalResultHtml = ref(EMPTY_STATE_HTML);
 const hasError = ref(false);
 
-const leftWidth = ref(400); // 初始左侧面板宽度
+const leftWidth = ref(400);
 const containerRef = ref(null);
 let isResizing = false;
-
 let worker = null;
 
-onMounted(() => {
-  worker = new JsonWorker();
+const setIdleState = () => {
+  stringResultHtml.value = EMPTY_STATE_HTML;
+  evalResultHtml.value = EMPTY_STATE_HTML;
+  hasError.value = false;
+};
 
-  worker.onmessage = function (e) {
-    const {id, success, html, error} = e.data;
+const buildErrorHtml = (message, modifierClass = '') =>
+    `<div class="error-box${modifierClass ? ` ${modifierClass}` : ''}">${message}</div>`;
 
-    if (id === 'strict') {
-      if (success) {
-        stringResultHtml.value = html;
-        hasError.value = false;
-      } else {
-        stringResultHtml.value = `<div class="error-box">Error: ${error}</div>`;
-        hasError.value = true;
-      }
-    } else if (id === 'relaxed') {
-      if (success) {
-        evalResultHtml.value = html;
-      } else {
-        evalResultHtml.value = `<div class="error-box italic">Eval error: ${error}</div>`;
-      }
-    }
-  };
-
-  // 绑定全局鼠标事件处理拖拽
-  document.addEventListener('mousemove', handleMouseMove);
-  document.addEventListener('mouseup', stopResizing);
-
-  // 容器初始大小适配
-  if (containerRef.value) {
-    leftWidth.value = containerRef.value.getBoundingClientRect().width * 0.4;
+const parseJsonLike = (value) => {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return new Function(`return (${value})`)();
   }
-});
+};
 
-onUnmounted(() => {
-  if (worker) worker.terminate();
-  document.removeEventListener('mousemove', handleMouseMove);
-  document.removeEventListener('mouseup', stopResizing);
-});
-
-// 节流工具
 function debounce(func, wait) {
   let timeout;
   return function (...args) {
@@ -148,9 +57,11 @@ function debounce(func, wait) {
 const update = () => {
   const val = rawInput.value.trim();
   if (!val) {
-    stringResultHtml.value = '<span class="status-tip">等待输入...</span>';
-    evalResultHtml.value = '<span class="status-tip">等待输入...</span>';
-    hasError.value = false;
+    setIdleState();
+    return;
+  }
+
+  if (!worker) {
     return;
   }
 
@@ -167,73 +78,65 @@ const update = () => {
 
 const debouncedUpdate = debounce(update, 300);
 
-// 折叠树的事件代理
 const handleToggle = (e) => {
   const target = e.target;
-  if (target && target.classList.contains('json-toggle')) {
-    const parent = target.parentElement;
-    const list = parent.querySelector('.json-tree');
-    const indicator = parent.querySelector('.json-size-indicator');
+  if (!target?.classList.contains('json-toggle')) {
+    return;
+  }
 
-    if (list.classList.contains('folded')) {
-      list.classList.remove('folded');
-      if (indicator) indicator.style.display = 'none';
-      target.innerText = '-';
-    } else {
-      list.classList.add('folded');
-      if (indicator) indicator.style.display = 'inline';
-      target.innerText = '+';
-    }
+  const parent = target.parentElement;
+  const list = parent?.querySelector('.json-tree');
+  const indicator = parent?.querySelector('.json-size-indicator');
+
+  if (!list) {
+    return;
+  }
+
+  if (list.classList.contains('folded')) {
+    list.classList.remove('folded');
+    if (indicator) indicator.style.display = 'none';
+    target.innerText = '-';
+    return;
+  }
+
+  list.classList.add('folded');
+  if (indicator) indicator.style.display = 'inline';
+  target.innerText = '+';
+};
+
+const transformParsedInput = (formatter, successMessage, errorPrefix) => {
+  const val = rawInput.value.trim();
+  if (!val) {
+    return;
+  }
+
+  try {
+    rawInput.value = formatter(parseJsonLike(val));
+    update();
+    ElMessage.success(successMessage);
+  } catch (e) {
+    ElMessage.error(`${errorPrefix}: ${e.message}`);
   }
 };
 
-// 工具栏功能
 const handleClear = () => {
   rawInput.value = '';
-  stringResultHtml.value = '<span class="status-tip">等待输入...</span>';
-  evalResultHtml.value = '<span class="status-tip">等待输入...</span>';
-  hasError.value = false;
+  setIdleState();
 };
 
 const handleFormat = () => {
-  const val = rawInput.value.trim();
-  if (!val) return;
-  try {
-    let obj;
-    try {
-      obj = JSON.parse(val);
-    } catch (e) {
-      obj = new Function(`return (${val})`)();
-    }
-    rawInput.value = JSON.stringify(obj, null, 2);
-    update();
-    ElMessage.success('格式化完成');
-  } catch (e) {
-    ElMessage.error('格式化失败: ' + e.message);
-  }
+  transformParsedInput((obj) => JSON.stringify(obj, null, 2), '格式化完成', '格式化失败');
 };
 
 const handleCompress = () => {
-  const val = rawInput.value.trim();
-  if (!val) return;
-  try {
-    let obj;
-    try {
-      obj = JSON.parse(val);
-    } catch (e) {
-      obj = new Function(`return (${val})`)();
-    }
-    rawInput.value = JSON.stringify(obj);
-    update();
-    ElMessage.success('压缩完成');
-  } catch (e) {
-    ElMessage.error('压缩失败: ' + e.message);
-  }
+  transformParsedInput((obj) => JSON.stringify(obj), '压缩完成', '压缩失败');
 };
 
 const handleUnescape = () => {
   let val = rawInput.value.trim();
-  if (!val) return;
+  if (!val) {
+    return;
+  }
 
   try {
     if (val.startsWith('"') && val.endsWith('"')) {
@@ -245,7 +148,7 @@ const handleUnescape = () => {
         return;
       }
     }
-  } catch (e) {
+  } catch {
   }
 
   val = val.replace(/\\"/g, '"')
@@ -257,7 +160,7 @@ const handleUnescape = () => {
       .replace(/\\f/g, '\\f');
 
   if (val.startsWith('"') && val.endsWith('"')) {
-    let inner = val.slice(1, -1);
+    const inner = val.slice(1, -1);
     if ((inner.startsWith('{') && inner.endsWith('}')) || (inner.startsWith('[') && inner.endsWith(']'))) {
       val = inner;
     }
@@ -270,17 +173,13 @@ const handleUnescape = () => {
 
 const handleEscape = () => {
   let val = rawInput.value.trim();
-  if (!val) return;
+  if (!val) {
+    return;
+  }
 
   try {
-    let obj;
-    try {
-      obj = JSON.parse(val);
-    } catch (e) {
-      obj = new Function(`return (${val})`)();
-    }
-    val = JSON.stringify(obj);
-  } catch (e) {
+    val = JSON.stringify(parseJsonLike(val));
+  } catch {
   }
 
   rawInput.value = JSON.stringify(val);
@@ -288,7 +187,6 @@ const handleEscape = () => {
   ElMessage.success('添加转义完成');
 };
 
-// 拖动布局逻辑
 const startResizing = () => {
   isResizing = true;
   document.body.style.cursor = 'col-resize';
@@ -296,7 +194,10 @@ const startResizing = () => {
 };
 
 const handleMouseMove = (e) => {
-  if (!isResizing || !containerRef.value) return;
+  if (!isResizing || !containerRef.value) {
+    return;
+  }
+
   const containerRect = containerRef.value.getBoundingClientRect();
   const newLeftWidth = e.clientX - containerRect.left;
   if (newLeftWidth > 200 && newLeftWidth < containerRect.width - 200) {
@@ -305,203 +206,348 @@ const handleMouseMove = (e) => {
 };
 
 const stopResizing = () => {
-  if (isResizing) {
-    isResizing = false;
-    document.body.style.cursor = 'default';
-    document.body.style.userSelect = '';
+  if (!isResizing) {
+    return;
   }
+
+  isResizing = false;
+  document.body.style.cursor = 'default';
+  document.body.style.userSelect = '';
 };
 
+onMounted(() => {
+  worker = new JsonWorker();
+
+  worker.onmessage = (e) => {
+    const {id, success, html, error} = e.data;
+
+    if (id === 'strict') {
+      if (success) {
+        stringResultHtml.value = html;
+        hasError.value = false;
+      } else {
+        stringResultHtml.value = buildErrorHtml(`Error: ${error}`);
+        hasError.value = true;
+      }
+      return;
+    }
+
+    evalResultHtml.value = success ? html : buildErrorHtml(`Eval error: ${error}`, 'error-box--italic');
+  };
+
+  document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('mouseup', stopResizing);
+
+  if (containerRef.value) {
+    leftWidth.value = containerRef.value.getBoundingClientRect().width * 0.4;
+  }
+});
+
+onUnmounted(() => {
+  if (worker) worker.terminate();
+  document.removeEventListener('mousemove', handleMouseMove);
+  document.removeEventListener('mouseup', stopResizing);
+});
 </script>
+
+<template>
+  <div class="app-container">
+    <div class="tool-header">
+      <div class="tool-title">
+        <span class="icon-bracket">{ }</span>
+        JSON在线解析
+        <span class="subtitle">(双击自动格式化)</span>
+      </div>
+      <el-popover :width="180" placement="bottom-end" title="渲染设置" trigger="click">
+        <template #reference>
+          <el-button plain>
+            <template #icon>
+              <el-icon>
+                <IconEpSetting/>
+              </el-icon>
+            </template>
+            显示选项
+          </el-button>
+        </template>
+        <div class="settings-panel">
+          <el-checkbox
+              v-for="item in renderOptionItems"
+              :key="item.key"
+              v-model="options[item.key]"
+              class="settings-checkbox"
+              @change="debouncedUpdate"
+          >
+            {{ item.label }}
+          </el-checkbox>
+        </div>
+      </el-popover>
+    </div>
+
+    <div ref="containerRef" class="panel-container">
+      <div :style="{ flexBasis: `${leftWidth}px` }" class="panel left-panel">
+        <div class="panel-header">
+          <div class="panel-title">RAW INPUT</div>
+          <div class="panel-actions">
+            <el-button plain size="small" @click="handleFormat">格式化</el-button>
+            <el-button plain size="small" @click="handleCompress">压缩</el-button>
+            <el-button plain size="small" @click="handleEscape">转义</el-button>
+            <el-button plain size="small" @click="handleUnescape">去转义</el-button>
+            <el-button
+                class="panel-action-icon"
+                plain
+                size="small"
+                title="清空"
+                type="danger"
+                @click="handleClear"
+            >
+              <el-icon>
+                <IconEpDelete/>
+              </el-icon>
+            </el-button>
+          </div>
+        </div>
+        <textarea
+            v-model="rawInput"
+            class="editor-area"
+            placeholder="在此输入或粘贴您的 JSON 数据... (双击任意处自动格式化)"
+            spellcheck="false"
+            @dblclick="handleFormat"
+            @input="debouncedUpdate"
+        ></textarea>
+      </div>
+
+      <div class="gutter" @mousedown="startResizing"></div>
+
+      <div class="panel right-panel">
+        <div :class="{ 'error-header': hasError }" class="panel-header panel-header--split">
+          <div class="panel-header-cell">String Parse (Strict)</div>
+          <div class="panel-header-cell panel-header-cell--offset">JS Eval (Relaxed)</div>
+        </div>
+        <div class="result-area">
+          <div class="result-col parse-col" @click="handleToggle" v-html="stringResultHtml"></div>
+          <div class="result-col eval-col" @click="handleToggle" v-html="evalResultHtml"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .app-container {
-  padding: 24px;
-  height: calc(100vh - 121px);
+  --json-font-family: 'Consolas', 'Monaco', monospace;
+  --panel-padding: 16px;
+  --panel-radius: 8px;
+  --panel-border: 1px solid var(--el-border-color-light);
+  --panel-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --panel-header-height: 42px;
+  --gutter-width: 10px;
+  --gutter-offset: -5px;
+  --transition-fast: 0.15s ease;
+  --icon-bracket-bg: #eef2ff;
+  --json-key-0-color: #ef4444;
+  --json-key-1-color: #f97316;
+  --json-key-2-color: #d97706;
+  --json-key-3-color: #84cc16;
+  --json-key-4-color: #10b981;
+  --json-key-5-color: #06b6d4;
+  --json-key-6-color: #3b82f6;
+  --json-key-7-color: #8b5cf6;
+  --json-key-8-color: #d946ef;
+  --json-string-color: #059669;
+  --json-number-color: #7c3aed;
+  --json-boolean-color: #ea580c;
+  --json-type-string-color: #10b981;
+  --json-type-number-color: #8b5cf6;
+  --json-type-boolean-color: #f59e0b;
+  --json-type-object-color: #f43f5e;
+  --json-type-array-color: #3b82f6;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  height: calc(100vh - 100px);
+  padding: 10px 24px;
 }
 
-.mb-4 {
+html.dark .app-container {
+  --icon-bracket-bg: rgba(99, 102, 241, 0.2);
+  --json-key-0-color: #fca5a5;
+  --json-key-1-color: #fdba74;
+  --json-key-4-color: #6ee7b7;
+  --json-key-6-color: #93c5fd;
+  --json-string-color: #34d399;
+  --json-number-color: #a78bfa;
+  --json-boolean-color: #fb923c;
+}
+
+.tool-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 16px;
 }
 
-.flex {
-  display: flex;
-}
-
-.gap-2 {
-  gap: 8px;
-}
-
-/* 头部件 */
-.tool-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .tool-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--el-text-color-primary);
   display: flex;
   align-items: center;
   gap: 12px;
+  color: var(--el-text-color-primary);
+  font-size: 24px;
+  font-weight: 700;
 }
 
 .icon-bracket {
-  font-family: inherit;
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 20px;
-  color: #6366f1;
-  background: #eef2ff;
   padding: 4px 12px;
   border-radius: 6px;
-  font-weight: 600;
-}
-
-html.dark .icon-bracket {
-  background: rgba(99, 102, 241, 0.2);
+  background: var(--icon-bracket-bg);
+  color: #6366f1;
+  font: 600 20px/1 var(--json-font-family);
 }
 
 .subtitle {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--el-text-color-secondary);
-  background: var(--el-fill-color);
   padding: 4px 10px;
   border-radius: 6px;
+  background: var(--el-fill-color);
+  color: var(--el-text-color-secondary);
+  font-size: 13px;
+  font-weight: 500;
 }
 
-.font-bold {
-  font-weight: 700;
-  letter-spacing: 0.05em;
+.settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
 }
 
-/* 布局区域 */
+.settings-checkbox {
+  margin-right: 0;
+}
+
 .panel-container {
   display: flex;
   flex: 1;
   min-height: 0;
-  background: var(--el-bg-color);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--el-border-color-light);
   overflow: hidden;
+  border: var(--panel-border);
+  border-radius: var(--panel-radius);
+  background: var(--el-bg-color);
+  box-shadow: var(--panel-shadow);
 }
 
-/* 面板通用 */
 .panel {
   display: flex;
+  min-width: 0;
   flex-direction: column;
   overflow: hidden;
   background: var(--el-bg-color);
 }
 
 .left-panel {
-  border-right: 1px solid var(--el-border-color-light);
+  flex: 0 0 400px;
+  border-right: var(--panel-border);
 }
 
 .right-panel {
   flex: 1;
 }
 
-/* 顶部标题栏 */
 .panel-header {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--panel-header-height);
+  padding: 0 var(--panel-padding);
+  border-bottom: var(--panel-border);
   background: var(--el-fill-color-light);
   color: var(--el-text-color-regular);
-  height: 42px;
-  padding: 0 16px;
-  box-sizing: border-box;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  border-bottom: 1px solid var(--el-border-color-light);
+}
+
+.panel-title {
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.panel-actions {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  gap: 8px;
+}
+
+.panel-action-icon {
+  padding: 5px 8px;
+}
+
+.panel-header--split {
+  justify-content: flex-start;
+}
+
+.panel-header-cell {
+  flex: 1;
+  min-width: 0;
+}
+
+.panel-header-cell--offset {
+  padding-left: 8px;
 }
 
 .error-header {
-  background: var(--el-color-danger) !important;
-  color: #fff !important;
+  background: var(--el-color-danger);
+  color: #fff;
 }
 
-/* 编辑区 */
+.editor-area,
+.result-col {
+  color: var(--el-text-color-primary);
+  font: 13px/1.5 var(--json-font-family);
+}
+
 .editor-area {
   flex: 1;
   width: 100%;
-  border: none;
-  padding: 16px;
-  font-family: inherit;
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 13px;
-  resize: none;
+  padding: var(--panel-padding);
+  border: 0;
   outline: none;
+  resize: none;
   background: var(--el-bg-color);
-  color: var(--el-text-color-primary);
-  line-height: 1.5;
 }
 
 .editor-area::placeholder {
   color: var(--el-text-color-placeholder);
 }
 
-/* 结果区 */
 .result-area {
   flex: 1;
   display: flex;
   overflow: hidden;
 }
 
-.parse-col,
-.eval-col {
+.result-col {
   flex: 1;
-  padding: 16px;
+  min-width: 0;
   overflow-y: auto;
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--el-text-color-primary);
+  padding: var(--panel-padding);
 }
 
 .parse-col {
-  border-right: 1px solid var(--el-border-color-light);
+  border-right: var(--panel-border);
 }
 
-.pl-8 {
-  padding-left: 8px;
-}
-
-.status-tip {
-  color: var(--el-text-color-secondary);
-  font-style: italic;
-}
-
-.error-box {
-  color: var(--el-color-danger);
-  padding: 12px;
-  border: 1px solid var(--el-color-danger-light-5);
-  border-radius: 4px;
-  background: var(--el-color-danger-light-9);
-}
-
-/* 伸缩条 (Resizer) */
 .gutter {
-  width: 10px;
-  margin: 0 -5px;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--gutter-width);
+  margin: 0 var(--gutter-offset);
   cursor: col-resize;
   background: transparent;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: all 0.15s ease;
-  flex: 0 0 auto;
-  z-index: 10;
-  position: relative;
+  transition: background var(--transition-fast);
 }
 
 .gutter:hover {
@@ -511,26 +557,43 @@ html.dark .icon-bracket {
 .gutter::after {
   content: '';
   position: absolute;
+  left: 50%;
   width: 4px;
   height: 40px;
-  background: var(--el-border-color);
   border-radius: 2px;
-  transition: all 0.15s ease;
-  left: 50%;
   transform: translateX(-50%);
+  background: var(--el-border-color);
+  transition: background var(--transition-fast),
+  height var(--transition-fast);
 }
 
 .gutter:hover::after {
-  background: var(--el-color-primary);
   height: 60px;
+  background: var(--el-color-primary);
 }
 
-/* ---- 以下为通过 v-html 灌入的 JSON 解析器核心 CSS ---- */
+:deep(.status-tip) {
+  color: var(--el-text-color-secondary);
+  font-style: italic;
+}
+
+:deep(.error-box) {
+  padding: 12px;
+  border: 1px solid var(--el-color-danger-light-5);
+  border-radius: 4px;
+  background: var(--el-color-danger-light-9);
+  color: var(--el-color-danger);
+}
+
+:deep(.error-box--italic) {
+  font-style: italic;
+}
+
 :deep(.json-tree) {
-  line-height: 1.5;
-  list-style: none;
-  padding-left: 20px;
   margin: 0;
+  padding-left: 20px;
+  list-style: none;
+  line-height: 1.5;
   animation: slideDown 0.2s ease-out;
 }
 
@@ -552,29 +615,28 @@ html.dark .icon-bracket {
   word-break: break-all;
 }
 
-/* 展开收起按钮 */
 :deep(.json-toggle) {
-  cursor: pointer;
-  font-weight: 600;
-  color: var(--el-text-color-secondary);
-  user-select: none;
-  margin-right: 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 14px;
   height: 14px;
-  line-height: 1;
+  margin-right: 6px;
   border: 1px solid var(--el-border-color);
   border-radius: 3px;
-  font-size: 10px;
   background: var(--el-fill-color-blank);
+  color: var(--el-text-color-secondary);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
 }
 
 :deep(.json-toggle:hover) {
-  color: var(--el-color-primary);
   border-color: var(--el-color-primary);
   background: var(--el-color-primary-light-9);
+  color: var(--el-color-primary);
 }
 
 :deep(.folded) {
@@ -582,60 +644,63 @@ html.dark .icon-bracket {
 }
 
 :deep(.json-size-indicator) {
+  padding: 0 4px;
   color: var(--el-color-primary);
   font-size: 12px;
   font-weight: 600;
-  padding: 0 4px;
 }
 
-/* 语法高亮色系 mapped element plus darkmode compatible */
+:deep(.json-key) {
+  font-weight: 500;
+}
+
 :deep(.json-key-0) {
-  color: #ef4444;
+  color: var(--json-key-0-color);
 }
 
 :deep(.json-key-1) {
-  color: #f97316;
+  color: var(--json-key-1-color);
 }
 
 :deep(.json-key-2) {
-  color: #d97706;
+  color: var(--json-key-2-color);
 }
 
 :deep(.json-key-3) {
-  color: #84cc16;
+  color: var(--json-key-3-color);
 }
 
 :deep(.json-key-4) {
-  color: #10b981;
+  color: var(--json-key-4-color);
 }
 
 :deep(.json-key-5) {
-  color: #06b6d4;
+  color: var(--json-key-5-color);
 }
 
 :deep(.json-key-6) {
-  color: #3b82f6;
+  color: var(--json-key-6-color);
 }
 
 :deep(.json-key-7) {
-  color: #8b5cf6;
+  color: var(--json-key-7-color);
 }
 
 :deep(.json-key-8) {
-  color: #d946ef;
+  color: var(--json-key-8-color);
 }
 
 :deep(.json-string) {
-  color: #059669;
+  color: var(--json-string-color);
 }
 
 :deep(.json-number) {
-  color: #7c3aed;
+  color: var(--json-number-color);
   font-weight: 500;
 }
 
 :deep(.json-boolean) {
-  color: #ea580c;
+  color: var(--json-boolean-color);
   font-weight: 600;
 }
 
@@ -648,65 +713,32 @@ html.dark .icon-bracket {
   color: var(--el-text-color-regular);
 }
 
-:deep(.json-key) {
-  font-weight: 500;
-}
-
-/* 暗色模式强兼容 */
-html.dark :deep(.json-string) {
-  color: #34d399;
-}
-
-html.dark :deep(.json-number) {
-  color: #a78bfa;
-}
-
-html.dark :deep(.json-boolean) {
-  color: #fb923c;
-}
-
-html.dark :deep(.json-key-0) {
-  color: #fca5a5;
-}
-
-html.dark :deep(.json-key-1) {
-  color: #fdba74;
-}
-
-html.dark :deep(.json-key-4) {
-  color: #6ee7b7;
-}
-
-html.dark :deep(.json-key-6) {
-  color: #93c5fd;
-}
-
 :deep(.json-type) {
+  margin-left: 6px;
   color: var(--el-text-color-placeholder);
   font-size: 11px;
   font-weight: 500;
-  opacity: 0.6;
-  margin-left: 6px;
   text-transform: uppercase;
+  opacity: 0.6;
 }
 
 :deep(.type-string) {
-  color: #10b981;
+  color: var(--json-type-string-color);
 }
 
 :deep(.type-number) {
-  color: #8b5cf6;
+  color: var(--json-type-number-color);
 }
 
 :deep(.type-boolean) {
-  color: #f59e0b;
+  color: var(--json-type-boolean-color);
 }
 
 :deep(.type-object) {
-  color: #f43f5e;
+  color: var(--json-type-object-color);
 }
 
 :deep(.type-array) {
-  color: #3b82f6;
+  color: var(--json-type-array-color);
 }
 </style>
