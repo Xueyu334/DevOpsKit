@@ -7,67 +7,67 @@
         <span class="subtitle">(双击自动格式化)</span>
       </div>
       <div>
-        <el-popover placement="bottom-end" title="渲染设置" :width="180" trigger="click">
+        <el-popover :width="180" placement="bottom-end" title="渲染设置" trigger="click">
           <template #reference>
             <el-button plain>
               <template #icon>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path
-                    d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
+                <el-icon>
+                  <IconEpSetting/>
+                </el-icon>
               </template>
               显示选项
             </el-button>
           </template>
           <div style="display: flex; flex-direction: column; padding-top: 8px;">
-            <el-checkbox v-model="options.color" @change="debouncedUpdate" style="margin-right: 0;">JSON
-              着色渲染</el-checkbox>
-            <el-checkbox v-model="options.showIndex" @change="debouncedUpdate"
-              style="margin-right: 0;">显示数组索引</el-checkbox>
-            <el-checkbox v-model="options.showType" @change="debouncedUpdate"
-              style="margin-right: 0;">显示数据类型</el-checkbox>
-            <el-checkbox v-model="options.compress" @change="debouncedUpdate"
-              style="margin-right: 0;">同行紧凑输出</el-checkbox>
+            <el-checkbox v-model="options.color" style="margin-right: 0;" @change="debouncedUpdate">JSON
+              着色渲染
+            </el-checkbox>
+            <el-checkbox v-model="options.showIndex" style="margin-right: 0;"
+                         @change="debouncedUpdate">显示数组索引
+            </el-checkbox>
+            <el-checkbox v-model="options.showType" style="margin-right: 0;"
+                         @change="debouncedUpdate">显示数据类型
+            </el-checkbox>
+            <el-checkbox v-model="options.compress" style="margin-right: 0;"
+                         @change="debouncedUpdate">同行紧凑输出
+            </el-checkbox>
           </div>
         </el-popover>
       </div>
     </div>
 
-    <div class="panel-container" ref="containerRef">
-      <div class="panel left-panel" :style="{ flex: `0 0 ${leftWidth}px` }">
+    <div ref="containerRef" class="panel-container">
+      <div :style="{ flex: `0 0 ${leftWidth}px` }" class="panel left-panel">
         <div class="panel-header">
           <div class="font-bold">RAW INPUT</div>
           <div class="flex gap-2">
-            <el-button size="small" plain @click="handleFormat">格式化</el-button>
-            <el-button size="small" plain @click="handleCompress">压缩</el-button>
-            <el-button size="small" plain @click="handleEscape">转义</el-button>
-            <el-button size="small" plain @click="handleUnescape">去转义</el-button>
-            <el-button size="small" type="danger" plain @click="handleClear" title="清空" style="padding: 5px 8px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 6h18" />
-                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-              </svg>
+            <el-button plain size="small" @click="handleFormat">格式化</el-button>
+            <el-button plain size="small" @click="handleCompress">压缩</el-button>
+            <el-button plain size="small" @click="handleEscape">转义</el-button>
+            <el-button plain size="small" @click="handleUnescape">去转义</el-button>
+            <el-button plain size="small" style="padding: 5px 8px;" title="清空" type="danger" @click="handleClear">
+              <el-icon>
+                <IconEpDelete/>
+              </el-icon>
             </el-button>
           </div>
         </div>
-        <textarea v-model="rawInput" class="editor-area" spellcheck="false"
-          placeholder="在此输入或粘贴您的 JSON 数据... (双击任意处自动格式化)" @input="debouncedUpdate" @dblclick="handleFormat"></textarea>
+        <textarea v-model="rawInput" class="editor-area"
+                  placeholder="在此输入或粘贴您的 JSON 数据... (双击任意处自动格式化)"
+                  spellcheck="false" @dblclick="handleFormat"
+                  @input="debouncedUpdate"></textarea>
       </div>
 
       <div class="gutter" @mousedown="startResizing"></div>
 
       <div class="panel right-panel">
-        <div class="panel-header" :class="{ 'error-header': hasError }">
+        <div :class="{ 'error-header': hasError }" class="panel-header">
           <div style="flex: 1;">String Parse (Strict)</div>
           <div style="flex: 1; padding-left: 8px;">JS Eval (Relaxed)</div>
         </div>
         <div class="result-area">
-          <div class="parse-col" v-html="stringResultHtml" @click="handleToggle"></div>
-          <div class="eval-col" v-html="evalResultHtml" @click="handleToggle"></div>
+          <div class="parse-col" @click="handleToggle" v-html="stringResultHtml"></div>
+          <div class="eval-col" @click="handleToggle" v-html="evalResultHtml"></div>
         </div>
       </div>
     </div>
@@ -75,8 +75,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue';
-import { ElMessage } from 'element-plus';
+import {onMounted, onUnmounted, reactive, ref} from 'vue';
+import {ElMessage} from 'element-plus';
+import JsonWorker from './json.worker.js?worker';
 
 const rawInput = ref('');
 const options = reactive({
@@ -94,15 +95,13 @@ const leftWidth = ref(400); // 初始左侧面板宽度
 const containerRef = ref(null);
 let isResizing = false;
 
-import JsonWorker from './json.worker.js?worker';
-
 let worker = null;
 
 onMounted(() => {
   worker = new JsonWorker();
 
   worker.onmessage = function (e) {
-    const { id, success, html, error } = e.data;
+    const {id, success, html, error} = e.data;
 
     if (id === 'strict') {
       if (success) {
@@ -162,8 +161,8 @@ const update = () => {
     color: options.color
   };
 
-  worker.postMessage({ id: 'strict', type: 'strict', content: val, options: workerOptions });
-  worker.postMessage({ id: 'relaxed', type: 'relaxed', content: val, options: workerOptions });
+  worker.postMessage({id: 'strict', type: 'strict', content: val, options: workerOptions});
+  worker.postMessage({id: 'relaxed', type: 'relaxed', content: val, options: workerOptions});
 };
 
 const debouncedUpdate = debounce(update, 300);
@@ -246,15 +245,16 @@ const handleUnescape = () => {
         return;
       }
     }
-  } catch (e) { }
+  } catch (e) {
+  }
 
   val = val.replace(/\\"/g, '"')
-    .replace(/\\\\/g, '\\')
-    .replace(/\\n/g, '\\n')
-    .replace(/\\r/g, '\\r')
-    .replace(/\\t/g, '\\t')
-    .replace(/\\b/g, '\\b')
-    .replace(/\\f/g, '\\f');
+      .replace(/\\\\/g, '\\')
+      .replace(/\\n/g, '\\n')
+      .replace(/\\r/g, '\\r')
+      .replace(/\\t/g, '\\t')
+      .replace(/\\b/g, '\\b')
+      .replace(/\\f/g, '\\f');
 
   if (val.startsWith('"') && val.endsWith('"')) {
     let inner = val.slice(1, -1);
@@ -274,9 +274,14 @@ const handleEscape = () => {
 
   try {
     let obj;
-    try { obj = JSON.parse(val); } catch (e) { obj = new Function(`return (${val})`)(); }
+    try {
+      obj = JSON.parse(val);
+    } catch (e) {
+      obj = new Function(`return (${val})`)();
+    }
     val = JSON.stringify(obj);
-  } catch (e) { }
+  } catch (e) {
+  }
 
   rawInput.value = JSON.stringify(val);
   update();

@@ -1,38 +1,35 @@
 <template>
   <div class="app-container">
     <div class="panel-container">
-      <div class="panel left-panel" :class="{ 'is-active': activePane === 'left' }">
-        <div class="panel-toolbar" v-if="leftText">
+      <div :class="{ 'is-active': activePane === 'left' }" class="panel left-panel">
+        <div v-if="leftText" class="panel-toolbar">
           <el-tooltip content="复制全部" placement="top">
-            <el-button link class="copy-btn" @click="handleCopy(leftText)">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-              </svg>
+            <el-button class="copy-btn" link @click="handleCopy(leftText)">
+              <el-icon>
+                <IconEpCopyDocument/>
+              </el-icon>
             </el-button>
           </el-tooltip>
         </div>
-        <textarea v-model="leftText" class="editor-area" spellcheck="false" placeholder="在此粘贴需要 编码/解码 的内容"
-          @focus="activePane = 'left'" @input="activePane = 'left'"></textarea>
-        <div class="panel-footer" v-if="leftText">{{ leftStats }}</div>
+        <textarea v-model="leftText" class="editor-area" placeholder="在此粘贴需要 编码/解码 的内容" spellcheck="false"
+                  @focus="activePane = 'left'" @input="activePane = 'left'"></textarea>
+        <div v-if="leftText" class="panel-footer">{{ leftStats }}</div>
       </div>
 
-      <div class="panel right-panel" :class="{ 'is-active': activePane === 'right' }">
-        <div class="panel-toolbar" v-if="rightText">
+      <div :class="{ 'is-active': activePane === 'right' }" class="panel right-panel">
+        <div v-if="rightText" class="panel-toolbar">
           <el-tooltip content="复制全部" placement="top">
-            <el-button link class="copy-btn" @click="handleCopy(rightText)">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-              </svg>
+            <el-button class="copy-btn" link @click="handleCopy(rightText)">
+              <el-icon>
+                <IconEpCopyDocument/>
+              </el-icon>
             </el-button>
           </el-tooltip>
         </div>
-        <textarea v-model="rightText" class="editor-area" spellcheck="false" placeholder="处理结果将在此处显示，也可在此粘贴进行逆向操作"
-          @focus="activePane = 'right'" @input="activePane = 'right'"></textarea>
-        <div class="panel-footer" v-if="rightText">{{ rightStats }}</div>
+        <textarea v-model="rightText" class="editor-area" placeholder="处理结果将在此处显示，也可在此粘贴进行逆向操作"
+                  spellcheck="false"
+                  @focus="activePane = 'right'" @input="activePane = 'right'"></textarea>
+        <div v-if="rightText" class="panel-footer">{{ rightStats }}</div>
       </div>
     </div>
 
@@ -48,14 +45,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
-import { ElMessage } from 'element-plus'
-import { useCopyText } from '@/composables/useCopyText'
+import {computed, reactive, ref} from 'vue'
+import {ElMessage} from 'element-plus'
+import {useCopyText} from '@/composables/useCopyText'
 
 const leftText = ref('')
 const rightText = ref('')
 const activePane = ref('left') // Tracks which pane is currently being used
-const { copyText } = useCopyText()
+const {copyText} = useCopyText()
 
 const options = reactive({
   multiLine: false
@@ -93,7 +90,7 @@ const handleClear = () => {
 const encodeBase64 = (str) => {
   const bytes = new TextEncoder().encode(str)
   const binString = Array.from(bytes, (byte) =>
-    String.fromCodePoint(byte),
+      String.fromCodePoint(byte),
   ).join("")
   return btoa(binString)
 }
