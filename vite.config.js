@@ -15,6 +15,7 @@ import viteCompression from 'vite-plugin-compression'
 export default defineConfig(({command, mode}) => {
     // 根据当前工作目录中的 `mode` 加载 .env 文件
     const env = loadEnv(mode, process.cwd(), '')
+    const publicBase = env.VITE_PUBLIC_PATH?.trim() || '/'
 
     return {
         plugins: [
@@ -53,13 +54,13 @@ export default defineConfig(({command, mode}) => {
                 algorithm: 'gzip',
                 ext: '.gz',
             }),
-        ],
+        ].filter(Boolean),
         resolve: {
             alias: {
                 '@': fileURLToPath(new URL('./src', import.meta.url))
             },
         },
-        base: env.VITE_PUBLIC_PATH || '/', // 部署基本路径将根据环境变量 `.env` 决定
+        base: publicBase, // 部署基本路径将根据环境变量 `.env` 决定，空字符串回退为根路径
         server: {
             port: 5173,      // 端口号
             host: '0.0.0.0', // 监听所有网卡，允许局域网手机访问（需通过 IP）
@@ -83,10 +84,19 @@ export default defineConfig(({command, mode}) => {
                     chunkFileNames: 'assets/js/[name]-[hash].js',
                     entryFileNames: 'assets/js/[name]-[hash].js',
                     assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
-                    // 超大静态资源分包（将 node_modules 中的依赖分别切分成独立的 chunk）
+                    // 只保留少量稳定 vendor chunk，避免按包拆分导致请求数过多
                     manualChunks(id) {
                         if (id.includes('node_modules')) {
-                            return id.toString().split('node_modules/')[1].split('/')[0].toString()
+                            if (id.includes('element-plus')) return 'element-plus'
+                            if (
+                                id.includes('/vue/') ||
+                                id.includes('/@vue/') ||
+                                id.includes('vue-router') ||
+                                id.includes('@vueuse')
+                            ) {
+                                return 'vue'
+                            }
+                            return 'vendor'
                         }
                     }
                 }
