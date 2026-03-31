@@ -5,6 +5,7 @@ import Home from '../views/Home.vue'
 import TextDiff from '../views/text-diff/index.vue'
 import JsonTools from '../views/json-tools/index.vue'
 import Base64 from '../views/base64/index.vue'
+import HashGen from '../views/hash-gen/index.vue'
 import UrlEncode from '../views/url-encode/index.vue'
 import IdCardGenerator from '../views/id-card-generator/index.vue'
 import NotFound from '../views/not-found/index.vue'
@@ -38,6 +39,12 @@ const routes = [
                 name: 'base64',
                 component: Base64,
                 meta: {title: 'Base64 编解码'}
+            },
+            {
+                path: '/hash-gen',
+                name: 'hashGen',
+                component: HashGen,
+                meta: {title: 'Hash 生成器'}
             },
             {
                 path: '/url-encode',

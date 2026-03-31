@@ -65,11 +65,11 @@ export const toolCategories = [
                 menuTitle: 'Hash 生成器',
                 desc: '计算文本的 MD5, SHA1, SHA256 等常见信息摘要。',
                 keywords: ['hash', 'md5', 'sha1', 'sha256', '摘要', '加密摘要'],
-                route: '',
+                route: '/hash-gen',
                 svgIcon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>',
                 color: '#F56C6C',
                 tag: 'hash',
-                tagType: '',
+                tagType: 'primary',
                 tagTip: '摘要计算类工具'
             }
         ]
