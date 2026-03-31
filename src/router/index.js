@@ -4,6 +4,7 @@ import Layout from '../layout/index.vue'
 import Home from '../views/Home.vue'
 import TextDiff from '../views/text-diff/index.vue'
 import JsonTools from '../views/json-tools/index.vue'
+import AsciiTable from '../views/ascii-table/index.vue'
 import Base64 from '../views/base64/index.vue'
 import HashGen from '../views/hash-gen/index.vue'
 import UrlEncode from '../views/url-encode/index.vue'
@@ -33,6 +34,12 @@ const routes = [
                 name: 'jsonTools',
                 component: JsonTools,
                 meta: {title: 'JSON 工具'}
+            },
+            {
+                path: '/ascii-table',
+                name: 'asciiTable',
+                component: AsciiTable,
+                meta: {title: 'ASCII码对照表'}
             },
             {
                 path: '/base64',

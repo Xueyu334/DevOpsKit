@@ -39,6 +39,19 @@ export const toolCategories = [
                 tag: 'Dev',
                 tagType: 'info',
                 tagTip: '开发向工具，适合调试与数据处理'
+            },
+            {
+                id: 'ascii-table',
+                name: 'ASCII码对照表',
+                menuTitle: 'ASCII码对照表',
+                desc: '查看 0-127 ASCII 十进制、十六进制、二进制与控制字符含义，支持快速搜索定位。',
+                keywords: ['ascii', 'ascii table', 'ascii码', 'ascii对照表', '字符编码', '控制字符', '十六进制字符表'],
+                route: '/ascii-table',
+                icon: 'Tools',
+                color: '#14B8A6',
+                tag: 'Ref',
+                tagType: 'success',
+                tagTip: '编码速查类参考工具'
             }
         ]
     },
