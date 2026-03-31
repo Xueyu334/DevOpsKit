@@ -1,5 +1,4 @@
 <script setup>
-import {onMounted, onUnmounted, reactive, ref} from 'vue';
 import {ElMessage} from 'element-plus';
 import JsonWorker from './json.worker.js?worker';
 
