@@ -5,6 +5,14 @@ import {toolCategories} from '../config/tool-categories'
 
 const router = useRouter()
 const route = useRoute()
+const isDark = useDark({
+  selector: 'html',
+  attribute: 'class',
+  valueDark: 'dark',
+  valueLight: 'light',
+  storageKey: 'devopskit-color-mode'
+})
+const themeTooltip = computed(() => isDark.value ? '切换为浅色模式' : '切换为深色模式')
 
 const menuCategories = computed(() =>
     toolCategories
@@ -25,10 +33,9 @@ const handleSelect = (key) => {
     <!-- 全局头部 -->
     <el-header class="app-header">
       <div class="logo">DevOpsKit</div>
-      <el-menu :default-active="route.path" mode="horizontal" @select="handleSelect" class="header-menu"
-               :ellipsis="false">
+      <el-menu :default-active="route.path" :ellipsis="false" class="header-menu" mode="horizontal"
+               @select="handleSelect">
         <el-menu-item index="/home">首页</el-menu-item>
-
         <el-sub-menu v-for="category in menuCategories" :key="category.menuKey" :index="category.menuKey">
           <template #title>{{ category.name }}</template>
           <el-menu-item v-for="tool in category.tools" :key="tool.id" :index="tool.route">
@@ -36,12 +43,24 @@ const handleSelect = (key) => {
           </el-menu-item>
         </el-sub-menu>
       </el-menu>
+      <div class="header-actions">
+        <el-tooltip :content="themeTooltip" placement="bottom">
+          <el-switch v-model="isDark" class="theme-switch" inline-prompt>
+            <template #active-action>
+              <IconEpMoon/>
+            </template>
+            <template #inactive-action>
+              <IconEpSunny/>
+            </template>
+          </el-switch>
+        </el-tooltip>
+      </div>
     </el-header>
 
     <!-- 中间主要内容区域（路由页面） -->
     <el-main class="app-main" style="--el-main-padding: 0;">
       <router-view v-slot="{ Component }">
-        <transition name="fade" mode="out-in">
+        <transition mode="out-in" name="fade">
           <component :is="Component"/>
         </transition>
       </router-view>
@@ -92,6 +111,20 @@ const handleSelect = (key) => {
   background-color: transparent;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  margin-left: 16px;
+}
+
+.theme-switch {
+  --el-switch-on-color: var(--el-color-primary);
+  --el-switch-off-color: var(--el-border-color-dark);
+}
+
+.theme-switch :deep(.el-switch__action) {
+  font-size: 14px;
+}
 
 .app-footer {
   display: flex;
