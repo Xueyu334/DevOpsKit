@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@vueuse/core": "^14.2.1",
+    "china-area-data": "^5.0.1",
     "element-plus": "^2.13.6",
     "fuse.js": "^7.1.0",
     "vue": "^3.5.30",
