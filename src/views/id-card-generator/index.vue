@@ -2,6 +2,7 @@
 import useClipboard from 'vue-clipboard3'
 import {computed, reactive, shallowRef, useTemplateRef} from "vue";
 import {ElMessage} from "element-plus";
+import areaData from 'china-area-data'
 
 const form = reactive({
   regionCode: '',
@@ -12,6 +13,73 @@ const form = reactive({
 const generatedId = shallowRef('')
 const formRef = useTemplateRef('formRef')
 const {toClipboard} = useClipboard()
+
+const REGION_SEARCH_LIMIT = 20
+
+const normalizeRegionSegment = (segment) => {
+  if (!segment || segment === '市辖区' || segment === '县') {
+    return ''
+  }
+  return segment
+}
+
+const buildRegionPath = (provinceName, cityName, districtName) => {
+  return [provinceName, normalizeRegionSegment(cityName), districtName]
+      .filter(Boolean)
+      .join(' / ')
+}
+
+const buildRegionMeta = (provinceName, cityName) => {
+  return [provinceName, normalizeRegionSegment(cityName)]
+      .filter(Boolean)
+      .join(' / ')
+}
+
+const buildRegionOption = (code, provinceName, cityName, districtName) => {
+  const normalizedCityName = normalizeRegionSegment(cityName)
+  const label = districtName || normalizedCityName || provinceName
+  const meta = districtName ? buildRegionMeta(provinceName, cityName) : provinceName
+
+  return {
+    value: code,
+    label,
+    meta,
+    path: buildRegionPath(provinceName, cityName, districtName || label)
+  }
+}
+
+const buildRegionCodeOptions = () => {
+  const provinces = areaData['86'] ?? {}
+  const options = []
+
+  Object.entries(provinces).forEach(([provinceCode, provinceName]) => {
+    const cities = areaData[provinceCode] ?? {}
+    const cityEntries = Object.entries(cities)
+
+    if (!cityEntries.length) {
+      options.push(buildRegionOption(provinceCode, provinceName, '', ''))
+      return
+    }
+
+    cityEntries.forEach(([cityCode, cityName]) => {
+      const districts = areaData[cityCode] ?? {}
+      const districtEntries = Object.entries(districts)
+
+      if (!districtEntries.length) {
+        options.push(buildRegionOption(cityCode, provinceName, cityName, ''))
+        return
+      }
+
+      districtEntries.forEach(([districtCode, districtName]) => {
+        options.push(buildRegionOption(districtCode, provinceName, cityName, districtName))
+      })
+    })
+  })
+
+  return options
+}
+
+const regionCodeOptions = shallowRef(buildRegionCodeOptions())
 
 /**
  * 性别选项列表。
@@ -93,8 +161,31 @@ const resultSegments = computed(() => {
  *
  * 无返回值，操作直接修改 `form.regionCode` 的值。
  */
-const sanitizeRegionCode = () => {
-  form.regionCode = form.regionCode.replace(/\D/g, '').slice(0, 6)
+const sanitizeRegionCode = (value = form.regionCode) => {
+  const sanitizedValue = String(value ?? '').replace(/\D/g, '').slice(0, 6)
+  if (sanitizedValue !== form.regionCode) {
+    form.regionCode = sanitizedValue
+  }
+  return sanitizedValue
+}
+
+const querySearchRegionCode = (queryString, callback) => {
+  const sanitizedQuery = sanitizeRegionCode(queryString)
+
+  if (!sanitizedQuery) {
+    callback([])
+    return
+  }
+
+  const suggestions = regionCodeOptions.value
+      .filter(({value}) => value.startsWith(sanitizedQuery))
+      .slice(0, REGION_SEARCH_LIMIT)
+
+  callback(suggestions)
+}
+
+const handleRegionCodeSelect = (item) => {
+  form.regionCode = item.value
 }
 
 /**
@@ -226,14 +317,30 @@ const handleCopy = async () => {
                     </el-tooltip>
                   </span>
                 </template>
-                <el-input
+                <el-autocomplete
                     id="region-code"
                     v-model="form.regionCode"
+                    :fetch-suggestions="querySearchRegionCode"
+                    :trigger-on-focus="false"
                     class="field-control"
+                    clearable
+                    highlight-first-item
                     maxlength="6"
                     placeholder="例如：320323"
+                    popper-class="region-code-popper"
                     @input="sanitizeRegionCode"
-                />
+                    @select="handleRegionCodeSelect"
+                >
+                  <template #default="{ item }">
+                    <div class="region-suggestion">
+                      <span class="region-suggestion-code">{{ item.value }}</span>
+                      <div class="region-suggestion-body">
+                        <span class="region-suggestion-title">{{ item.label }}</span>
+                        <span :title="item.path" class="region-suggestion-meta">{{ item.meta }}</span>
+                      </div>
+                    </div>
+                  </template>
+                </el-autocomplete>
               </el-form-item>
             </el-col>
             <el-col :span="24">
@@ -241,9 +348,9 @@ const handleCopy = async () => {
                 <el-date-picker id="birthday"
                                 v-model="form.birthday"
                                 class="field-control"
-                                type="date"
-                                placeholder="年 / 月 / 日"
                                 format="YYYY/MM/DD"
+                                placeholder="年 / 月 / 日"
+                                type="date"
                                 value-format="YYYY-MM-DD"/>
               </el-form-item>
             </el-col>
@@ -266,7 +373,7 @@ const handleCopy = async () => {
             </el-col>
             <el-col :span="24" style="margin-top: 12px">
               <el-form-item class="action-item">
-                <el-button type="primary" :disabled="!canGenerate" @click="handleGenerate">
+                <el-button :disabled="!canGenerate" type="primary" @click="handleGenerate">
                   生成身份证号
                 </el-button>
               </el-form-item>
@@ -276,17 +383,17 @@ const handleCopy = async () => {
       </template>
       <template v-if="generatedId" #footer style="margin-top: 12px">
         <el-alert
-            title="严格禁止用于任何不正当用途"
-            type="warning"
             :closable="false"
             show-icon
+            title="严格禁止用于任何不正当用途"
+            type="warning"
         >
           <template #default>
             <span>仅用于测试</span>
           </template>
         </el-alert>
-        <el-row class="result-shell" align="middle" justify="space-between">
-          <el-col :xs="24" :sm="18" :md="20">
+        <el-row align="middle" class="result-shell" justify="space-between">
+          <el-col :md="20" :sm="18" :xs="24">
             <div class="result-value">
               <span
                   v-for="(segment, index) in resultSegments"
@@ -297,7 +404,7 @@ const handleCopy = async () => {
               </span>
             </div>
           </el-col>
-          <el-col :xs="24" :sm="6" :md="4" class="copy-col">
+          <el-col :md="4" :sm="6" :xs="24" class="copy-col">
             <el-button round type="success" @click="handleCopy">复制</el-button>
           </el-col>
         </el-row>
@@ -380,5 +487,72 @@ const handleCopy = async () => {
 .copy-col {
   display: flex;
   justify-content: flex-end;
+}
+
+.region-suggestion {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.2;
+  overflow: hidden;
+}
+
+.region-suggestion-code {
+  flex: none;
+  min-width: 54px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--el-color-primary) 10%, white);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--el-color-primary) 16%, transparent);
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.1;
+  text-align: center;
+  color: var(--el-color-primary-dark-2);
+}
+
+.region-suggestion-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.region-suggestion-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+}
+
+.region-suggestion-meta {
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--el-text-color-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:deep(.region-code-popper.el-popper) {
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+}
+
+:deep(.region-code-popper .el-autocomplete-suggestion__wrap) {
+  padding: 6px;
+}
+
+:deep(.region-code-popper .el-autocomplete-suggestion__list li) {
+  height: auto;
+  padding: 10px 12px;
+  border-radius: 10px;
+  line-height: normal;
+}
+
+:deep(.region-code-popper .el-autocomplete-suggestion__list li.highlighted) {
+  background: color-mix(in srgb, var(--el-color-primary) 8%, white);
 }
 </style>
