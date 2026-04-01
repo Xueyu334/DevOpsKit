@@ -40,7 +40,12 @@
                           :content="tool.tagTip || tagTypeHints[tool.tagType || '']"
                           placement="top"
                       >
-                        <el-tag :type="tool.tagType" effect="light" round size="small">
+                        <el-tag
+                            effect="light"
+                            round
+                            size="small"
+                            v-bind="tool.tagType ? { type: tool.tagType } : {}"
+                        >
                           {{ tool.tag }}
                         </el-tag>
                       </el-tooltip>
