@@ -9,6 +9,7 @@ import Base64 from '../views/base64/index.vue'
 import HashGen from '../views/hash-gen/index.vue'
 import UrlEncode from '../views/url-encode/index.vue'
 import IdCardGenerator from '../views/id-card-generator/index.vue'
+import DockerCommands from '../views/docker-commands/index.vue'
 import NotFound from '../views/not-found/index.vue'
 
 const routes = [
@@ -64,6 +65,12 @@ const routes = [
                 name: 'idCardGenerator',
                 component: IdCardGenerator,
                 meta: {title: '身份证号码生成器'}
+            },
+            {
+                path: '/docker-commands',
+                name: 'dockerCommands',
+                component: DockerCommands,
+                meta: {title: 'Docker 命令大全备查'}
             }
         ]
     },

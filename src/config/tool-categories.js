@@ -117,6 +117,25 @@ export const toolCategories = [
         ]
     },
     {
+        name: '容器与部署',
+        menuKey: 'container-deploy',
+        tools: [
+            {
+                id: 'docker-commands',
+                name: 'Docker 命令大全备查',
+                menuTitle: 'Docker 命令大全',
+                desc: '按镜像、容器、网络、数据卷、系统与 Docker Compose 分类整理的命令速查页。',
+                keywords: ['docker', 'docker compose', 'compose', '容器', '镜像', 'volume', 'network', 'docker命令', 'docker备查'],
+                route: '/docker-commands',
+                icon: 'Tools',
+                color: '#2496ED',
+                tag: 'Docker',
+                tagType: 'primary',
+                tagTip: '容器与编排命令速查工具'
+            }
+        ]
+    },
+    {
         name: '便民与生成',
         menuKey: 'utility',
         tools: [
