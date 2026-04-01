@@ -73,8 +73,7 @@
       <VueDiff :current="data.currText" :folding="data.folding"
                :input-delay="data.inputDelay" :language="data.language"
                :mode="data.diffMode" :prev="data.prevText"
-               :theme="data.theme" :virtual-scroll="virtualScroll"
-               class="diff-viewer"/>
+               :theme="data.theme" :virtual-scroll="virtualScroll"/>
     </div>
   </div>
 </template>
@@ -122,7 +121,7 @@ const virtualScroll = computed(() => {
   return {
     // 差异视图的可视区域高度，单位为 px
     // 这里比 .diff-viewer 的 max-height 略小，给组件边框和内部结构预留空间，避免底部显示不全
-    height: 430,
+    height: 460,
     // 每一行的最小高度，影响行间距和虚拟滚动的计算精度
     // 适当降低一点，兼顾可读性和同屏显示的行数
     lineMinHeight: 28,
@@ -204,10 +203,6 @@ const handleClearText = () => {
 
 .text-input {
   max-width: 600px;
-}
-
-.diff-viewer {
-  max-height: 460px;
 }
 
 :deep(.diff-form .el-form-item) {
