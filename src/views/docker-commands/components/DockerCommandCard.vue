@@ -54,7 +54,6 @@ const handleCopyCommand = () => {
         </div>
       </div>
     </template>
-
     <div class="command-card__body">
       <div class="command-snippet">
         <div class="command-snippet__label">命令示例</div>
@@ -95,7 +94,7 @@ const handleCopyCommand = () => {
 .command-card {
   height: 100%;
   border: 1px solid var(--el-border-color-lighter);
-  border-radius: 14px;
+  border-radius: 12px;
   transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 
@@ -108,7 +107,7 @@ const handleCopyCommand = () => {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
 }
 
 .command-card__heading {
@@ -116,55 +115,56 @@ const handleCopyCommand = () => {
 }
 
 .command-card__title {
-  margin: 0 0 6px;
+  margin: 0 0 2px;
   color: var(--el-text-color-primary);
-  font-size: 18px;
-  line-height: 1.3;
+  font-size: 15px;
+  line-height: 1.25;
 }
 
 .command-card__desc {
   margin: 0;
   color: var(--el-text-color-secondary);
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .command-card__actions {
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
 }
 
 .command-card__body {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
+  margin-top: 4px;
 }
 
 .command-snippet {
   border: 1px solid var(--el-border-color-lighter);
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
   background: color-mix(in srgb, var(--el-color-primary) 4%, var(--el-bg-color));
 }
 
 .command-snippet__label {
-  padding: 10px 14px;
+  padding: 6px 10px;
   border-bottom: 1px solid var(--el-border-color-lighter);
   color: var(--el-text-color-regular);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   background: var(--el-fill-color-light);
 }
 
 .command-snippet__code {
   margin: 0;
-  padding: 14px;
+  padding: 8px 10px;
   color: var(--el-text-color-primary);
-  font: 500 13px/1.7 'Consolas', 'Monaco', monospace;
+  font: 500 12px/1.45 'Consolas', 'Monaco', monospace;
   white-space: pre-wrap;
   word-break: break-all;
 }
@@ -172,19 +172,22 @@ const handleCopyCommand = () => {
 .command-scene {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 8px;
 }
 
 .command-scene__label {
   flex-shrink: 0;
-  padding-top: 2px;
+  display: flex;
+  align-items: center;
+  min-height: 18px;
 }
 
 .command-scene__text {
   margin: 0;
+  padding-top: 1px;
   color: var(--el-text-color-regular);
-  font-size: 13px;
-  line-height: 1.7;
+  font-size: 12px;
+  line-height: 1.55;
 }
 
 .command-collapse {
@@ -194,22 +197,22 @@ const handleCopyCommand = () => {
 
 .command-collapse__title {
   color: var(--el-color-primary);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
 }
 
 .option-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .option-item {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 10px;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
   background: var(--el-fill-color-lighter);
 }
 
@@ -219,22 +222,22 @@ const handleCopyCommand = () => {
 
 .option-item__desc {
   color: var(--el-text-color-regular);
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 :deep(.el-card__header) {
-  padding: 18px 20px 16px;
+  padding: 12px 14px 10px;
 }
 
 :deep(.el-card__body) {
-  padding: 0 20px 18px;
+  padding: 0 14px 12px;
 }
 
 :deep(.el-collapse-item__header) {
   height: auto;
-  min-height: 40px;
-  padding: 6px 0;
+  min-height: 30px;
+  padding: 0;
   border-bottom: 0;
   background-color: transparent;
 }
@@ -271,6 +274,7 @@ html.dark .command-snippet {
 @media (max-width: 767px) {
   .command-card__header {
     flex-direction: column;
+    gap: 8px;
   }
 
   .command-card__actions {

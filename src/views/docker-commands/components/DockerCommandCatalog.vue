@@ -130,7 +130,7 @@ const handleClearSearch = () => {
           <div ref="contentRoot" class="catalog-sections">
             <template v-if="hasResults">
               <el-scrollbar class="catalog-sections__scrollbar">
-                <div class="catalog-sections__viewport">
+                <div>
                   <section
                       v-for="section in filteredSections"
                       :key="section.key"
@@ -181,7 +181,7 @@ const handleClearSearch = () => {
 .catalog-nav,
 .catalog-content {
   border: 1px solid var(--el-border-color-lighter);
-  border-radius: 18px;
+  border-radius: 14px;
   background: color-mix(in srgb, var(--el-bg-color) 96%, var(--el-color-primary) 4%);
 }
 
@@ -224,8 +224,8 @@ const handleClearSearch = () => {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 6px;
-  border-radius: 12px;
+  margin-bottom: 4px;
+  border-radius: 10px;
 }
 
 .catalog-nav__label {
@@ -243,7 +243,7 @@ const handleClearSearch = () => {
 }
 
 .catalog-toolbar {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .catalog-toolbar__copy {
@@ -262,28 +262,19 @@ const handleClearSearch = () => {
 }
 
 .catalog-summary {
-  margin-top: 22px;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 22px;
+  gap: 8px;
+  margin-top: 14px;
+  margin-bottom: 14px;
 }
 
 .catalog-sections {
-  margin-top: 16px;
+  margin-top: 8px;
 }
 
 .catalog-sections__scrollbar {
-  height: 460px;
-}
-
-.catalog-sections__viewport {
-  box-sizing: border-box;
-  display: flex;
-  min-height: 100%;
-  flex-direction: column;
-  gap: 28px;
-  padding-right: 12px;
+  height: calc(100vh - 400px);
 }
 
 .command-section {
@@ -294,8 +285,8 @@ const handleClearSearch = () => {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
 .command-section__heading {
@@ -303,21 +294,21 @@ const handleClearSearch = () => {
 }
 
 .command-section__title {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   color: var(--el-text-color-primary);
-  font-size: 22px;
+  font-size: 20px;
   line-height: 1.25;
 }
 
 .command-section__desc {
   margin: 0;
   color: var(--el-text-color-secondary);
-  font-size: 13px;
-  line-height: 1.7;
+  font-size: 12px;
+  line-height: 1.55;
 }
 
 .command-section__col {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .catalog-empty {
@@ -330,11 +321,11 @@ const handleClearSearch = () => {
 }
 
 :deep(.el-card__header) {
-  padding: 18px 20px 16px;
+  padding: 14px 16px 12px;
 }
 
 :deep(.el-card__body) {
-  padding: 0 20px 20px;
+  padding: 0 16px 14px;
 }
 
 :deep(.catalog-sections__scrollbar .el-scrollbar__wrap) {
