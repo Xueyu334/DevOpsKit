@@ -2,6 +2,8 @@
 
 DevOpsKit 是一个基于 Vue 3 + Vite + Element Plus 构建的前端工具箱，面向研发、测试和运维场景，提供文本处理、字符编码速查、编解码、摘要计算和测试数据生成等常用能力。
 
+**演示地址：[https://www.xueyu123.work/dev-ops-kit](https://www.xueyu123.work/dev-ops-kit)**
+
 项目当前以 SPA 形式运行，首页和顶部导航由配置驱动，新增工具时只需要补页面、路由和配置即可接入。
 
 ## 当前功能
