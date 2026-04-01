@@ -1,7 +1,6 @@
 // Element Plus el-tag 的 type 可选值：
-// ''(默认), 'primary', 'success', 'info', 'warning', 'danger'
+// 'primary', 'success', 'info', 'warning', 'danger'
 export const tagTypeHints = {
-    '': '默认标签风格',
     primary: '主色标签，适合默认推荐项',
     success: '成功标签，适合稳定可用或已完成功能',
     info: '信息标签，适合中性说明或开发类工具',
@@ -69,7 +68,6 @@ export const toolCategories = [
                 icon: 'Postcard',
                 color: '#E6A23C',
                 tag: 'encoding',
-                tagType: '',
                 tagTip: '编码转换类工具'
             },
             {
@@ -101,7 +99,6 @@ export const toolCategories = [
                 icon: 'Link',
                 color: '#909399',
                 tag: 'url',
-                tagType: '',
                 tagTip: 'URL 处理类工具'
             },
             {
