@@ -26,6 +26,12 @@ const menuCategories = computed(() =>
 const handleSelect = (key) => {
   router.push(key)
 }
+
+const handleLogoClick = () => {
+  router.push('/')
+}
+
+
 </script>
 
 <template>
@@ -34,10 +40,13 @@ const handleSelect = (key) => {
     <el-header class="app-header">
       <el-row align="middle" class="header-row">
         <el-col :span="2">
-          <div class="logo">DevOpsKit</div>
+          <div class="logo" @click="handleLogoClick">DevOpsKit</div>
         </el-col>
         <el-col :span="18">
-          <el-menu :default-active="route.path" :ellipsis="true" class="header-menu" mode="horizontal"
+          <el-menu :default-active="route.path"
+                   :ellipsis="true"
+                   class="header-menu"
+                   mode="horizontal"
                    @select="handleSelect">
             <el-menu-item index="/home">首页</el-menu-item>
             <el-sub-menu v-for="category in menuCategories" :key="category.menuKey" :index="category.menuKey">
@@ -81,6 +90,7 @@ const handleSelect = (key) => {
 </template>
 
 <style scoped>
+
 .layout-wrapper {
   height: 100vh;
   width: 100%;
@@ -112,6 +122,7 @@ const handleSelect = (key) => {
   font-weight: bold;
   color: var(--el-color-primary);
   letter-spacing: 1px;
+  cursor: pointer;
 }
 
 .header-menu {
