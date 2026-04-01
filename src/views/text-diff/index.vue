@@ -73,7 +73,7 @@
       <VueDiff :current="data.currText" :folding="data.folding"
                :input-delay="data.inputDelay" :language="data.language"
                :mode="data.diffMode" :prev="data.prevText"
-               :theme="data.theme" :virtual-scroll="true"
+               :theme="data.theme" :virtual-scroll="virtualScroll"
                class="diff-viewer"/>
     </div>
   </div>
@@ -115,6 +115,20 @@ onMounted(() => {
   if (!data.prevText.trim() && !data.currText.trim()) {
     data.prevText = text1
     data.currText = text2
+  }
+})
+
+const virtualScroll = computed(() => {
+  return {
+    // 差异视图的可视区域高度，单位为 px
+    // 这里比 .diff-viewer 的 max-height 略小，给组件边框和内部结构预留空间，避免底部显示不全
+    height: 430,
+    // 每一行的最小高度，影响行间距和虚拟滚动的计算精度
+    // 适当降低一点，兼顾可读性和同屏显示的行数
+    lineMinHeight: 28,
+    // 滚动或容器尺寸变化后的重新渲染延迟，单位为毫秒
+    // 略微缩短延迟，让滚动反馈更顺滑
+    delay: 80
   }
 })
 
