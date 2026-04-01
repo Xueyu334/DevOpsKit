@@ -106,8 +106,8 @@ const genderOptions = [
  */
 const formRules = {
   regionCode: [
-    {required: true, message: '请输入区域码', trigger: 'blur'},
-    {pattern: /^[0-9]{6}$/, message: '区域码必须为 6 位数字', trigger: 'blur'}
+    {required: true, message: '请输入区域码', trigger: 'change'},
+    {pattern: /^[0-9]{6}$/, message: '区域码必须为 6 位数字', trigger: 'change'}
   ],
   birthday: [
     {required: true, message: '请选择生日', trigger: 'change'}
