@@ -29,28 +29,27 @@
         <el-col v-bind="{ xs: 24, sm: 24, md: 8, lg: 6, xl: 6 }">
           <el-form-item label="语言" prop="language">
             <el-select v-model="data.language" class="language-select" placeholder="请选择语言">
-              <el-option label="纯文本" value="plaintext"/>
-              <el-option label="JSON" value="json"/>
-              <el-option label="JavaScript" value="javascript"/>
-              <el-option label="TypeScript" value="typescript"/>
-              <el-option label="XML / HTML" value="xml"/>
-              <el-option label="CSS" value="css"/>
-              <el-option label="Markdown" value="markdown"/>
+              <el-option
+                  v-for="option in languageOptions"
+                  :key="option.value"
+                  :label="option.label"
+                  :value="option.value"
+              />
             </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-row :gutter="12">
-            <el-col :xs="24" :md="12">
+            <el-col :md="12" :xs="24">
               <el-form-item label="左侧内容" prop="prevText">
                 <el-input v-model="data.prevText" :autosize="{ minRows: 4, maxRows: 10 }"
-                          class="text-input" type="textarea" :maxlength="MAX_TEXT_LENGTH" show-word-limit/>
+                          :maxlength="MAX_TEXT_LENGTH" class="text-input" show-word-limit type="textarea"/>
               </el-form-item>
             </el-col>
-            <el-col :xs="24" :md="12">
+            <el-col :md="12" :xs="24">
               <el-form-item label="右侧内容" prop="currText">
                 <el-input v-model="data.currText" :autosize="{ minRows: 4, maxRows: 10 }"
-                          class="text-input" type="textarea" :maxlength="MAX_TEXT_LENGTH" show-word-limit/>
+                          :maxlength="MAX_TEXT_LENGTH" class="text-input" show-word-limit type="textarea"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -62,12 +61,12 @@
         <h2 class="diff-title">内容对比</h2>
         <!-- 使用 element-plus 自带的 fade-in 加上简单转场动画 -->
         <transition name="el-fade-in">
-          <el-tag v-if="isIdentical" type="success" size="large" effect="light" round>✨ 内容完全一致</el-tag>
+          <el-tag v-if="isIdentical" effect="light" round size="large" type="success">✨ 内容完全一致</el-tag>
         </transition>
       </div>
       <div class="diff-toolbar__actions">
-        <el-button type="primary" @click="handleSwapText" plain>左右对调</el-button>
-        <el-button type="danger" @click="handleClearText" plain>一键清空</el-button>
+        <el-button plain type="primary" @click="handleSwapText">左右对调</el-button>
+        <el-button plain type="danger" @click="handleClearText">一键清空</el-button>
       </div>
     </div>
     <el-row ref="viewerRowRef" class="diff-viewer-row" style=" margin-bottom: 20px;">
@@ -87,6 +86,15 @@ import {text1, text2} from "@/views/text-diff/ext.js";
 const MAX_TEXT_LENGTH = 1000000;
 const pageRef = useTemplateRef('pageRef')
 const viewerRowRef = useTemplateRef('viewerRowRef')
+const languageOptions = [
+  {label: '纯文本', value: 'plaintext'},
+  {label: 'JSON', value: 'json'},
+  {label: 'JavaScript', value: 'javascript'},
+  {label: 'TypeScript', value: 'typescript'},
+  {label: 'XML / HTML', value: 'xml'},
+  {label: 'CSS', value: 'css'},
+  {label: 'Markdown', value: 'markdown'}
+]
 
 const data = reactive({
   // 差异比对模式：'split'（并排）或 'unified'（统一）
