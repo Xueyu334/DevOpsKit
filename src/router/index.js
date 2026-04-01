@@ -10,6 +10,7 @@ import HashGen from '../views/hash-gen/index.vue'
 import UrlEncode from '../views/url-encode/index.vue'
 import IdCardGenerator from '../views/id-card-generator/index.vue'
 import DockerCommands from '../views/docker-commands/index.vue'
+import NginxReference from '../views/nginx-reference/index.vue'
 import NotFound from '../views/not-found/index.vue'
 
 const routes = [
@@ -71,6 +72,12 @@ const routes = [
                 name: 'dockerCommands',
                 component: DockerCommands,
                 meta: {title: 'Docker 命令大全备查'}
+            },
+            {
+                path: '/nginx-reference',
+                name: 'nginxReference',
+                component: NginxReference,
+                meta: {title: 'Nginx 命令与配置大全'}
             }
         ]
     },

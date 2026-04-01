@@ -132,6 +132,19 @@ export const toolCategories = [
                 tag: 'Docker',
                 tagType: 'primary',
                 tagTip: '容器与编排命令速查工具'
+            },
+            {
+                id: 'nginx-reference',
+                name: 'Nginx 命令与配置大全',
+                menuTitle: 'Nginx 命令与配置',
+                desc: '覆盖常用 Nginx CLI 命令、排障命令和 conf 配置片段的速查页。',
+                keywords: ['nginx', 'nginx conf', 'nginx config', 'nginx命令', '反向代理', 'upstream', 'ssl', 'gzip', 'server_name'],
+                route: '/nginx-reference',
+                icon: 'Tools',
+                color: '#009639',
+                tag: 'Nginx',
+                tagType: 'success',
+                tagTip: 'Nginx 命令与配置速查工具'
             }
         ]
     },
