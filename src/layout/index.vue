@@ -126,8 +126,15 @@ const handleLogoClick = () => {
 }
 
 .header-menu {
+  --el-menu-horizontal-height: 58px;
   border-bottom: none;
   background-color: transparent;
+}
+
+.header-menu :deep(.el-menu-item),
+.header-menu :deep(.el-sub-menu__title) {
+  height: var(--el-menu-horizontal-height);
+  line-height: var(--el-menu-horizontal-height);
 }
 
 .header-actions {
