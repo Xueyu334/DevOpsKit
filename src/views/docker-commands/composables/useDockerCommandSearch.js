@@ -1,5 +1,19 @@
 import Fuse from 'fuse.js'
 
+const commandFuseOptions = {
+    threshold: 0.35,
+    ignoreLocation: true,
+    minMatchCharLength: 2,
+    keys: [
+        {name: 'name', weight: 0.3},
+        {name: 'command', weight: 0.25},
+        {name: 'desc', weight: 0.15},
+        {name: 'scene', weight: 0.15},
+        {name: 'options.key', weight: 0.1},
+        {name: 'options.desc', weight: 0.05}
+    ]
+}
+
 const escapeHtml = (value = '') =>
     String(value).replace(/[&<>"']/g, (char) => ({
         '&': '&amp;',
@@ -41,27 +55,11 @@ export const useDockerCommandSearch = (sectionsSource) => {
     const normalizedKeyword = computed(() => normalizeText(keyword.value.trim()))
     const flatCommands = computed(() =>
         (unref(sectionsSource) || []).flatMap((section) =>
-            section.commands.map((command) => ({
-                ...command,
-                sectionKey: section.key
-            }))
+            section.commands.map((command) => ({...command}))
         )
     )
 
-    const commandsFuse = computed(() => new Fuse(flatCommands.value, {
-        includeScore: true,
-        threshold: 0.35,
-        ignoreLocation: true,
-        minMatchCharLength: 2,
-        keys: [
-            {name: 'name', weight: 0.3},
-            {name: 'command', weight: 0.25},
-            {name: 'desc', weight: 0.15},
-            {name: 'scene', weight: 0.15},
-            {name: 'options.key', weight: 0.1},
-            {name: 'options.desc', weight: 0.05}
-        ]
-    }))
+    const commandsFuse = computed(() => new Fuse(flatCommands.value, commandFuseOptions))
 
     const matchedCommandIds = computed(() => {
         const currentKeyword = keyword.value.trim()
