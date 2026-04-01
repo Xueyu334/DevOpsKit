@@ -224,20 +224,4 @@ html.dark .ascii-cell:hover {
 html.dark .ascii-cell--match {
   background: color-mix(in srgb, var(--el-color-warning) 20%, transparent);
 }
-
-@media (max-width: 991px) {
-  .matrix-shell {
-    padding: 18px 16px;
-  }
-
-  .matrix-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .matrix-tip {
-    max-width: none;
-    text-align: left;
-  }
-}
 </style>

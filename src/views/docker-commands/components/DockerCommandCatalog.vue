@@ -341,34 +341,4 @@ html.dark .catalog-content {
   background: color-mix(in srgb, var(--el-bg-color-overlay) 94%, var(--el-color-primary) 6%);
   border-color: var(--el-border-color-darker);
 }
-
-@media (max-width: 991px) {
-  .catalog-nav {
-    position: static;
-    margin-bottom: 16px;
-  }
-
-  .catalog-toolbar {
-    flex-direction: column;
-  }
-
-  .catalog-toolbar__actions {
-    width: 100%;
-  }
-
-  .catalog-search {
-    width: 100%;
-  }
-}
-
-@media (max-width: 767px) {
-  .catalog-toolbar__actions,
-  .command-section__header {
-    flex-direction: column;
-  }
-
-  .catalog-toolbar__actions > * {
-    width: 100%;
-  }
-}
 </style>

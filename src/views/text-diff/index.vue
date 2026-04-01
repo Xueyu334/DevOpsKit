@@ -217,25 +217,4 @@ const handleClearText = () => {
 :deep(.text-input .el-textarea__inner) {
   line-height: 1.45;
 }
-
-@media (max-width: 767px) {
-  .text-diff-page {
-    padding: 10px 12px 8px;
-  }
-
-  .diff-toolbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .diff-toolbar__title,
-  .diff-toolbar__actions {
-    justify-content: space-between;
-    flex-wrap: wrap;
-  }
-
-  .diff-title {
-    font-size: 24px;
-  }
-}
 </style>

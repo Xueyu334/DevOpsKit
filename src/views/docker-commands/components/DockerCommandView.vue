@@ -118,32 +118,4 @@ const commandCount = computed(() =>
 :deep(.hero-card .el-card__body) {
   padding: 16px 20px;
 }
-
-@media (max-width: 1199px) {
-  .hero-card__content {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .hero-card__metrics {
-    min-width: 0;
-  }
-}
-
-@media (max-width: 767px) {
-  .docker-command-view {
-    height: auto;
-    overflow: visible;
-    padding: 12px 16px 16px;
-  }
-
-  .hero-card__title {
-    font-size: 24px;
-  }
-
-  .hero-card__metrics {
-    grid-template-columns: 1fr;
-    min-width: 0;
-  }
-}
 </style>

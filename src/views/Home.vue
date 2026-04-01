@@ -461,33 +461,4 @@ html.dark .tool-card:hover {
   box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
   border-color: var(--el-color-primary-light-3);
 }
-
-/* 响应式调整 */
-@media (max-width: 768px) {
-  .home-container {
-    padding: 12px 16px;
-  }
-
-  .hero-title {
-    font-size: 30px;
-  }
-
-  .hero-section {
-    padding: 12px 0 20px;
-  }
-
-  .tools-scroll-content {
-    padding-bottom: 12px;
-  }
-
-  .tool-card {
-    padding: 18px;
-  }
-
-  .card-icon {
-    width: 48px;
-    height: 48px;
-    margin-right: 16px;
-  }
-}
 </style>

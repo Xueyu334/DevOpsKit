@@ -397,22 +397,4 @@ html.dark .panel-card {
 html.dark .result-chip {
   background: color-mix(in srgb, var(--el-fill-color-blank) 86%, #0f172a);
 }
-
-@media (max-width: 991px) {
-  .lookup-shell {
-    padding: 18px 16px;
-    --lookup-card-height: auto;
-  }
-
-  .lookup-intro,
-  .result-panel-header,
-  .focus-actions {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .result-grid {
-    grid-template-columns: 1fr;
-  }
-}
 </style>

@@ -202,23 +202,4 @@ html.dark .path-box {
   background: rgba(15, 23, 42, 0.48);
   border-color: rgba(148, 163, 184, 0.28);
 }
-
-@media (max-width: 768px) {
-  .not-found-page {
-    padding: 20px 16px;
-  }
-
-  .not-found-card {
-    padding: 32px 20px;
-    border-radius: 24px;
-  }
-
-  .code-row {
-    gap: 6px;
-  }
-
-  .actions {
-    flex-direction: column;
-  }
-}
 </style>

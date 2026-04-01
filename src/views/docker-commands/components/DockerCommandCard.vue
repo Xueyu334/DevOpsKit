@@ -270,25 +270,4 @@ html.dark .command-card:hover {
 html.dark .command-snippet {
   background: color-mix(in srgb, var(--el-color-primary) 8%, var(--el-bg-color-overlay));
 }
-
-@media (max-width: 767px) {
-  .command-card__header {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .command-card__actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .command-scene {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .option-item {
-    flex-direction: column;
-  }
-}
 </style>

@@ -97,15 +97,4 @@ html.dark .ascii-page {
   radial-gradient(circle at top right, color-mix(in srgb, var(--el-color-warning) 14%, transparent) 0%, transparent 28%),
   var(--el-bg-color-page);
 }
-
-@media (max-width: 991px) {
-  .ascii-page {
-    padding-inline: 16px;
-  }
-
-  .ascii-hero {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
 </style>
