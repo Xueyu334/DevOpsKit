@@ -42,13 +42,23 @@ const commandCount = computed(() =>
 .docker-command-view {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-height: 0;
   gap: 14px;
   padding: 12px 20px 18px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .hero-card {
+  flex-shrink: 0;
   border: 1px solid var(--el-border-color-lighter);
   background: var(--el-bg-color);
+}
+
+.docker-command-view :deep(.catalog-layout) {
+  flex: 1;
+  min-height: 0;
 }
 
 .hero-card__content {
@@ -122,6 +132,8 @@ const commandCount = computed(() =>
 
 @media (max-width: 767px) {
   .docker-command-view {
+    height: auto;
+    overflow: visible;
     padding: 12px 16px 16px;
   }
 
