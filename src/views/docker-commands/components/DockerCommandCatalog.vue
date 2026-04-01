@@ -56,7 +56,6 @@ const handleSelectCategory = (categoryKey) => {
 
 const handleClearSearch = () => {
   clearKeyword()
-
   if (filteredSections.value.length > 0) {
     scrollToCategory(filteredSections.value[0].key)
   }
@@ -117,7 +116,6 @@ const handleClearSearch = () => {
                     </el-icon>
                   </template>
                 </el-input>
-                <el-button plain :disabled="!hasKeyword" @click="handleClearSearch">清空搜索</el-button>
               </div>
             </div>
           </template>

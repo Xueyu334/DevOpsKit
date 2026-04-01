@@ -1,96 +1,114 @@
+import Fuse from 'fuse.js'
+
 const escapeHtml = (value = '') =>
-  String(value).replace(/[&<>"']/g, (char) => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
-  }[char]))
+    String(value).replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[char]))
 
 const escapeRegExp = (value = '') => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 const createHighlightHtml = (value, keyword) => {
-  const source = String(value ?? '')
+    const source = String(value ?? '')
 
-  if (!keyword) {
-    return escapeHtml(source)
-  }
+    if (!keyword) {
+        return escapeHtml(source)
+    }
 
-  const matcher = new RegExp(`(${escapeRegExp(keyword)})`, 'ig')
+    const matcher = new RegExp(`(${escapeRegExp(keyword)})`, 'ig')
 
-  return source
-    .split(matcher)
-    .map((part) => {
-      if (!part) {
-        return ''
-      }
+    return source
+        .split(matcher)
+        .map((part) => {
+            if (!part) {
+                return ''
+            }
 
-      return part.toLowerCase() === keyword.toLowerCase()
-        ? `<mark class="docker-highlight">${escapeHtml(part)}</mark>`
-        : escapeHtml(part)
-    })
-    .join('')
+            return part.toLowerCase() === keyword.toLowerCase()
+                ? `<mark class="docker-highlight">${escapeHtml(part)}</mark>`
+                : escapeHtml(part)
+        })
+        .join('')
 }
 
-const normalizeText = (value = '') => String(value).toLowerCase()
-
-const matchesCommand = (command, keyword) => {
-  if (!keyword) {
-    return true
-  }
-
-  const searchableFields = [
-    command.name,
-    command.command,
-    command.desc,
-    command.scene,
-    ...(command.options || []).flatMap((option) => [option.key, option.desc])
-  ]
-
-  return searchableFields.some((field) => normalizeText(field).includes(keyword))
-}
+const normalizeText = (value = '') => String(value).trim().toLowerCase()
 
 export const useDockerCommandSearch = (sectionsSource) => {
-  const keyword = shallowRef('')
-  const normalizedKeyword = computed(() => normalizeText(keyword.value.trim()))
+    const keyword = shallowRef('')
+    const normalizedKeyword = computed(() => normalizeText(keyword.value.trim()))
+    const flatCommands = computed(() =>
+        (unref(sectionsSource) || []).flatMap((section) =>
+            section.commands.map((command) => ({
+                ...command,
+                sectionKey: section.key
+            }))
+        )
+    )
 
-  const filteredSections = computed(() => {
-    const sections = unref(sectionsSource) || []
-    const currentKeyword = normalizedKeyword.value
+    const commandsFuse = computed(() => new Fuse(flatCommands.value, {
+        includeScore: true,
+        threshold: 0.35,
+        ignoreLocation: true,
+        minMatchCharLength: 2,
+        keys: [
+            {name: 'name', weight: 0.3},
+            {name: 'command', weight: 0.25},
+            {name: 'desc', weight: 0.15},
+            {name: 'scene', weight: 0.15},
+            {name: 'options.key', weight: 0.1},
+            {name: 'options.desc', weight: 0.05}
+        ]
+    }))
 
-    return sections
-      .map((section) => ({
-        ...section,
-        commands: section.commands.filter((command) => matchesCommand(command, currentKeyword))
-      }))
-      .filter((section) => section.commands.length > 0)
-  })
+    const matchedCommandIds = computed(() => {
+        const currentKeyword = keyword.value.trim()
 
-  const totalCommandCount = computed(() =>
-    (unref(sectionsSource) || []).reduce((total, section) => total + section.commands.length, 0)
-  )
+        if (!currentKeyword) {
+            return new Set(flatCommands.value.map((command) => command.id))
+        }
 
-  const filteredCommandCount = computed(() =>
-    filteredSections.value.reduce((total, section) => total + section.commands.length, 0)
-  )
+        return new Set(commandsFuse.value.search(currentKeyword).map((result) => result.item.id))
+    })
 
-  const hasKeyword = computed(() => Boolean(keyword.value.trim()))
-  const hasResults = computed(() => filteredCommandCount.value > 0)
+    const filteredSections = computed(() => {
+        const sections = unref(sectionsSource) || []
 
-  const highlightText = (value) => createHighlightHtml(value, normalizedKeyword.value)
+        return sections
+            .map((section) => ({
+                ...section,
+                commands: section.commands.filter((command) => matchedCommandIds.value.has(command.id))
+            }))
+            .filter((section) => section.commands.length > 0)
+    })
 
-  const clearKeyword = () => {
-    keyword.value = ''
-  }
+    const totalCommandCount = computed(() =>
+        (unref(sectionsSource) || []).reduce((total, section) => total + section.commands.length, 0)
+    )
 
-  return {
-    keyword,
-    hasKeyword,
-    hasResults,
-    filteredSections,
-    totalCommandCount,
-    filteredCommandCount,
-    highlightText,
-    clearKeyword
-  }
+    const filteredCommandCount = computed(() =>
+        filteredSections.value.reduce((total, section) => total + section.commands.length, 0)
+    )
+
+    const hasKeyword = computed(() => Boolean(keyword.value.trim()))
+    const hasResults = computed(() => filteredCommandCount.value > 0)
+
+    const highlightText = (value) => createHighlightHtml(value, normalizedKeyword.value)
+
+    const clearKeyword = () => {
+        keyword.value = ''
+    }
+
+    return {
+        keyword,
+        hasKeyword,
+        hasResults,
+        filteredSections,
+        totalCommandCount,
+        filteredCommandCount,
+        highlightText,
+        clearKeyword
+    }
 }
