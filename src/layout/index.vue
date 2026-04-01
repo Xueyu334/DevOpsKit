@@ -32,29 +32,35 @@ const handleSelect = (key) => {
   <el-container class="layout-wrapper">
     <!-- 全局头部 -->
     <el-header class="app-header">
-      <div class="logo">DevOpsKit</div>
-      <el-menu :default-active="route.path" :ellipsis="false" class="header-menu" mode="horizontal"
-               @select="handleSelect">
-        <el-menu-item index="/home">首页</el-menu-item>
-        <el-sub-menu v-for="category in menuCategories" :key="category.menuKey" :index="category.menuKey">
-          <template #title>{{ category.name }}</template>
-          <el-menu-item v-for="tool in category.tools" :key="tool.id" :index="tool.route">
-            {{ tool.menuTitle || tool.name }}
-          </el-menu-item>
-        </el-sub-menu>
-      </el-menu>
-      <div class="header-actions">
-        <el-tooltip :content="themeTooltip" placement="bottom">
-          <el-switch v-model="isDark" class="theme-switch" inline-prompt>
-            <template #active-action>
-              <IconEpMoon/>
-            </template>
-            <template #inactive-action>
-              <IconEpSunny/>
-            </template>
-          </el-switch>
-        </el-tooltip>
-      </div>
+      <el-row align="middle" class="header-row">
+        <el-col :span="2">
+          <div class="logo">DevOpsKit</div>
+        </el-col>
+        <el-col :span="18">
+          <el-menu :default-active="route.path" :ellipsis="true" class="header-menu" mode="horizontal"
+                   @select="handleSelect">
+            <el-menu-item index="/home">首页</el-menu-item>
+            <el-sub-menu v-for="category in menuCategories" :key="category.menuKey" :index="category.menuKey">
+              <template #title>{{ category.name }}</template>
+              <el-menu-item v-for="tool in category.tools" :key="tool.id" :index="tool.route">
+                {{ tool.menuTitle || tool.name }}
+              </el-menu-item>
+            </el-sub-menu>
+          </el-menu>
+        </el-col>
+        <el-col :span="4" class="header-actions">
+          <el-tooltip :content="themeTooltip" placement="bottom">
+            <el-switch v-model="isDark" class="theme-switch" inline-prompt>
+              <template #active-action>
+                <IconEpMoon/>
+              </template>
+              <template #inactive-action>
+                <IconEpSunny/>
+              </template>
+            </el-switch>
+          </el-tooltip>
+        </el-col>
+      </el-row>
     </el-header>
 
     <!-- 中间主要内容区域（路由页面） -->
@@ -91,30 +97,30 @@ const handleSelect = (key) => {
 }
 
 .app-header {
-  display: flex;
-  align-items: center;
+  padding: 0 24px;
   border-bottom: 1px solid var(--el-border-color-light);
   background-color: var(--el-bg-color);
+}
+
+.header-row {
+  height: 100%;
+  flex-wrap: nowrap;
 }
 
 .logo {
   font-size: 22px;
   font-weight: bold;
   color: var(--el-color-primary);
-  margin-right: 40px;
   letter-spacing: 1px;
 }
 
 .header-menu {
-  flex: 1;
   border-bottom: none;
   background-color: transparent;
 }
 
 .header-actions {
-  display: flex;
-  align-items: center;
-  margin-left: 16px;
+  text-align: right;
 }
 
 .theme-switch {
