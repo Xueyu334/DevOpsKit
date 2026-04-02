@@ -39,10 +39,10 @@ const handleLogoClick = () => {
     <!-- 全局头部 -->
     <el-header class="app-header">
       <el-row align="middle" class="header-row">
-        <el-col :span="2">
+        <el-col :lg="2" :md="0" :sm="0" :xl="2" :xs="0">
           <div class="logo" @click="handleLogoClick">DevOpsKit</div>
         </el-col>
-        <el-col :span="18">
+        <el-col :lg="18" :md="22" :sm="22" :xl="18" :xs="22">
           <el-menu :default-active="route.path"
                    :ellipsis="true"
                    class="header-menu"
@@ -57,7 +57,7 @@ const handleLogoClick = () => {
             </el-sub-menu>
           </el-menu>
         </el-col>
-        <el-col :span="4" class="header-actions">
+        <el-col :lg="4" :md="2" :sm="2" :xl="4" :xs="2" class="header-actions">
           <el-tooltip :content="themeTooltip" placement="bottom">
             <el-switch v-model="isDark" class="theme-switch" inline-prompt>
               <template #active-action>
