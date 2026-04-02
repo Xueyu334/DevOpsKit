@@ -22,6 +22,7 @@ const {
 
 const activeCategoryKey = shallowRef('')
 const contentRootRef = useTemplateRef('contentRoot')
+const scrollbarRef = useTemplateRef('scrollbarRef') // 明确 scrollbar 引用
 
 watch(
     filteredSections,
@@ -44,10 +45,13 @@ const scrollToCategory = async (categoryKey) => {
   await nextTick()
 
   const target = contentRootRef.value?.querySelector(`[data-category="${categoryKey}"]`)
-  target?.scrollIntoView({
-    behavior: 'smooth',
-    block: 'start'
-  })
+  if (target && scrollbarRef.value) {
+    // 启用平滑滚动，使跳转过程更自然
+    scrollbarRef.value.scrollTo({
+      top: target.offsetTop,
+      behavior: 'smooth'
+    })
+  }
 }
 
 const handleSelectCategory = (categoryKey) => {
@@ -129,7 +133,7 @@ const handleClearSearch = () => {
           </div>
           <div ref="contentRoot" class="catalog-sections">
             <template v-if="hasResults">
-              <el-scrollbar class="catalog-sections__scrollbar">
+              <el-scrollbar ref="scrollbarRef" class="catalog-sections__scrollbar">
                 <div>
                   <section
                       v-for="section in filteredSections"
@@ -181,13 +185,21 @@ const handleClearSearch = () => {
 .catalog-nav,
 .catalog-content {
   border: 1px solid var(--el-border-color-lighter);
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--el-bg-color) 96%, var(--el-color-primary) 4%);
+  border-radius: 20px;
+  background: var(--el-bg-color);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.catalog-nav:hover,
+.catalog-content:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
 }
 
 .catalog-nav {
   position: sticky;
-  top: 12px;
+  top: 0;
 }
 
 .catalog-nav__header,
@@ -203,6 +215,7 @@ const handleClearSearch = () => {
   margin: 0 0 6px;
   color: var(--el-text-color-primary);
   font-size: 20px;
+  font-weight: 700;
   line-height: 1.2;
 }
 
@@ -217,6 +230,7 @@ const handleClearSearch = () => {
 .catalog-nav__menu {
   border-right: 0;
   background: transparent;
+  padding: 0 8px;
 }
 
 .catalog-nav__menu :deep(.el-menu-item) {
@@ -224,8 +238,20 @@ const handleClearSearch = () => {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 4px;
-  border-radius: 10px;
+  margin-bottom: 6px;
+  border-radius: 12px;
+  height: 44px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.catalog-nav__menu :deep(.el-menu-item.is-active) {
+  background: var(--el-color-primary-light-9);
+  color: var(--el-color-primary);
+  font-weight: 600;
+}
+
+.catalog-nav__menu :deep(.el-menu-item:not(.is-active):hover) {
+  background: var(--el-fill-color-light);
 }
 
 .catalog-nav__label {
@@ -261,12 +287,19 @@ const handleClearSearch = () => {
   width: min(460px, 48vw);
 }
 
+.catalog-search :deep(.el-input__wrapper) {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) inset;
+}
+
 .catalog-summary {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   margin-top: 14px;
-  margin-bottom: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--el-border-color-lighter);
 }
 
 .catalog-sections {
@@ -278,15 +311,21 @@ const handleClearSearch = () => {
 }
 
 .command-section {
-  scroll-margin-top: 12px;
+  scroll-margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+.command-section:last-child {
+  margin-bottom: 10px;
 }
 
 .command-section__header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 0 4px;
 }
 
 .command-section__heading {
@@ -296,36 +335,52 @@ const handleClearSearch = () => {
 .command-section__title {
   margin: 0 0 4px;
   color: var(--el-text-color-primary);
-  font-size: 20px;
+  font-size: 22px;
+  font-weight: 700;
   line-height: 1.25;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.command-section__title::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 18px;
+  background: var(--el-color-primary);
+  border-radius: 2px;
 }
 
 .command-section__desc {
   margin: 0;
   color: var(--el-text-color-secondary);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.55;
+  padding-left: 14px;
 }
 
 .command-section__col {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .catalog-empty {
-  padding: 36px 0 20px;
+  padding: 48px 0;
 }
 
 .catalog-empty__icon {
-  font-size: 92px;
+  font-size: 80px;
   color: var(--el-text-color-placeholder);
+  opacity: 0.5;
 }
 
 :deep(.el-card__header) {
-  padding: 14px 16px 12px;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--el-border-color-lighter);
 }
 
 :deep(.el-card__body) {
-  padding: 0 16px 14px;
+  padding: 0 24px 20px;
 }
 
 :deep(.catalog-sections__scrollbar .el-scrollbar__wrap) {
@@ -338,7 +393,11 @@ const handleClearSearch = () => {
 
 html.dark .catalog-nav,
 html.dark .catalog-content {
-  background: color-mix(in srgb, var(--el-bg-color-overlay) 94%, var(--el-color-primary) 6%);
+  background: var(--el-bg-color-overlay);
   border-color: var(--el-border-color-darker);
+}
+
+html.dark .catalog-summary {
+  border-bottom-color: var(--el-border-color-darker);
 }
 </style>

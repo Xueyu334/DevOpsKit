@@ -100,19 +100,6 @@ export const toolCategories = [
                 color: '#909399',
                 tag: 'url',
                 tagTip: 'URL 处理类工具'
-            },
-            {
-                id: 'cron',
-                name: 'Cron 表达式',
-                menuTitle: 'Cron 表达式',
-                desc: '在线生成、反解析以及测试 Cron 定时任务执行时间表。',
-                keywords: ['cron', 'crontab', '定时任务', '计划任务', '表达式'],
-                route: '',
-                icon: 'Timer',
-                color: '#8E44AD',
-                tag: 'corn',
-                tagType: 'info',
-                tagTip: '定时任务相关工具'
             }
         ]
     },
