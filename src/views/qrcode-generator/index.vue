@@ -144,7 +144,7 @@ const handleLogoUpload = (file) => {
           <el-form :model="config" label-position="top">
             <el-form-item label="内容文本 / URL">
               <el-input v-model="config.value" type="textarea" :clearable="true" :rows="4" placeholder="请输入要生成二维码的内容..."
-                resize="none" readonly />
+                resize="none" />
             </el-form-item>
 
             <el-row :gutter="20">
