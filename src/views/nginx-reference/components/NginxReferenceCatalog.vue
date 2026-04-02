@@ -1,6 +1,6 @@
 <script setup>
 import NginxReferenceCard from './NginxReferenceCard.vue'
-import {useNginxReferenceSearch} from '../composables/useNginxReferenceSearch'
+import { useNginxReferenceSearch } from '../composables/useNginxReferenceSearch'
 
 const props = defineProps({
   sections: {
@@ -25,19 +25,19 @@ const scrollbarRef = useTemplateRef('scrollbar')
 const contentRootRef = useTemplateRef('contentRoot')
 
 watch(
-    filteredSections,
-    (sections) => {
-      if (!sections.length) {
-        activeCategoryKey.value = ''
-        return
-      }
+  filteredSections,
+  (sections) => {
+    if (!sections.length) {
+      activeCategoryKey.value = ''
+      return
+    }
 
-      const hasActiveCategory = sections.some((section) => section.key === activeCategoryKey.value)
-      if (!hasActiveCategory) {
-        activeCategoryKey.value = sections[0].key
-      }
-    },
-    {immediate: true}
+    const hasActiveCategory = sections.some((section) => section.key === activeCategoryKey.value)
+    if (!hasActiveCategory) {
+      activeCategoryKey.value = sections[0].key
+    }
+  },
+  { immediate: true }
 )
 
 const scrollToCategory = async (categoryKey) => {
@@ -89,12 +89,8 @@ const handleClearSearch = () => {
               <el-tag effect="light" round>{{ filteredSections.length }}</el-tag>
             </div>
           </template>
-          <el-menu
-              v-if="filteredSections.length"
-              :default-active="activeCategoryKey"
-              class="catalog-nav__menu"
-              @select="handleSelectCategory"
-          >
+          <el-menu v-if="filteredSections.length" :default-active="activeCategoryKey" class="catalog-nav__menu"
+            @select="handleSelectCategory">
             <el-menu-item v-for="section in filteredSections" :key="section.key" :index="section.key">
               <span class="catalog-nav__label">{{ section.label }}</span>
               <el-tag effect="plain" round size="small">{{ section.items.length }}</el-tag>
@@ -116,17 +112,11 @@ const handleClearSearch = () => {
                 </p>
               </div>
               <div class="catalog-toolbar__actions">
-                <el-input
-                    v-model="keyword"
-                    class="catalog-search"
-                    clearable
-                    placeholder="搜索：reload / proxy_pass / gzip / server_name"
-                    size="large"
-                    @clear="handleClearSearch"
-                >
+                <el-input v-model="keyword" class="catalog-search" clearable
+                  placeholder="搜索：reload / proxy_pass / gzip / server_name" size="large" @clear="handleClearSearch">
                   <template #prefix>
                     <el-icon>
-                      <IconEpSearch/>
+                      <IconEpSearch />
                     </el-icon>
                   </template>
                 </el-input>
@@ -146,12 +136,8 @@ const handleClearSearch = () => {
             <template v-if="hasResults">
               <el-scrollbar ref="scrollbar" class="catalog-sections__scrollbar">
                 <div ref="contentRoot" class="catalog-sections__viewport">
-                  <section
-                      v-for="section in filteredSections"
-                      :key="section.key"
-                      :data-category="section.key"
-                      class="reference-section"
-                  >
+                  <section v-for="section in filteredSections" :key="section.key" :data-category="section.key"
+                    class="reference-section">
                     <div class="reference-section__header">
                       <div class="reference-section__heading">
                         <h3 class="reference-section__title">{{ section.title }}</h3>
@@ -161,13 +147,9 @@ const handleClearSearch = () => {
                     </div>
 
                     <el-row :gutter="16">
-                      <el-col
-                          v-for="item in section.items"
-                          :key="item.id"
-                          class="reference-section__col"
-                          v-bind="{ xs: 24, sm: 24, md: 24, lg: 12, xl: 12 }"
-                      >
-                        <NginxReferenceCard :item="item" :highlight-text="highlightText"/>
+                      <el-col v-for="item in section.items" :key="item.id" class="reference-section__col"
+                        v-bind="{ xs: 24, sm: 24, md: 24, lg: 12, xl: 12 }">
+                        <NginxReferenceCard :item="item" :highlight-text="highlightText" />
                       </el-col>
                     </el-row>
                   </section>
@@ -177,7 +159,7 @@ const handleClearSearch = () => {
             <el-empty v-else class="catalog-empty" description="未找到匹配的 Nginx 条目">
               <template #image>
                 <el-icon class="catalog-empty__icon">
-                  <IconEpSearch/>
+                  <IconEpSearch />
                 </el-icon>
               </template>
             </el-empty>
@@ -191,38 +173,26 @@ const handleClearSearch = () => {
 <style scoped>
 .nginx-catalog-layout {
   width: 100%;
-  height: 100%;
-  min-height: 0;
 }
 
-.catalog-grid {
-  height: 100%;
-  min-height: 0;
+.catalog-nav,
+.catalog-content {
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: 20px;
+  background: var(--el-bg-color);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+  overflow: hidden;
 }
 
-.catalog-grid > :deep(.el-col) {
-  display: flex;
-  min-height: 0;
+.catalog-nav:hover,
+.catalog-content:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
 }
 
 .catalog-nav {
   position: sticky;
-  top: 12px;
-  width: 100%;
-  border: 1px solid var(--el-border-color-lighter);
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--el-bg-color) 96%, var(--el-color-primary) 4%);
-}
-
-.catalog-content {
-  display: flex;
-  flex: 1;
-  width: 100%;
-  min-height: 0;
-  flex-direction: column;
-  border: 1px solid var(--el-border-color-lighter);
-  border-radius: 14px;
-  background: var(--el-bg-color);
+  top: 0;
 }
 
 .catalog-nav__header,
@@ -238,6 +208,7 @@ const handleClearSearch = () => {
   margin: 0 0 6px;
   color: var(--el-text-color-primary);
   font-size: 20px;
+  font-weight: 700;
   line-height: 1.2;
 }
 
@@ -252,6 +223,7 @@ const handleClearSearch = () => {
 .catalog-nav__menu {
   border-right: 0;
   background: transparent;
+  padding: 0 8px;
 }
 
 .catalog-nav__menu :deep(.el-menu-item) {
@@ -259,8 +231,20 @@ const handleClearSearch = () => {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 4px;
-  border-radius: 10px;
+  margin-bottom: 6px;
+  border-radius: 12px;
+  height: 44px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.catalog-nav__menu :deep(.el-menu-item.is-active) {
+  background: var(--el-color-primary-light-9);
+  color: var(--el-color-primary);
+  font-weight: 600;
+}
+
+.catalog-nav__menu :deep(.el-menu-item:not(.is-active):hover) {
+  background: var(--el-fill-color-light);
 }
 
 .catalog-nav__label {
@@ -272,9 +256,13 @@ const handleClearSearch = () => {
 
 .catalog-nav__empty {
   display: flex;
-  min-height: 120px;
   align-items: center;
   justify-content: center;
+  min-height: 120px;
+}
+
+.catalog-toolbar {
+  margin-bottom: 10px;
 }
 
 .catalog-toolbar__copy {
@@ -285,19 +273,26 @@ const handleClearSearch = () => {
   display: flex;
   flex-shrink: 0;
   align-items: center;
+  gap: 12px;
 }
 
 .catalog-search {
   width: min(460px, 48vw);
 }
 
+.catalog-search :deep(.el-input__wrapper) {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) inset;
+}
+
 .catalog-summary {
   display: flex;
-  flex-shrink: 0;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   margin-top: 14px;
-  margin-bottom: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--el-border-color-lighter);
 }
 
 .catalog-sections {
@@ -305,25 +300,25 @@ const handleClearSearch = () => {
 }
 
 .catalog-sections__scrollbar {
-  min-height: 0;
-  height: calc(100vh - 450px);
-}
-
-.catalog-sections__viewport {
-  padding-right: 8px;
+  height: calc(100vh - 400px);
 }
 
 .reference-section {
-  scroll-margin-top: 12px;
-  margin-bottom: 18px;
+  scroll-margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+.reference-section:last-child {
+  margin-bottom: 10px;
 }
 
 .reference-section__header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 0 4px;
 }
 
 .reference-section__heading {
@@ -333,48 +328,52 @@ const handleClearSearch = () => {
 .reference-section__title {
   margin: 0 0 4px;
   color: var(--el-text-color-primary);
-  font-size: 20px;
+  font-size: 22px;
+  font-weight: 700;
   line-height: 1.25;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.reference-section__title::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 18px;
+  background: var(--el-color-primary);
+  border-radius: 2px;
 }
 
 .reference-section__desc {
   margin: 0;
   color: var(--el-text-color-secondary);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.55;
+  padding-left: 14px;
 }
 
 .reference-section__col {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .catalog-empty {
-  display: flex;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
+  padding: 48px 0;
 }
 
 .catalog-empty__icon {
-  font-size: 92px;
+  font-size: 80px;
   color: var(--el-text-color-placeholder);
+  opacity: 0.5;
 }
 
-:deep(.catalog-nav .el-card__header),
-:deep(.catalog-content .el-card__header) {
-  padding: 14px 16px 12px;
+:deep(.el-card__header) {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--el-border-color-lighter);
 }
 
-:deep(.catalog-nav .el-card__body) {
-  padding: 0 14px 14px;
-}
-
-:deep(.catalog-content .el-card__body) {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-  flex-direction: column;
-  padding: 0 16px 14px;
+:deep(.el-card__body) {
+  padding: 0 24px 20px;
 }
 
 :deep(.catalog-sections__scrollbar .el-scrollbar__wrap) {
@@ -387,14 +386,11 @@ const handleClearSearch = () => {
 
 html.dark .catalog-nav,
 html.dark .catalog-content {
+  background: var(--el-bg-color-overlay);
   border-color: var(--el-border-color-darker);
 }
 
-html.dark .catalog-nav {
-  background: color-mix(in srgb, var(--el-bg-color-overlay) 94%, var(--el-color-primary) 6%);
-}
-
-html.dark .catalog-content {
-  background: var(--el-bg-color-overlay);
+html.dark .catalog-summary {
+  border-bottom-color: var(--el-border-color-darker);
 }
 </style>

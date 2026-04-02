@@ -53,8 +53,24 @@ const itemCount = computed(() =>
 
 .hero-card {
   flex-shrink: 0;
-  border: 1px solid var(--el-border-color-lighter);
-  background: var(--el-bg-color);
+  border: none;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #009688 0%, #4DB6AC 100%); /* Nginx 品牌风格的深绿色渐变 */
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 150, 136, 0.2);
+}
+
+.hero-card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .nginx-reference-view :deep(.nginx-catalog-layout) {
@@ -74,17 +90,19 @@ const itemCount = computed(() =>
 }
 
 .hero-card__title {
-  margin: 0 0 6px;
-  color: var(--el-text-color-primary);
-  font-size: 28px;
-  line-height: 1.2;
+  margin: 0 0 10px;
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .hero-card__desc {
   margin: 0;
-  color: var(--el-text-color-secondary);
-  font-size: 13px;
-  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .hero-card__metrics {
@@ -99,25 +117,35 @@ const itemCount = computed(() =>
   flex-direction: column;
   gap: 4px;
   padding: 12px 14px;
-  border: 1px solid var(--el-border-color-lighter);
-  border-radius: 10px;
-  background: var(--el-fill-color-light);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .metric-card__label {
-  color: var(--el-text-color-secondary);
+  color: rgba(255, 255, 255, 0.8);
   font-size: 11px;
-  line-height: 1.2;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .metric-card__value {
-  color: var(--el-text-color-primary);
-  font-size: 18px;
-  line-height: 1.3;
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 :deep(.hero-card .el-card__body) {
-  padding: 16px 20px;
+  padding: 24px 30px;
 }
 
 </style>
