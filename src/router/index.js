@@ -11,6 +11,7 @@ import UrlEncode from '../views/url-encode/index.vue'
 import IdCardGenerator from '../views/id-card-generator/index.vue'
 import DockerCommands from '../views/docker-commands/index.vue'
 import NginxReference from '../views/nginx-reference/index.vue'
+import QrcodeGenerator from '../views/qrcode-generator/index.vue'
 import NotFound from '../views/not-found/index.vue'
 
 const routes = [
@@ -78,6 +79,12 @@ const routes = [
                 name: 'nginxReference',
                 component: NginxReference,
                 meta: {title: 'Nginx 命令与配置大全'}
+            },
+            {
+                path: '/qrcode-generator',
+                name: 'qrcodeGenerator',
+                component: QrcodeGenerator,
+                meta: {title: '二维码生成器'}
             }
         ]
     },

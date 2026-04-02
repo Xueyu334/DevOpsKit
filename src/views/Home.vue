@@ -10,7 +10,7 @@
         <el-input v-model="searchQuery" clearable placeholder="搜索您需要的工具，例如：文本比对..." size="large">
           <template #prefix>
             <el-icon class="search-prefix-icon">
-              <IconEpSearch/>
+              <IconEpSearch />
             </el-icon>
           </template>
         </el-input>
@@ -27,25 +27,17 @@
             </h2>
             <el-row :gutter="16">
               <el-col v-for="tool in category.tools" :key="tool.id" class="tool-col"
-                      v-bind="{ xs: 24, sm: 12, md: 8, lg: 6, xl: 6 }">
+                v-bind="{ xs: 24, sm: 12, md: 8, lg: 6, xl: 6 }">
                 <div class="tool-card" @click="handleNavigate(tool.route)">
                   <div :style="{ background: tool.color + '1A', color: tool.color }" class="card-icon">
-                    <component :is="toolIconMap[tool.icon] || IconEpTools" class="tool-icon"/>
+                    <component :is="toolIconMap[tool.icon] || IconEpTools" class="tool-icon" />
                   </div>
                   <div class="card-content">
                     <div class="card-header">
                       <h3 class="tool-title">{{ tool.name }}</h3>
-                      <el-tooltip
-                          v-if="tool.tag"
-                          :content="tool.tagTip || tagTypeHints[tool.tagType || '']"
-                          placement="top"
-                      >
-                        <el-tag
-                            effect="light"
-                            round
-                            size="small"
-                            v-bind="tool.tagType ? { type: tool.tagType } : {}"
-                        >
+                      <el-tooltip v-if="tool.tag" :content="tool.tagTip || tagTypeHints[tool.tagType || '']"
+                        placement="top">
+                        <el-tag effect="light" round size="small" v-bind="tool.tagType ? { type: tool.tagType } : {}">
                           {{ tool.tag }}
                         </el-tag>
                       </el-tooltip>
@@ -61,7 +53,7 @@
           <el-empty v-if="hasNoResults" description="未找到相关工具，请尝试其他关键词">
             <template #image>
               <el-icon class="empty-icon">
-                <IconEpSearch/>
+                <IconEpSearch />
               </el-icon>
             </template>
           </el-empty>
@@ -80,8 +72,9 @@ import IconEpPostcard from '~icons/ep/postcard'
 import IconEpTickets from '~icons/ep/tickets'
 import IconEpTimer from '~icons/ep/timer'
 import IconEpTools from '~icons/ep/tools'
+import IconEpMenu from '~icons/ep/menu'
 import Fuse from 'fuse.js'
-import {tagTypeHints, toolCategories} from '../config/tool-categories'
+import { tagTypeHints, toolCategories } from '../config/tool-categories'
 
 const router = useRouter()
 
@@ -95,15 +88,16 @@ const toolIconMap = {
   Postcard: IconEpPostcard,
   Tickets: IconEpTickets,
   Timer: IconEpTimer,
+  Menu: IconEpMenu,
 }
 
 const flatTools = computed(() =>
-    toolCategories.flatMap(category =>
-        category.tools.map(tool => ({
-          ...tool,
-          categoryName: category.name
-        }))
-    )
+  toolCategories.flatMap(category =>
+    category.tools.map(tool => ({
+      ...tool,
+      categoryName: category.name
+    }))
+  )
 )
 
 const toolsFuse = computed(() => new Fuse(flatTools.value, {
@@ -112,9 +106,9 @@ const toolsFuse = computed(() => new Fuse(flatTools.value, {
   ignoreLocation: true,
   minMatchCharLength: 2,
   keys: [
-    {name: 'name', weight: 0.5},
-    {name: 'desc', weight: 0.3},
-    {name: 'keywords', weight: 0.2}
+    { name: 'name', weight: 0.5 },
+    { name: 'desc', weight: 0.3 },
+    { name: 'keywords', weight: 0.2 }
   ]
 }))
 
@@ -126,7 +120,7 @@ const filteredCategories = computed(() => {
   }
 
   const matchedToolIds = new Set(
-      toolsFuse.value.search(query).map(result => result.item.id))
+    toolsFuse.value.search(query).map(result => result.item.id))
 
   return toolCategories.map(category => ({
     ...category,
@@ -174,12 +168,10 @@ const handleNavigate = route => {
   height: 520px;
   transform: translateX(-50%);
   border-radius: 50%;
-  background: radial-gradient(
-      circle,
+  background: radial-gradient(circle,
       color-mix(in srgb, var(--el-color-primary) 14%, white) 0%,
       color-mix(in srgb, var(--el-color-primary) 8%, transparent) 38%,
-      transparent 74%
-  );
+      transparent 74%);
   filter: blur(16px);
   pointer-events: none;
 }
@@ -234,7 +226,7 @@ const handleNavigate = route => {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
   border: 1px solid var(--el-border-color-lighter);
   transition: border-color 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
-  box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   background-color: var(--el-bg-color);
 }
 
@@ -323,8 +315,8 @@ const handleNavigate = route => {
   border: 1px solid var(--el-border-color-lighter);
   cursor: pointer;
   transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
-  border-color 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
-  box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border-color 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+    box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   height: 100%;
   box-sizing: border-box;
 }
@@ -443,12 +435,10 @@ const handleNavigate = route => {
 }
 
 html.dark .home-container::before {
-  background: radial-gradient(
-      circle,
+  background: radial-gradient(circle,
       color-mix(in srgb, var(--el-color-primary) 20%, transparent) 0%,
       color-mix(in srgb, var(--el-color-primary) 12%, transparent) 36%,
-      transparent 74%
-  );
+      transparent 74%);
   filter: blur(20px);
 }
 

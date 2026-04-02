@@ -164,6 +164,19 @@ export const toolCategories = [
                 tag: 'New',
                 tagType: 'primary',
                 tagTip: '新上线的便民生成工具'
+            },
+            {
+                id: 'qrcode-generator',
+                name: '二维码生成器',
+                menuTitle: '二维码生成器',
+                desc: '根据输入的文本或链接生成高度自定义的二维码，支持 Logo、颜色、尺寸调节。',
+                keywords: ['qrcode', '二维码', '二维码生成', 'qr generator', '码生成', '扫码'],
+                route: '/qrcode-generator',
+                icon: 'Menu',
+                color: '#8E44AD',
+                tag: 'New',
+                tagType: 'success',
+                tagTip: '快速生成自定义二维码'
             }
         ]
     }
