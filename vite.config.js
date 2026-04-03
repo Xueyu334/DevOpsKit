@@ -32,6 +32,9 @@ export default defineConfig(({command, mode}) => {
                     }),
                 ],
                 dts: fileURLToPath(new URL('./src/auto-imports.d.ts', import.meta.url)),
+                eslintrc: {
+                    enabled: true, // 1、改为true用于生成eslint配置。2、生成后改回false，避免重复生成消耗
+                },
             }),
             Components({
                 resolvers: [
