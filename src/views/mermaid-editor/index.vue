@@ -138,7 +138,7 @@ const handleCopySvg = () => {
       </template>
 
       <el-row :gutter="20" class="editor-row">
-        <el-col :md="10" :xs="24" class="col-left">
+        <el-col :md="10" :xs="24">
           <div class="editor-container">
             <el-input
               v-model="mermaidCode"
@@ -151,7 +151,7 @@ const handleCopySvg = () => {
             />
           </div>
         </el-col>
-        <el-col :md="14" :xs="24" class="col-right">
+        <el-col :md="14" :xs="24">
           <div ref="previewContainer" class="preview-container">
             <div v-if="svgContent" class="svg-wrapper" v-html="svgContent"></div>
             <div v-else>
@@ -248,7 +248,7 @@ const handleCopySvg = () => {
   justify-content: center;
   background-color: #fff; /* Mermaid 图表通常在白色背景下效果最好 */
   overflow: auto;
-  padding: 20px;
+  padding: 40px;
 }
 
 .svg-wrapper {
