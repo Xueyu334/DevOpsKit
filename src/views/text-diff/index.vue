@@ -29,12 +29,8 @@
         <el-col v-bind="{ xs: 24, sm: 24, md: 8, lg: 6, xl: 6 }">
           <el-form-item label="语言" prop="language">
             <el-select v-model="data.language" class="language-select" placeholder="请选择语言">
-              <el-option
-                  v-for="option in languageOptions"
-                  :key="option.value"
-                  :label="option.label"
-                  :value="option.value"
-              />
+              <el-option v-for="option in languageOptions" :key="option.value" :label="option.label"
+                :value="option.value" />
             </el-select>
           </el-form-item>
         </el-col>
@@ -42,14 +38,14 @@
           <el-row :gutter="12">
             <el-col :md="12" :xs="24">
               <el-form-item label="左侧内容" prop="prevText">
-                <el-input v-model="data.prevText" :autosize="{ minRows: 10, maxRows: 10 }"
-                          :maxlength="MAX_TEXT_LENGTH" class="text-input" show-word-limit type="textarea"/>
+                <el-input v-model="data.prevText" :autosize="{ minRows: 10, maxRows: 10 }" :maxlength="MAX_TEXT_LENGTH"
+                  class="text-input" show-word-limit type="textarea" />
               </el-form-item>
             </el-col>
             <el-col :md="12" :xs="24">
               <el-form-item label="右侧内容" prop="currText">
-                <el-input v-model="data.currText" :autosize="{ minRows: 10, maxRows: 10 }"
-                          :maxlength="MAX_TEXT_LENGTH" class="text-input" show-word-limit type="textarea"/>
+                <el-input v-model="data.currText" :autosize="{ minRows: 10, maxRows: 10 }" :maxlength="MAX_TEXT_LENGTH"
+                  class="text-input" show-word-limit type="textarea" />
               </el-form-item>
             </el-col>
           </el-row>
@@ -69,44 +65,35 @@
         <el-button plain type="danger" @click="handleClearText">一键清空</el-button>
       </div>
     </div>
-    <div>
-      <VueDiff :current="data.currText" :folding="data.folding"
-               :input-delay="data.inputDelay" :language="data.language"
-               :mode="data.diffMode" :prev="data.prevText"
-               :theme="data.theme" :virtual-scroll="virtualScroll"/>
+    <div class="diff-viewer-wrapper">
+      <VueDiff :current="data.currText" :folding="data.folding" :input-delay="data.inputDelay" :language="data.language"
+        :mode="data.diffMode" :prev="data.prevText" :theme="data.theme" :virtual-scroll="virtualScroll" />
     </div>
   </div>
 </template>
 
 <script setup>
-// 定义全局文本最大长度限制常量
-import {text1, text2} from "@/views/text-diff/ext.js";
+import { text1, text2 } from "@/views/text-diff/ext.js"
 
+// 定义全局文本最大长度限制常量
 const MAX_TEXT_LENGTH = 1000000;
 const languageOptions = [
-  {label: '纯文本', value: 'plaintext'},
-  {label: 'JSON', value: 'json'},
-  {label: 'JavaScript', value: 'javascript'},
-  {label: 'TypeScript', value: 'typescript'},
-  {label: 'XML / HTML', value: 'xml'},
-  {label: 'CSS', value: 'css'},
-  {label: 'Markdown', value: 'markdown'}
+  { label: '纯文本', value: 'plaintext' },
+  { label: 'JSON', value: 'json' },
+  { label: 'JavaScript', value: 'javascript' },
+  { label: 'TypeScript', value: 'typescript' },
+  { label: 'XML / HTML', value: 'xml' },
+  { label: 'CSS', value: 'css' },
+  { label: 'Markdown', value: 'markdown' }
 ]
 
 const data = reactive({
-  // 差异比对模式：'split'（并排）或 'unified'（统一）
   diffMode: 'split',
-  // 是否折叠未变更段
   folding: false,
-  // 主题：'light'、'dark' 或自定义
   theme: 'dark',
-  // 语言类型（高亮用）
   language: 'plaintext',
-  // 输入延迟时间（毫秒），用于降低大文本输入时的频繁重算
   inputDelay: 500,
-  //历史版本文本 左侧
   prevText: '',
-  // 当前版本文本 右侧
   currText: ''
 })
 
@@ -118,16 +105,11 @@ onMounted(() => {
 })
 
 const virtualScroll = computed(() => {
+  // 核心修复：使用固定高度，彻底避免高度计算死循环导致的页面崩溃
   return {
-    // 差异视图的可视区域高度，单位为 px
-    // 这里比 .diff-viewer 的 max-height 略小，给组件边框和内部结构预留空间，避免底部显示不全
-    height: 460,
-    // 每一行的最小高度，影响行间距和虚拟滚动的计算精度
-    // 适当降低一点，兼顾可读性和同屏显示的行数
-    lineMinHeight: 28,
-    // 滚动或容器尺寸变化后的重新渲染延迟，单位为毫秒
-    // 略微缩短延迟，让滚动反馈更顺滑
-    delay: 80
+    height: 580,
+    lineMinHeight: 30,
+    delay: 60
   }
 })
 
@@ -153,17 +135,23 @@ const handleClearText = () => {
 
 <style scoped>
 .text-diff-page {
-  height: 100%;
-  padding: 12px 16px 8px;
+  /* 恢复为稳定的流式布局 */
+  min-height: 100%;
+  padding: 16px 20px 40px;
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  overflow-x: hidden;
+  background-color: var(--el-bg-color);
   overflow-y: auto;
 }
 
 .diff-form {
   flex-shrink: 0;
+  background: var(--el-bg-color-overlay);
+  padding: 12px 16px;
+  /* 压缩内边距 */
+  border-radius: 12px;
+  border: 1px solid var(--el-border-color-lighter);
+  margin-bottom: 12px;
+  /* 压缩外边距 */
 }
 
 .diff-toolbar {
@@ -171,8 +159,11 @@ const handleClearText = () => {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   flex-shrink: 0;
+  border-bottom: 1px solid var(--el-border-color-extra-light);
+  /* 增加分割线 */
+  padding-bottom: 8px;
 }
 
 .diff-toolbar__title {
@@ -188,8 +179,9 @@ const handleClearText = () => {
 
 .diff-title {
   margin: 0;
-  font-size: 28px;
-  line-height: 1.1;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--el-text-color-primary);
 }
 
 .language-select,
@@ -201,15 +193,142 @@ const handleClearText = () => {
   max-width: 240px;
 }
 
-.text-input {
-  max-width: 600px;
+:deep(.diff-form .el-form-item) {
+  margin-bottom: 8px;
+  /* 压缩项间距 */
 }
 
-:deep(.diff-form .el-form-item) {
-  margin-bottom: 10px;
+:deep(.diff-form .el-form-item__label) {
+  font-size: 13px;
+  font-weight: 600;
 }
 
 :deep(.text-input .el-textarea__inner) {
-  line-height: 1.45;
+  line-height: 1.6;
+  font-family: 'Fira Code', 'Roboto Mono', monospace;
+  font-size: 13px;
+  background: var(--el-bg-color);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border: 1px solid var(--el-border-color-light);
+}
+
+:deep(.text-input .el-textarea__inner:focus) {
+  border-color: var(--el-color-primary);
+  box-shadow: 0 0 0 2px var(--el-color-primary-light-8);
+}
+
+/* VueDiff 包装容器 */
+.diff-viewer-wrapper {
+  margin-top: 20px;
+  min-height: 580px;
+  /* 与 JS 中的虚拟高度一致，确保容器稳固 */
+  border-radius: 12px;
+  border: 1px solid var(--el-border-color-lighter);
+  background: var(--el-bg-color-overlay);
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+  transition: box-shadow 0.3s ease;
+}
+
+.diff-viewer-wrapper:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* 深度定制 VueDiff 内部样式 */
+:deep(.vue-diff-container) {
+  border: none !important;
+  font-family: 'Fira Code', 'Roboto Mono', monospace !important;
+}
+
+:deep(.d-code-line-number) {
+  width: 54px !important;
+  text-align: center !important;
+  color: var(--el-text-color-placeholder) !important;
+  background: var(--el-fill-color-light) !important;
+  border-right: 1px solid var(--el-border-color-lighter) !important;
+  font-size: 12px !important;
+  user-select: none;
+}
+
+/* 差异高亮色：使用现代、柔和的语义化配色 */
+:deep(.d-diff-row-add) {
+  background-color: rgba(103, 194, 58, 0.12) !important;
+}
+
+:deep(.d-diff-row-add .d-code-line) {
+  background-color: transparent !important;
+}
+
+:deep(.d-diff-row-add .d-code-inside) {
+  background-color: rgba(103, 194, 58, 0.28) !important;
+  border-radius: 3px;
+}
+
+:deep(.d-diff-row-del) {
+  background-color: rgba(245, 108, 108, 0.1) !important;
+}
+
+:deep(.d-diff-row-del .d-code-line) {
+  background-color: transparent !important;
+}
+
+:deep(.d-diff-row-del .d-code-inside) {
+  background-color: rgba(245, 108, 108, 0.22) !important;
+  border-radius: 3px;
+}
+
+/* 虚线分隔符美化 */
+:deep(.d-code-placeholder) {
+  background: var(--el-fill-color-lighter) !important;
+}
+
+/* 针对分栏模式的中间分隔线微调 */
+:deep(.vue-diff-split .d-diff-row-add .d-code-line-number),
+:deep(.vue-diff-split .d-diff-row-del .d-code-line-number) {
+  border-right-color: var(--el-border-color-light) !important;
+}
+
+/* 滚动条美化 */
+:deep(.vue-diff-row::-webkit-scrollbar) {
+  width: 8px;
+  height: 8px;
+}
+
+:deep(.vue-diff-row::-webkit-scrollbar-thumb) {
+  background: var(--el-border-color);
+  border-radius: 10px;
+}
+
+:deep(.vue-diff-row::-webkit-scrollbar-track) {
+  background: transparent;
+}
+
+/* Dark 模式深度适配 */
+:deep(html.dark .d-code-line-number) {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+  color: #64748b !important;
+}
+
+:deep(html.dark .d-diff-row-add) {
+  background-color: rgba(103, 194, 58, 0.08) !important;
+}
+
+:deep(html.dark .d-diff-row-add .d-code-inside) {
+  background-color: rgba(103, 194, 58, 0.2) !important;
+}
+
+:deep(html.dark .d-diff-row-del) {
+  background-color: rgba(245, 108, 108, 0.08) !important;
+}
+
+:deep(html.dark .d-diff-row-del .d-code-inside) {
+  background-color: rgba(245, 108, 108, 0.18) !important;
+}
+
+:deep(html.dark .vue-diff-row::-webkit-scrollbar-thumb) {
+  background: #334155;
 }
 </style>
