@@ -313,7 +313,7 @@ const handleLogoUpload = file => {
 .qrcode-view-container {
   padding: 0;
   max-width: 1280px;
-  margin: 0 auto;
+  margin: 20px auto;
 }
 
 .box-card-custom {
