@@ -306,30 +306,32 @@ const handleCopy = async () => {
                     </el-tooltip>
                   </span>
                 </template>
-                <el-autocomplete
-                  id="region-code"
-                  v-model="form.regionCode"
-                  :fetch-suggestions="querySearchRegionCode"
-                  :trigger-on-focus="false"
-                  class="field-control"
-                  clearable
-                  highlight-first-item
-                  maxlength="6"
-                  placeholder="例如：320323"
-                  popper-class="region-code-popper"
-                  @input="sanitizeRegionCode"
-                  @select="handleRegionCodeSelect"
-                >
-                  <template #default="{ item }">
-                    <div class="region-suggestion">
-                      <span class="region-suggestion-code">{{ item.value }}</span>
-                      <div class="region-suggestion-body">
-                        <span class="region-suggestion-title">{{ item.label }}</span>
-                        <span :title="item.path" class="region-suggestion-meta">{{ item.meta }}</span>
+                <template #default>
+                  <el-autocomplete
+                    id="region-code"
+                    v-model="form.regionCode"
+                    :fetch-suggestions="querySearchRegionCode"
+                    :trigger-on-focus="false"
+                    clearable
+                    highlight-first-item
+                    maxlength="6"
+                    placeholder="例如：320323"
+                    popper-class="region-code-popper"
+                    style="width: 70%"
+                    @input="sanitizeRegionCode"
+                    @select="handleRegionCodeSelect"
+                  >
+                    <template #default="{ item }">
+                      <div class="region-suggestion">
+                        <span class="region-suggestion-code">{{ item.value }}</span>
+                        <div class="region-suggestion-body">
+                          <span class="region-suggestion-title">{{ item.label }}</span>
+                          <span :title="item.path" class="region-suggestion-meta">{{ item.meta }}</span>
+                        </div>
                       </div>
-                    </div>
-                  </template>
-                </el-autocomplete>
+                    </template>
+                  </el-autocomplete>
+                </template>
               </el-form-item>
             </el-col>
             <el-col :span="24">
@@ -337,7 +339,6 @@ const handleCopy = async () => {
                 <el-date-picker
                   id="birthday"
                   v-model="form.birthday"
-                  class="field-control"
                   format="YYYY/MM/DD"
                   placeholder="年 / 月 / 日"
                   type="date"
@@ -347,7 +348,7 @@ const handleCopy = async () => {
             </el-col>
             <el-col :span="24">
               <el-form-item class="field-item" label="性别" prop="gender">
-                <el-select id="gender" v-model="form.gender" class="field-control" placeholder="请选择性别">
+                <el-select id="gender" v-model="form.gender" placeholder="请选择性别" style="width: 50%">
                   <el-option
                     v-for="option in genderOptions"
                     :key="option.value"
@@ -427,10 +428,6 @@ const handleCopy = async () => {
   font-size: 12px;
   line-height: 1;
   cursor: help;
-}
-
-.field-control {
-  width: 50%;
 }
 
 .action-item {
