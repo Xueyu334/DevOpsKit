@@ -34,42 +34,15 @@ const { activeCode, featuredItem, hasQuery, highlightedCodes, matchedItems, quer
 
 <style scoped>
 .ascii-page {
+  margin: 10px auto;
   position: relative;
-  isolation: isolate;
   min-height: 100%;
   padding: 10px 24px 28px;
-  overflow: hidden;
-  background:
-    radial-gradient(
-      circle at top left,
-      color-mix(in srgb, var(--el-color-primary) 10%, transparent) 0%,
-      transparent 32%
-    ),
-    radial-gradient(
-      circle at top right,
-      color-mix(in srgb, var(--el-color-warning) 10%, transparent) 0%,
-      transparent 28%
-    ),
-    var(--el-bg-color-page);
-}
-
-.ascii-page::before {
-  content: '';
-  position: absolute;
-  top: -180px;
-  right: -90px;
-  z-index: 0;
-  width: 420px;
-  height: 420px;
-  border-radius: 28% 72% 63% 37% / 41% 46% 54% 59%;
-  background: color-mix(in srgb, var(--el-color-primary) 14%, transparent);
-  filter: blur(24px);
-  pointer-events: none;
+  background-color: var(--el-bg-color-page);
 }
 
 .ascii-page > * {
   position: relative;
-  z-index: 1;
 }
 
 .ascii-hero {
@@ -87,24 +60,9 @@ const { activeCode, featuredItem, hasQuery, highlightedCodes, matchedItems, quer
 .ascii-hero-title {
   margin: 0;
   color: var(--el-text-color-primary);
-  font-size: clamp(34px, 4.8vw, 52px);
-  font-weight: 800;
-  letter-spacing: -0.05em;
-  line-height: 0.96;
-}
-
-html.dark .ascii-page {
-  background:
-    radial-gradient(
-      circle at top left,
-      color-mix(in srgb, var(--el-color-primary) 14%, transparent) 0%,
-      transparent 32%
-    ),
-    radial-gradient(
-      circle at top right,
-      color-mix(in srgb, var(--el-color-warning) 14%, transparent) 0%,
-      transparent 28%
-    ),
-    var(--el-bg-color-page);
+  font-size: clamp(24px, 3.5vw, 32px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 </style>

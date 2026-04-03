@@ -130,13 +130,11 @@ const handleSelect = code => {
 .lookup-shell {
   --lookup-card-height: min(320px, calc(100vh - 320px));
   margin-bottom: 10px;
-  padding: 20px;
-  border: 1px solid color-mix(in srgb, var(--el-color-primary) 12%, var(--el-border-color-light));
-  border-radius: 26px;
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--el-color-primary) 8%, white) 0%, transparent 42%),
-    var(--el-bg-color);
-  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.08);
+  padding: 24px;
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: 16px;
+  background-color: var(--el-bg-color);
+  box-shadow: var(--el-box-shadow-light);
 }
 
 .lookup-intro,
@@ -164,9 +162,9 @@ const handleSelect = code => {
 }
 
 .lookup-title {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.4;
 }
 
 .lookup-tip,
@@ -287,6 +285,7 @@ const handleSelect = code => {
 }
 
 .result-panel-body {
+  padding-top: 10px;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -391,5 +390,12 @@ html.dark .panel-card {
 
 html.dark .result-chip {
   background: color-mix(in srgb, var(--el-fill-color-blank) 86%, #0f172a);
+}
+
+/* 针对控制字符标签的特别优化，降低暗黑模式下的 danger 色饱和度 */
+html.dark :deep(.el-tag--danger) {
+  --el-tag-bg-color: color-mix(in srgb, var(--el-color-danger) 15%, #1e1b1b);
+  --el-tag-border-color: color-mix(in srgb, var(--el-color-danger) 30%, transparent);
+  --el-tag-text-color: color-mix(in srgb, var(--el-color-danger) 85%, white);
 }
 </style>

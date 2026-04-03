@@ -57,10 +57,22 @@ const handleSelect = code => {
             <template v-for="item in row.cells" :key="item.dec">
               <td class="ascii-value-cell">{{ item.dec }}</td>
               <td class="ascii-label-cell">
-                <button :class="getCellClass(item)" type="button" @click="handleSelect(item.dec)">
-                  <span class="ascii-cell-main">{{ item.displayLabel }}</span>
-                  <span class="ascii-cell-meta">{{ item.hex }}</span>
-                </button>
+                <div class="cell-content">
+                  <button :class="getCellClass(item)" type="button" @click="handleSelect(item.dec)">
+                    <span class="ascii-cell-main">{{ item.displayLabel }}</span>
+                    <span class="ascii-cell-meta">{{ item.hex }}</span>
+                  </button>
+                  <el-tag
+                    v-if="item.category === 'control'"
+                    class="control-tag"
+                    effect="plain"
+                    round
+                    size="small"
+                    type="danger"
+                  >
+                    CTL
+                  </el-tag>
+                </div>
               </td>
             </template>
           </tr>
@@ -72,11 +84,11 @@ const handleSelect = code => {
 
 <style scoped>
 .matrix-shell {
-  padding: 22px 20px;
-  border: 1px solid color-mix(in srgb, var(--el-color-primary) 10%, var(--el-border-color-light));
-  border-radius: 26px;
-  background: var(--el-bg-color);
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.06);
+  padding: 24px;
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: 16px;
+  background-color: var(--el-bg-color);
+  box-shadow: var(--el-box-shadow-light);
 }
 
 .matrix-header {
@@ -158,13 +170,28 @@ const handleSelect = code => {
   padding: 0;
 }
 
+.cell-content {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.control-tag {
+  position: absolute;
+  right: 4px;
+  pointer-events: none;
+  transform: scale(0.8);
+  opacity: 0.7;
+}
+
 .ascii-cell {
   display: flex;
+  flex: 1;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  width: 100%;
   padding: 10px 12px;
+  padding-right: 48px;
   border: 0;
   background: transparent;
   color: var(--el-text-color-primary);
@@ -220,5 +247,17 @@ html.dark .ascii-cell:hover {
 
 html.dark .ascii-cell--match {
   background: color-mix(in srgb, var(--el-color-warning) 20%, transparent);
+}
+
+/* 针对控制字符增加暗黑模式下的低饱和度背景 */
+html.dark .ascii-table tr:has(.el-tag--danger) {
+  background: color-mix(in srgb, var(--el-color-danger) 4%, transparent);
+}
+
+/* 优化暗黑模式下控制字符的视觉效果，降低 danger 色饱和度 */
+html.dark :deep(.el-tag--danger) {
+  --el-tag-bg-color: color-mix(in srgb, var(--el-color-danger) 15%, #1e1b1b);
+  --el-tag-border-color: color-mix(in srgb, var(--el-color-danger) 30%, transparent);
+  --el-tag-text-color: color-mix(in srgb, var(--el-color-danger) 85%, white);
 }
 </style>
