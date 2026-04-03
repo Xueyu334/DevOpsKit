@@ -1,20 +1,25 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import Layout from '../layout/index.vue'
-import Home from '../views/Home.vue'
-import TextDiff from '../views/text-diff/index.vue'
-import JsonTools from '../views/json-tools/index.vue'
-import AsciiTable from '../views/ascii-table/index.vue'
-import Base64 from '../views/base64/index.vue'
-import HashGen from '../views/hash-gen/index.vue'
-import UrlEncode from '../views/url-encode/index.vue'
-import IdCardGenerator from '../views/id-card-generator/index.vue'
-import DockerCommands from '../views/docker-commands/index.vue'
-import NginxReference from '../views/nginx-reference/index.vue'
-import QrcodeGenerator from '../views/qrcode-generator/index.vue'
-import MermaidEditor from '../views/mermaid-editor/index.vue'
-import NotFound from '../views/not-found/index.vue'
+import Layout from '@/layout/index.vue'
+import Home from '@/views/Home.vue'
+import TextDiff from '@/views/text-diff/index.vue'
+import JsonTools from '@/views/json-tools/index.vue'
+import AsciiTable from '@/views/ascii-table/index.vue'
+import Base64 from '@/views/base64/index.vue'
+import HashGen from '@/views/hash-gen/index.vue'
+import UrlEncode from '@/views/url-encode/index.vue'
+import IdCardGenerator from '@/views/id-card-generator/index.vue'
+import DockerCommands from '@/views/docker-commands/index.vue'
+import NginxReference from '@/views/nginx-reference/index.vue'
+import QrcodeGenerator from '@/views/qrcode-generator/index.vue'
+import MermaidEditor from '@/views/mermaid-editor/index.vue'
+import NotFound from '@/views/not-found/index.vue'
 
+/**
+ * 路由配置数组。
+ * 包含应用的导航路径、组件绑定以及相关的元信息。
+ * 每个路由对象定义一个路径与组件的映射关系。
+ */
 const routes = [
   {
     path: '/',
