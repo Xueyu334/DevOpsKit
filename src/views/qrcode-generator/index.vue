@@ -1,9 +1,8 @@
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import QrcodeVue from 'qrcode.vue'
 import IconEpDownload from '~icons/ep/download'
 import IconEpRefresh from '~icons/ep/refresh'
-import IconEpDocumentCopy from '~icons/ep/document-copy'
 import IconEpPicture from '~icons/ep/picture'
 import { ElMessage } from 'element-plus'
 
@@ -125,7 +124,7 @@ const handleLogoUpload = (file) => {
   <div class="qrcode-view-container">
     <el-row :gutter="24">
       <el-col :xs="24" :md="14">
-        <el-card class="config-card box-card-custom" shadow="never">
+        <el-card class="box-card-custom" shadow="never">
           <template #header>
             <div class="card-header">
               <span class="title">
@@ -252,7 +251,7 @@ const handleLogoUpload = (file) => {
 
       <el-col :xs="24" :md="10">
         <div class="preview-sticky">
-          <el-card class="preview-card box-card-custom" shadow="hover">
+          <el-card class="box-card-custom" shadow="hover">
             <template #header>
               <div class="card-header">
                 <span class="title">实时预览</span>
