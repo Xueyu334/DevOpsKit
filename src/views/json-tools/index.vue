@@ -189,12 +189,25 @@ const handleEscape = () => {
   ElMessage.success('添加转义完成')
 }
 
+/**
+ * 开始调整大小的函数。
+ *
+ * 该方法会启用调整大小的模式，将全局 `isResizing` 状态设置为 `true`。
+ * 同时，它会更新页面的光标样式为列调整光标，并禁用用户选择，以增强用户体验。
+ */
 const startResizing = () => {
   isResizing = true
   document.body.style.cursor = 'col-resize'
   document.body.style.userSelect = 'none'
 }
 
+/**
+ * 处理鼠标移动事件的回调函数。
+ *
+ * 该函数用于在分隔容器处于调整大小状态时，根据鼠标的当前位置动态调整左侧区域的宽度。
+ *
+ * @param {MouseEvent} e 鼠标移动事件对象。
+ */
 const handleMouseMove = e => {
   if (!isResizing || !containerRef.value) {
     return
@@ -202,9 +215,21 @@ const handleMouseMove = e => {
 
   const containerRect = containerRef.value.getBoundingClientRect()
   const newLeftWidth = e.clientX - containerRect.left
-  if (newLeftWidth > 200 && newLeftWidth < containerRect.width - 200) {
-    leftWidth.value = newLeftWidth
+  const leftMinimumWidth = 400
+  const rightMinimumWidth = 400
+
+  // 检查左侧最小宽度限制
+  if (newLeftWidth < leftMinimumWidth) {
+    console.warn('Resize blocked: left panel width reached minimum limit')
+    return
   }
+  // 检查右侧最小宽度限制
+  if (newLeftWidth > containerRect.width - rightMinimumWidth) {
+    console.warn('Resize blocked: right panel width reached minimum limit')
+    return
+  }
+
+  leftWidth.value = newLeftWidth
 }
 
 const stopResizing = () => {
