@@ -1,11 +1,9 @@
 <script setup>
 import NginxReferenceCatalog from './NginxReferenceCatalog.vue'
-import {nginxReferenceSections} from '../nginx-reference'
+import { nginxReferenceSections } from '../nginx-reference'
 
 const sectionCount = computed(() => nginxReferenceSections.length)
-const itemCount = computed(() =>
-    nginxReferenceSections.reduce((total, section) => total + section.items.length, 0)
-)
+const itemCount = computed(() => nginxReferenceSections.reduce((total, section) => total + section.items.length, 0))
 </script>
 
 <template>
@@ -35,7 +33,7 @@ const itemCount = computed(() =>
       </div>
     </el-card>
 
-    <NginxReferenceCatalog :sections="nginxReferenceSections"/>
+    <NginxReferenceCatalog :sections="nginxReferenceSections" />
   </div>
 </template>
 
@@ -55,14 +53,14 @@ const itemCount = computed(() =>
   flex-shrink: 0;
   border: none;
   border-radius: 20px;
-  background: linear-gradient(135deg, #009688 0%, #4DB6AC 100%); /* Nginx 品牌风格的深绿色渐变 */
+  background: linear-gradient(135deg, #009688 0%, #4db6ac 100%); /* Nginx 品牌风格的深绿色渐变 */
   position: relative;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 150, 136, 0.2);
 }
 
 .hero-card::before {
-  content: "";
+  content: '';
   position: absolute;
   top: -50%;
   right: -10%;
@@ -121,7 +119,9 @@ const itemCount = computed(() =>
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(8px);
-  transition: transform 0.3s ease, background 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background 0.3s ease;
 }
 
 .metric-card:hover {
@@ -147,5 +147,4 @@ const itemCount = computed(() =>
 :deep(.hero-card .el-card__body) {
   padding: 24px 30px;
 }
-
 </style>

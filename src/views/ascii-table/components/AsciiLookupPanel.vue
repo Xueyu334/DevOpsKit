@@ -2,7 +2,7 @@
 const query = defineModel({
   type: String,
   default: ''
-});
+})
 
 defineProps({
   featuredItem: {
@@ -17,13 +17,13 @@ defineProps({
     type: Array,
     required: true
   }
-});
+})
 
-const emit = defineEmits(['select']);
+const emit = defineEmits(['select'])
 
-const handleSelect = (code) => {
-  emit('select', code);
-};
+const handleSelect = code => {
+  emit('select', code)
+}
 </script>
 
 <template>
@@ -34,16 +34,10 @@ const handleSelect = (code) => {
     </div>
     <el-row>
       <el-col :span="24">
-        <el-input
-            v-model="query"
-            class="lookup-input"
-            clearable
-            placeholder="搜索 ASCII 值或字符"
-            size="large"
-        >
+        <el-input v-model="query" class="lookup-input" clearable placeholder="搜索 ASCII 值或字符" size="large">
           <template #prefix>
             <el-icon class="lookup-input-icon">
-              <IconEpSearch/>
+              <IconEpSearch />
             </el-icon>
           </template>
         </el-input>
@@ -84,9 +78,7 @@ const handleSelect = (code) => {
           </div>
 
           <div class="focus-actions">
-            <el-button plain @click="handleSelect(featuredItem.dec)">
-              在总表中高亮
-            </el-button>
+            <el-button plain @click="handleSelect(featuredItem.dec)"> 在总表中高亮 </el-button>
             <span v-if="featuredItem.escape" class="focus-escape">{{ featuredItem.escape }}</span>
           </div>
         </div>
@@ -102,11 +94,11 @@ const handleSelect = (code) => {
           <div class="result-panel-body">
             <div v-if="matches.length" class="result-grid">
               <button
-                  v-for="item in matches"
-                  :key="item.dec"
-                  class="result-chip"
-                  type="button"
-                  @click="handleSelect(item.dec)"
+                v-for="item in matches"
+                :key="item.dec"
+                class="result-chip"
+                type="button"
+                @click="handleSelect(item.dec)"
               >
                 <span class="result-chip-code">{{ item.dec }}</span>
                 <span class="result-chip-body">
@@ -117,13 +109,13 @@ const handleSelect = (code) => {
             </div>
 
             <el-empty
-                v-else
-                :description="hasQuery ? '未匹配到对应 ASCII 项' : '输入后将在这里展示匹配结果'"
-                class="result-empty"
+              v-else
+              :description="hasQuery ? '未匹配到对应 ASCII 项' : '输入后将在这里展示匹配结果'"
+              class="result-empty"
             >
               <template #image>
                 <el-icon class="result-empty-icon">
-                  <IconEpSearch/>
+                  <IconEpSearch />
                 </el-icon>
               </template>
             </el-empty>
@@ -135,15 +127,15 @@ const handleSelect = (code) => {
 </template>
 
 <style scoped>
-
 .lookup-shell {
   --lookup-card-height: min(320px, calc(100vh - 320px));
   margin-bottom: 10px;
   padding: 20px;
   border: 1px solid color-mix(in srgb, var(--el-color-primary) 12%, var(--el-border-color-light));
   border-radius: 26px;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--el-color-primary) 8%, white) 0%, transparent 42%),
-  var(--el-bg-color);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--el-color-primary) 8%, white) 0%, transparent 42%),
+    var(--el-bg-color);
   box-shadow: 0 24px 70px rgba(15, 23, 42, 0.08);
 }
 
@@ -206,8 +198,9 @@ const handleSelect = (code) => {
 }
 
 :deep(.lookup-input .el-input__wrapper.is-focus) {
-  box-shadow: 0 0 0 1px var(--el-color-primary) inset,
-  0 10px 24px color-mix(in srgb, var(--el-color-primary) 18%, transparent);
+  box-shadow:
+    0 0 0 1px var(--el-color-primary) inset,
+    0 10px 24px color-mix(in srgb, var(--el-color-primary) 18%, transparent);
 }
 
 .lookup-input-icon {
@@ -326,9 +319,10 @@ const handleSelect = (code) => {
   background: var(--el-bg-color);
   text-align: left;
   cursor: pointer;
-  transition: transform 0.18s ease,
-  border-color 0.18s ease,
-  box-shadow 0.18s ease;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .result-chip:hover {
@@ -384,8 +378,9 @@ const handleSelect = (code) => {
 
 html.dark .lookup-shell {
   border-color: color-mix(in srgb, var(--el-color-primary) 18%, var(--el-border-color));
-  background: linear-gradient(135deg, color-mix(in srgb, var(--el-color-primary) 16%, transparent) 0%, transparent 40%),
-  var(--el-bg-color-overlay);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--el-color-primary) 16%, transparent) 0%, transparent 40%),
+    var(--el-bg-color-overlay);
   box-shadow: 0 24px 70px rgba(2, 6, 23, 0.34);
 }
 

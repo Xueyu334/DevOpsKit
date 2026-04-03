@@ -1,18 +1,10 @@
 <script setup>
-import AsciiLookupPanel from './components/AsciiLookupPanel.vue';
-import AsciiMatrix from './components/AsciiMatrix.vue';
-import {useAsciiLookup} from './composables/useAsciiLookup';
+import AsciiLookupPanel from './components/AsciiLookupPanel.vue'
+import AsciiMatrix from './components/AsciiMatrix.vue'
+import { useAsciiLookup } from './composables/useAsciiLookup'
 
-const {
-  activeCode,
-  featuredItem,
-  hasQuery,
-  highlightedCodes,
-  matchedItems,
-  query,
-  selectCode,
-  tableRows
-} = useAsciiLookup();
+const { activeCode, featuredItem, hasQuery, highlightedCodes, matchedItems, query, selectCode, tableRows } =
+  useAsciiLookup()
 </script>
 
 <template>
@@ -24,18 +16,18 @@ const {
     </div>
 
     <AsciiLookupPanel
-        v-model="query"
-        :featured-item="featuredItem"
-        :has-query="hasQuery"
-        :matches="matchedItems"
-        @select="selectCode"
+      v-model="query"
+      :featured-item="featuredItem"
+      :has-query="hasQuery"
+      :matches="matchedItems"
+      @select="selectCode"
     />
 
     <AsciiMatrix
-        :active-code="activeCode"
-        :highlighted-codes="highlightedCodes"
-        :rows="tableRows"
-        @select="selectCode"
+      :active-code="activeCode"
+      :highlighted-codes="highlightedCodes"
+      :rows="tableRows"
+      @select="selectCode"
     />
   </div>
 </template>
@@ -47,9 +39,18 @@ const {
   min-height: 100%;
   padding: 10px 24px 28px;
   overflow: hidden;
-  background: radial-gradient(circle at top left, color-mix(in srgb, var(--el-color-primary) 10%, transparent) 0%, transparent 32%),
-  radial-gradient(circle at top right, color-mix(in srgb, var(--el-color-warning) 10%, transparent) 0%, transparent 28%),
-  var(--el-bg-color-page);
+  background:
+    radial-gradient(
+      circle at top left,
+      color-mix(in srgb, var(--el-color-primary) 10%, transparent) 0%,
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at top right,
+      color-mix(in srgb, var(--el-color-warning) 10%, transparent) 0%,
+      transparent 28%
+    ),
+    var(--el-bg-color-page);
 }
 
 .ascii-page::before {
@@ -93,8 +94,17 @@ const {
 }
 
 html.dark .ascii-page {
-  background: radial-gradient(circle at top left, color-mix(in srgb, var(--el-color-primary) 14%, transparent) 0%, transparent 32%),
-  radial-gradient(circle at top right, color-mix(in srgb, var(--el-color-warning) 14%, transparent) 0%, transparent 28%),
-  var(--el-bg-color-page);
+  background:
+    radial-gradient(
+      circle at top left,
+      color-mix(in srgb, var(--el-color-primary) 14%, transparent) 0%,
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at top right,
+      color-mix(in srgb, var(--el-color-warning) 14%, transparent) 0%,
+      transparent 28%
+    ),
+    var(--el-bg-color-page);
 }
 </style>

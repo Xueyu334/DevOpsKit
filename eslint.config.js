@@ -11,7 +11,7 @@ try {
   const content = fs.readFileSync(new URL('./.eslintrc-auto-import.json', import.meta.url), 'utf-8')
   autoImportGlobals = JSON.parse(content)
 } catch (e) {
-  console.warn('Warning: .eslintrc-auto-import.json not found. Run dev or build to generate it.')
+  console.warn('Warning: .eslintrc-auto-import.json not found. Run dev or build to generate it.', e)
 }
 
 export default [
@@ -42,7 +42,8 @@ export default [
       'prettier/prettier': 'error',
       'vue/multi-word-component-names': 'off', // 工具类库通常组件名比较精简
       'no-unused-vars': 'warn',
-      'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn'
+      'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
+      'preserve-caught-error': 'off'
     }
   },
 

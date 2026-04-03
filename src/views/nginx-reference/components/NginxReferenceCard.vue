@@ -25,9 +25,7 @@ const isExpanded = computed(() => activePanels.value.includes(detailPanelName))
 const snippetLabel = computed(() => (isConfigItem.value ? '配置示例' : '命令示例'))
 const copyLabel = computed(() => (isConfigItem.value ? '复制配置' : '复制命令'))
 const detailLabel = computed(() => (isConfigItem.value ? '关键项说明' : '参数说明'))
-const detailTitle = computed(() =>
-  `${detailLabel.value}（点击${isExpanded.value ? '收起' : '展开'}）`
-)
+const detailTitle = computed(() => `${detailLabel.value}（点击${isExpanded.value ? '收起' : '展开'}）`)
 
 const handleToggleDetails = () => {
   activePanels.value = isExpanded.value ? [] : [detailPanelName]
@@ -186,12 +184,14 @@ const handleCopySnippet = () => {
 }
 
 .reference-snippet__label::before {
-  content: "";
+  content: '';
   width: 8px;
   height: 8px;
   background: #ff5f56;
   border-radius: 50%;
-  box-shadow: 12px 0 0 #ffbd2e, 24px 0 0 #27c93f;
+  box-shadow:
+    12px 0 0 #ffbd2e,
+    24px 0 0 #27c93f;
   margin-right: 28px;
   flex-shrink: 0;
 }
@@ -200,7 +200,11 @@ const handleCopySnippet = () => {
   margin: 0;
   padding: 14px 16px;
   color: #dcdcdc;
-  font: 500 13px/1.6 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font:
+    500 13px/1.6 'Fira Code',
+    'Consolas',
+    'Monaco',
+    monospace;
   white-space: pre-wrap;
   word-break: break-all;
 }

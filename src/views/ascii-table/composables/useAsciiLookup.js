@@ -1,106 +1,102 @@
-import { computed, shallowRef } from 'vue';
-import { ASCII_BLOCK_STARTS, ASCII_ITEMS, ASCII_ROW_COUNT } from '../ascii-data';
+import { computed, shallowRef } from 'vue'
+import { ASCII_BLOCK_STARTS, ASCII_ITEMS, ASCII_ROW_COUNT } from '../ascii-data'
 
-const ASCII_MAP = new Map(ASCII_ITEMS.map((item) => [item.dec, item]));
+const ASCII_MAP = new Map(ASCII_ITEMS.map(item => [item.dec, item]))
 
-const resolveAsciiCode = (query) => {
+const resolveAsciiCode = query => {
   if (/^\d{1,3}$/.test(query)) {
-    const code = Number.parseInt(query, 10);
-    return code >= 0 && code <= 127 ? code : null;
+    const code = Number.parseInt(query, 10)
+    return code >= 0 && code <= 127 ? code : null
   }
 
   if (/^(0x)?[0-9a-f]{1,2}$/i.test(query)) {
-    const normalized = query.toLowerCase().startsWith('0x') ? query.slice(2) : query;
-    const code = Number.parseInt(normalized, 16);
-    return code >= 0 && code <= 127 ? code : null;
+    const normalized = query.toLowerCase().startsWith('0x') ? query.slice(2) : query
+    const code = Number.parseInt(normalized, 16)
+    return code >= 0 && code <= 127 ? code : null
   }
 
   if (/^(0b)?[01]{1,7}$/i.test(query)) {
-    const normalized = query.toLowerCase().startsWith('0b') ? query.slice(2) : query;
-    const code = Number.parseInt(normalized, 2);
-    return code >= 0 && code <= 127 ? code : null;
+    const normalized = query.toLowerCase().startsWith('0b') ? query.slice(2) : query
+    const code = Number.parseInt(normalized, 2)
+    return code >= 0 && code <= 127 ? code : null
   }
 
-  return null;
-};
+  return null
+}
 
 const getMatchScore = (item, rawQuery, normalizedQuery, matchedCode) => {
   if (matchedCode !== null && item.dec === matchedCode) {
-    return 0;
+    return 0
   }
 
   if (rawQuery.length === 1 && item.char === rawQuery) {
-    return 0;
+    return 0
   }
 
   if (item.escape && item.escape.toLowerCase() === normalizedQuery) {
-    return 1;
+    return 1
   }
 
   if (item.name.toLowerCase() === normalizedQuery || item.displayLabel.toLowerCase() === normalizedQuery) {
-    return 1;
+    return 1
   }
 
-  if (item.searchTokens.some((token) => token === normalizedQuery)) {
-    return 2;
+  if (item.searchTokens.some(token => token === normalizedQuery)) {
+    return 2
   }
 
-  if (item.searchTokens.some((token) => token.startsWith(normalizedQuery))) {
-    return 3;
+  if (item.searchTokens.some(token => token.startsWith(normalizedQuery))) {
+    return 3
   }
 
   if (item.searchText.includes(normalizedQuery)) {
-    return 4;
+    return 4
   }
 
-  return null;
-};
+  return null
+}
 
 export const useAsciiLookup = () => {
-  const query = shallowRef('');
-  const activeCode = shallowRef(65);
+  const query = shallowRef('')
+  const activeCode = shallowRef(65)
 
-  const hasQuery = computed(() => Boolean(query.value.trim()));
+  const hasQuery = computed(() => Boolean(query.value.trim()))
 
   const matchedItems = computed(() => {
-    const rawQuery = query.value.trim();
+    const rawQuery = query.value.trim()
     if (!rawQuery) {
-      return [];
+      return []
     }
 
-    const normalizedQuery = rawQuery.toLowerCase();
-    const matchedCode = resolveAsciiCode(rawQuery);
+    const normalizedQuery = rawQuery.toLowerCase()
+    const matchedCode = resolveAsciiCode(rawQuery)
 
-    return ASCII_ITEMS
-      .map((item) => ({
-        item,
-        score: getMatchScore(item, rawQuery, normalizedQuery, matchedCode)
-      }))
-      .filter((entry) => entry.score !== null)
+    return ASCII_ITEMS.map(item => ({
+      item,
+      score: getMatchScore(item, rawQuery, normalizedQuery, matchedCode)
+    }))
+      .filter(entry => entry.score !== null)
       .sort((left, right) => left.score - right.score || left.item.dec - right.item.dec)
       .slice(0, 16)
-      .map((entry) => entry.item);
-  });
+      .map(entry => entry.item)
+  })
 
-  const featuredItem = computed(() => matchedItems.value[0] ?? ASCII_MAP.get(activeCode.value) ?? ASCII_ITEMS[65]);
+  const featuredItem = computed(() => matchedItems.value[0] ?? ASCII_MAP.get(activeCode.value) ?? ASCII_ITEMS[65])
 
-  const highlightedCodes = computed(() => [
-    activeCode.value,
-    ...matchedItems.value.map((item) => item.dec)
-  ]);
+  const highlightedCodes = computed(() => [activeCode.value, ...matchedItems.value.map(item => item.dec)])
 
   const tableRows = computed(() =>
     Array.from({ length: ASCII_ROW_COUNT }, (_, rowIndex) => ({
       rowIndex,
-      cells: ASCII_BLOCK_STARTS.map((blockStart) => ASCII_MAP.get(blockStart + rowIndex))
+      cells: ASCII_BLOCK_STARTS.map(blockStart => ASCII_MAP.get(blockStart + rowIndex))
     }))
-  );
+  )
 
-  const selectCode = (code) => {
+  const selectCode = code => {
     if (ASCII_MAP.has(code)) {
-      activeCode.value = code;
+      activeCode.value = code
     }
-  };
+  }
 
   return {
     activeCode,
@@ -111,5 +107,5 @@ export const useAsciiLookup = () => {
     query,
     selectCode,
     tableRows
-  };
-};
+  }
+}

@@ -1,10 +1,10 @@
 <script setup>
 import DockerCommandCatalog from './DockerCommandCatalog.vue'
-import {dockerCommandSections} from '../docker-commands'
+import { dockerCommandSections } from '../docker-commands'
 
 const sectionCount = computed(() => dockerCommandSections.length)
 const commandCount = computed(() =>
-    dockerCommandSections.reduce((total, section) => total + section.commands.length, 0)
+  dockerCommandSections.reduce((total, section) => total + section.commands.length, 0)
 )
 </script>
 
@@ -34,7 +34,7 @@ const commandCount = computed(() =>
         </div>
       </div>
     </el-card>
-    <DockerCommandCatalog :sections="dockerCommandSections"/>
+    <DockerCommandCatalog :sections="dockerCommandSections" />
   </div>
 </template>
 
@@ -61,7 +61,7 @@ const commandCount = computed(() =>
 }
 
 .hero-card::before {
-  content: "";
+  content: '';
   position: absolute;
   top: -50%;
   right: -10%;
@@ -120,7 +120,9 @@ const commandCount = computed(() =>
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(8px);
-  transition: transform 0.3s ease, background 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background 0.3s ease;
 }
 
 .metric-card:hover {

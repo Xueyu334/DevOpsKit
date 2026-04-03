@@ -1,6 +1,6 @@
 <script setup>
-import {computed, reactive, shallowRef, useTemplateRef} from "vue";
-import {ElMessage} from "element-plus";
+import { computed, reactive, shallowRef, useTemplateRef } from 'vue'
+import { ElMessage } from 'element-plus'
 import areaData from 'china-area-data'
 import { useCopyText } from '@/composables/useCopyText'
 
@@ -18,7 +18,7 @@ const { copyText } = useCopyText({
 
 const REGION_SEARCH_LIMIT = 20
 
-const normalizeRegionSegment = (segment) => {
+const normalizeRegionSegment = segment => {
   if (!segment || segment === '市辖区' || segment === '县') {
     return ''
   }
@@ -26,15 +26,11 @@ const normalizeRegionSegment = (segment) => {
 }
 
 const buildRegionPath = (provinceName, cityName, districtName) => {
-  return [provinceName, normalizeRegionSegment(cityName), districtName]
-      .filter(Boolean)
-      .join(' / ')
+  return [provinceName, normalizeRegionSegment(cityName), districtName].filter(Boolean).join(' / ')
 }
 
 const buildRegionMeta = (provinceName, cityName) => {
-  return [provinceName, normalizeRegionSegment(cityName)]
-      .filter(Boolean)
-      .join(' / ')
+  return [provinceName, normalizeRegionSegment(cityName)].filter(Boolean).join(' / ')
 }
 
 const buildRegionOption = (code, provinceName, cityName, districtName) => {
@@ -92,8 +88,8 @@ const regionCodeOptions = shallowRef(buildRegionCodeOptions())
  * - value: 性别的实际值，通常用于后端交互或数据存储。
  */
 const genderOptions = [
-  {label: '男', value: 'male'},
-  {label: '女', value: 'female'}
+  { label: '男', value: 'male' },
+  { label: '女', value: 'female' }
 ]
 
 /**
@@ -106,15 +102,11 @@ const genderOptions = [
  */
 const formRules = {
   regionCode: [
-    {required: true, message: '请输入区域码', trigger: 'change'},
-    {pattern: /^[0-9]{6}$/, message: '区域码必须为 6 位数字', trigger: 'change'}
+    { required: true, message: '请输入区域码', trigger: 'change' },
+    { pattern: /^[0-9]{6}$/, message: '区域码必须为 6 位数字', trigger: 'change' }
   ],
-  birthday: [
-    {required: true, message: '请选择生日', trigger: 'change'}
-  ],
-  gender: [
-    {required: true, message: '请选择性别', trigger: 'change'}
-  ]
+  birthday: [{ required: true, message: '请选择生日', trigger: 'change' }],
+  gender: [{ required: true, message: '请选择性别', trigger: 'change' }]
 }
 
 /**
@@ -164,7 +156,9 @@ const resultSegments = computed(() => {
  * 无返回值，操作直接修改 `form.regionCode` 的值。
  */
 const sanitizeRegionCode = (value = form.regionCode) => {
-  const sanitizedValue = String(value ?? '').replace(/\D/g, '').slice(0, 6)
+  const sanitizedValue = String(value ?? '')
+    .replace(/\D/g, '')
+    .slice(0, 6)
   if (sanitizedValue !== form.regionCode) {
     form.regionCode = sanitizedValue
   }
@@ -180,13 +174,13 @@ const querySearchRegionCode = (queryString, callback) => {
   }
 
   const suggestions = regionCodeOptions.value
-      .filter(({value}) => value.startsWith(sanitizedQuery))
-      .slice(0, REGION_SEARCH_LIMIT)
+    .filter(({ value }) => value.startsWith(sanitizedQuery))
+    .slice(0, REGION_SEARCH_LIMIT)
 
   callback(suggestions)
 }
 
-const handleRegionCodeSelect = (item) => {
+const handleRegionCodeSelect = item => {
   form.regionCode = item.value
 }
 
@@ -196,7 +190,7 @@ const handleRegionCodeSelect = (item) => {
  * @param {string} id17 - 身份证号码的前17位，由数字字符组成。
  * @returns {string|null} - 返回计算得到的校验码，可能是数字或字母'X'；如果输入无效则返回null。
  */
-const computeCheckCode = (id17) => {
+const computeCheckCode = id17 => {
   const weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2]
   const codes = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2']
   let sum = 0
@@ -293,7 +287,6 @@ const handleCopy = async () => {
   }
   await copyText(generatedId.value)
 }
-
 </script>
 
 <template>
@@ -301,8 +294,7 @@ const handleCopy = async () => {
     <el-card class="content-wrap" shadow="never">
       <template #default>
         <h1 class="page-title">身份证号生成器</h1>
-        <el-form ref="formRef" :model="form" :rules="formRules" label-position="top"
-                 label-suffix="">
+        <el-form ref="formRef" :model="form" :rules="formRules" label-position="top" label-suffix="">
           <el-row :gutter="16">
             <el-col :span="24">
               <el-form-item class="field-item" prop="regionCode">
@@ -315,18 +307,18 @@ const handleCopy = async () => {
                   </span>
                 </template>
                 <el-autocomplete
-                    id="region-code"
-                    v-model="form.regionCode"
-                    :fetch-suggestions="querySearchRegionCode"
-                    :trigger-on-focus="false"
-                    class="field-control"
-                    clearable
-                    highlight-first-item
-                    maxlength="6"
-                    placeholder="例如：320323"
-                    popper-class="region-code-popper"
-                    @input="sanitizeRegionCode"
-                    @select="handleRegionCodeSelect"
+                  id="region-code"
+                  v-model="form.regionCode"
+                  :fetch-suggestions="querySearchRegionCode"
+                  :trigger-on-focus="false"
+                  class="field-control"
+                  clearable
+                  highlight-first-item
+                  maxlength="6"
+                  placeholder="例如：320323"
+                  popper-class="region-code-popper"
+                  @input="sanitizeRegionCode"
+                  @select="handleRegionCodeSelect"
                 >
                   <template #default="{ item }">
                     <div class="region-suggestion">
@@ -342,49 +334,39 @@ const handleCopy = async () => {
             </el-col>
             <el-col :span="24">
               <el-form-item class="field-item" label="生日" prop="birthday">
-                <el-date-picker id="birthday"
-                                v-model="form.birthday"
-                                class="field-control"
-                                format="YYYY/MM/DD"
-                                placeholder="年 / 月 / 日"
-                                type="date"
-                                value-format="YYYY-MM-DD"/>
+                <el-date-picker
+                  id="birthday"
+                  v-model="form.birthday"
+                  class="field-control"
+                  format="YYYY/MM/DD"
+                  placeholder="年 / 月 / 日"
+                  type="date"
+                  value-format="YYYY-MM-DD"
+                />
               </el-form-item>
             </el-col>
             <el-col :span="24">
               <el-form-item class="field-item" label="性别" prop="gender">
-                <el-select
-                    id="gender"
-                    v-model="form.gender"
-                    class="field-control"
-                    placeholder="请选择性别"
-                >
+                <el-select id="gender" v-model="form.gender" class="field-control" placeholder="请选择性别">
                   <el-option
-                      v-for="option in genderOptions"
-                      :key="option.value"
-                      :label="option.label"
-                      :value="option.value"
+                    v-for="option in genderOptions"
+                    :key="option.value"
+                    :label="option.label"
+                    :value="option.value"
                   />
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="24" style="margin-top: 12px">
               <el-form-item class="action-item">
-                <el-button :disabled="!canGenerate" type="primary" @click="handleGenerate">
-                  生成身份证号
-                </el-button>
+                <el-button :disabled="!canGenerate" type="primary" @click="handleGenerate"> 生成身份证号 </el-button>
               </el-form-item>
             </el-col>
           </el-row>
         </el-form>
       </template>
-      <template v-if="generatedId" #footer style="margin-top: 12px">
-        <el-alert
-            :closable="false"
-            show-icon
-            title="严格禁止用于任何不正当用途"
-            type="warning"
-        >
+      <template v-if="generatedId" #footer>
+        <el-alert :closable="false" show-icon title="严格禁止用于任何不正当用途" type="warning">
           <template #default>
             <span>仅用于测试</span>
           </template>
@@ -392,11 +374,7 @@ const handleCopy = async () => {
         <el-row align="middle" class="result-shell" justify="space-between">
           <el-col :md="20" :sm="18" :xs="24">
             <div class="result-value">
-              <span
-                  v-for="(segment, index) in resultSegments"
-                  :key="`${segment}-${index}`"
-                  class="result-segment"
-              >
+              <span v-for="(segment, index) in resultSegments" :key="`${segment}-${index}`" class="result-segment">
                 {{ segment }}
               </span>
             </div>

@@ -26,13 +26,13 @@ const contentRootRef = useTemplateRef('contentRoot')
 
 watch(
   filteredSections,
-  (sections) => {
+  sections => {
     if (!sections.length) {
       activeCategoryKey.value = ''
       return
     }
 
-    const hasActiveCategory = sections.some((section) => section.key === activeCategoryKey.value)
+    const hasActiveCategory = sections.some(section => section.key === activeCategoryKey.value)
     if (!hasActiveCategory) {
       activeCategoryKey.value = sections[0].key
     }
@@ -40,7 +40,7 @@ watch(
   { immediate: true }
 )
 
-const scrollToCategory = async (categoryKey) => {
+const scrollToCategory = async categoryKey => {
   activeCategoryKey.value = categoryKey
   await nextTick()
 
@@ -63,7 +63,7 @@ const scrollToCategory = async (categoryKey) => {
   scrollbarRef.value?.setScrollTop(nextTop)
 }
 
-const handleSelectCategory = (categoryKey) => {
+const handleSelectCategory = categoryKey => {
   scrollToCategory(categoryKey)
 }
 
@@ -89,8 +89,12 @@ const handleClearSearch = () => {
               <el-tag effect="light" round>{{ filteredSections.length }}</el-tag>
             </div>
           </template>
-          <el-menu v-if="filteredSections.length" :default-active="activeCategoryKey" class="catalog-nav__menu"
-            @select="handleSelectCategory">
+          <el-menu
+            v-if="filteredSections.length"
+            :default-active="activeCategoryKey"
+            class="catalog-nav__menu"
+            @select="handleSelectCategory"
+          >
             <el-menu-item v-for="section in filteredSections" :key="section.key" :index="section.key">
               <span class="catalog-nav__label">{{ section.label }}</span>
               <el-tag effect="plain" round size="small">{{ section.items.length }}</el-tag>
@@ -107,13 +111,17 @@ const handleClearSearch = () => {
             <div class="catalog-toolbar">
               <div class="catalog-toolbar__copy">
                 <h2 class="catalog-toolbar__title">命令与配置列表</h2>
-                <p class="catalog-toolbar__subtitle">
-                  支持按命令名、配置项、示例、参数说明和使用场景进行模糊搜索。
-                </p>
+                <p class="catalog-toolbar__subtitle">支持按命令名、配置项、示例、参数说明和使用场景进行模糊搜索。</p>
               </div>
               <div class="catalog-toolbar__actions">
-                <el-input v-model="keyword" class="catalog-search" clearable
-                  placeholder="搜索：reload / proxy_pass / gzip / server_name" size="large" @clear="handleClearSearch">
+                <el-input
+                  v-model="keyword"
+                  class="catalog-search"
+                  clearable
+                  placeholder="搜索：reload / proxy_pass / gzip / server_name"
+                  size="large"
+                  @clear="handleClearSearch"
+                >
                   <template #prefix>
                     <el-icon>
                       <IconEpSearch />
@@ -127,17 +135,19 @@ const handleClearSearch = () => {
           <div class="catalog-summary">
             <el-tag effect="light" round type="primary">条目 {{ filteredItemCount }} / {{ totalItemCount }}</el-tag>
             <el-tag effect="light" round type="info">分类 {{ filteredSections.length }}</el-tag>
-            <el-tag v-if="hasKeyword" effect="light" round type="success">
-              关键词：{{ keyword.trim() }}
-            </el-tag>
+            <el-tag v-if="hasKeyword" effect="light" round type="success"> 关键词：{{ keyword.trim() }} </el-tag>
           </div>
 
           <div class="catalog-sections">
             <template v-if="hasResults">
               <el-scrollbar ref="scrollbar" class="catalog-sections__scrollbar">
                 <div ref="contentRoot" class="catalog-sections__viewport">
-                  <section v-for="section in filteredSections" :key="section.key" :data-category="section.key"
-                    class="reference-section">
+                  <section
+                    v-for="section in filteredSections"
+                    :key="section.key"
+                    :data-category="section.key"
+                    class="reference-section"
+                  >
                     <div class="reference-section__header">
                       <div class="reference-section__heading">
                         <h3 class="reference-section__title">{{ section.title }}</h3>
@@ -147,8 +157,12 @@ const handleClearSearch = () => {
                     </div>
 
                     <el-row :gutter="16">
-                      <el-col v-for="item in section.items" :key="item.id" class="reference-section__col"
-                        v-bind="{ xs: 24, sm: 24, md: 24, lg: 12, xl: 12 }">
+                      <el-col
+                        v-for="item in section.items"
+                        :key="item.id"
+                        class="reference-section__col"
+                        v-bind="{ xs: 24, sm: 24, md: 24, lg: 12, xl: 12 }"
+                      >
                         <NginxReferenceCard :item="item" :highlight-text="highlightText" />
                       </el-col>
                     </el-row>
@@ -337,7 +351,7 @@ const handleClearSearch = () => {
 }
 
 .reference-section__title::before {
-  content: "";
+  content: '';
   display: inline-block;
   width: 4px;
   height: 18px;

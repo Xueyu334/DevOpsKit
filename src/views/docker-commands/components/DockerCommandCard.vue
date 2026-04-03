@@ -168,12 +168,14 @@ const handleCopyCommand = () => {
 }
 
 .command-snippet__label::before {
-  content: "";
+  content: '';
   width: 8px;
   height: 8px;
   background: #ff5f56;
   border-radius: 50%;
-  box-shadow: 12px 0 0 #ffbd2e, 24px 0 0 #27c93f;
+  box-shadow:
+    12px 0 0 #ffbd2e,
+    24px 0 0 #27c93f;
   margin-right: 28px;
   /* 为影阴保留空间 */
   flex-shrink: 0;
@@ -183,7 +185,11 @@ const handleCopyCommand = () => {
   margin: 0;
   padding: 14px 16px;
   color: #dcdcdc;
-  font: 500 13px/1.6 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font:
+    500 13px/1.6 'Fira Code',
+    'Consolas',
+    'Monaco',
+    monospace;
   white-space: pre-wrap;
   word-break: break-all;
 }

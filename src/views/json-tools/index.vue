@@ -1,67 +1,67 @@
 <script setup>
-import {ElMessage} from 'element-plus';
-import JsonWorker from './json.worker.js?worker';
+import { ElMessage } from 'element-plus'
+import JsonWorker from './json.worker.js?worker'
 
-const EMPTY_STATE_HTML = '<span class="status-tip">等待输入...</span>';
+const EMPTY_STATE_HTML = '<span class="status-tip">等待输入...</span>'
 
 const renderOptionItems = [
-  {key: 'color', label: 'JSON 着色渲染'},
-  {key: 'showIndex', label: '显示数组索引'},
-  {key: 'showType', label: '显示数据类型'},
-  {key: 'compress', label: '同行紧凑输出'}
-];
+  { key: 'color', label: 'JSON 着色渲染' },
+  { key: 'showIndex', label: '显示数组索引' },
+  { key: 'showType', label: '显示数据类型' },
+  { key: 'compress', label: '同行紧凑输出' }
+]
 
-const rawInput = ref('');
+const rawInput = ref('')
 const options = reactive({
   color: true,
   compress: false,
   showIndex: false,
   showType: false
-});
+})
 
-const stringResultHtml = ref(EMPTY_STATE_HTML);
-const evalResultHtml = ref(EMPTY_STATE_HTML);
-const hasError = ref(false);
+const stringResultHtml = ref(EMPTY_STATE_HTML)
+const evalResultHtml = ref(EMPTY_STATE_HTML)
+const hasError = ref(false)
 
-const leftWidth = ref(400);
-const containerRef = ref(null);
-let isResizing = false;
-let worker = null;
+const leftWidth = ref(400)
+const containerRef = ref(null)
+let isResizing = false
+let worker = null
 
 const setIdleState = () => {
-  stringResultHtml.value = EMPTY_STATE_HTML;
-  evalResultHtml.value = EMPTY_STATE_HTML;
-  hasError.value = false;
-};
+  stringResultHtml.value = EMPTY_STATE_HTML
+  evalResultHtml.value = EMPTY_STATE_HTML
+  hasError.value = false
+}
 
 const buildErrorHtml = (message, modifierClass = '') =>
-    `<div class="error-box${modifierClass ? ` ${modifierClass}` : ''}">${message}</div>`;
+  `<div class="error-box${modifierClass ? ` ${modifierClass}` : ''}">${message}</div>`
 
-const parseJsonLike = (value) => {
+const parseJsonLike = value => {
   try {
-    return JSON.parse(value);
+    return JSON.parse(value)
   } catch {
-    return new Function(`return (${value})`)();
+    return new Function(`return (${value})`)()
   }
-};
+}
 
 function debounce(func, wait) {
-  let timeout;
+  let timeout
   return function (...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), wait);
-  };
+    clearTimeout(timeout)
+    timeout = setTimeout(() => func.apply(this, args), wait)
+  }
 }
 
 const update = () => {
-  const val = rawInput.value.trim();
+  const val = rawInput.value.trim()
   if (!val) {
-    setIdleState();
-    return;
+    setIdleState()
+    return
   }
 
   if (!worker) {
-    return;
+    return
   }
 
   const workerOptions = {
@@ -69,184 +69,187 @@ const update = () => {
     showIndex: options.showIndex,
     showType: options.showType,
     color: options.color
-  };
-
-  worker.postMessage({id: 'strict', type: 'strict', content: val, options: workerOptions});
-  worker.postMessage({id: 'relaxed', type: 'relaxed', content: val, options: workerOptions});
-};
-
-const debouncedUpdate = debounce(update, 300);
-
-const handleToggle = (e) => {
-  const target = e.target;
-  if (!target?.classList.contains('json-toggle')) {
-    return;
   }
 
-  const parent = target.parentElement;
-  const list = parent?.querySelector('.json-tree');
-  const indicator = parent?.querySelector('.json-size-indicator');
+  worker.postMessage({ id: 'strict', type: 'strict', content: val, options: workerOptions })
+  worker.postMessage({ id: 'relaxed', type: 'relaxed', content: val, options: workerOptions })
+}
+
+const debouncedUpdate = debounce(update, 300)
+
+const handleToggle = e => {
+  const target = e.target
+  if (!target?.classList.contains('json-toggle')) {
+    return
+  }
+
+  const parent = target.parentElement
+  const list = parent?.querySelector('.json-tree')
+  const indicator = parent?.querySelector('.json-size-indicator')
 
   if (!list) {
-    return;
+    return
   }
 
   if (list.classList.contains('folded')) {
-    list.classList.remove('folded');
-    if (indicator) indicator.style.display = 'none';
-    target.innerText = '-';
-    return;
+    list.classList.remove('folded')
+    if (indicator) indicator.style.display = 'none'
+    target.innerText = '-'
+    return
   }
 
-  list.classList.add('folded');
-  if (indicator) indicator.style.display = 'inline';
-  target.innerText = '+';
-};
+  list.classList.add('folded')
+  if (indicator) indicator.style.display = 'inline'
+  target.innerText = '+'
+}
 
 const transformParsedInput = (formatter, successMessage, errorPrefix) => {
-  const val = rawInput.value.trim();
+  const val = rawInput.value.trim()
   if (!val) {
-    return;
+    return
   }
 
   try {
-    rawInput.value = formatter(parseJsonLike(val));
-    update();
-    ElMessage.success(successMessage);
+    rawInput.value = formatter(parseJsonLike(val))
+    update()
+    ElMessage.success(successMessage)
   } catch (e) {
-    ElMessage.error(`${errorPrefix}: ${e.message}`);
+    ElMessage.error(`${errorPrefix}: ${e.message}`)
   }
-};
+}
 
 const handleClear = () => {
-  rawInput.value = '';
-  setIdleState();
-};
+  rawInput.value = ''
+  setIdleState()
+}
 
 const handleFormat = () => {
-  transformParsedInput((obj) => JSON.stringify(obj, null, 2), '格式化完成', '格式化失败');
-};
+  transformParsedInput(obj => JSON.stringify(obj, null, 2), '格式化完成', '格式化失败')
+}
 
 const handleCompress = () => {
-  transformParsedInput((obj) => JSON.stringify(obj), '压缩完成', '压缩失败');
-};
+  transformParsedInput(obj => JSON.stringify(obj), '压缩完成', '压缩失败')
+}
 
 const handleUnescape = () => {
-  let val = rawInput.value.trim();
+  let val = rawInput.value.trim()
   if (!val) {
-    return;
+    return
   }
 
   try {
     if (val.startsWith('"') && val.endsWith('"')) {
-      const parsed = JSON.parse(val);
+      const parsed = JSON.parse(val)
       if (typeof parsed === 'string') {
-        rawInput.value = parsed;
-        update();
-        ElMessage.success('去除转义成功');
-        return;
+        rawInput.value = parsed
+        update()
+        ElMessage.success('去除转义成功')
+        return
       }
     }
-  } catch {
+  } catch (e) {
+    console.warn(e)
   }
 
-  val = val.replace(/\\"/g, '"')
-      .replace(/\\\\/g, '\\')
-      .replace(/\\n/g, '\\n')
-      .replace(/\\r/g, '\\r')
-      .replace(/\\t/g, '\\t')
-      .replace(/\\b/g, '\\b')
-      .replace(/\\f/g, '\\f');
+  val = val
+    .replace(/\\"/g, '"')
+    .replace(/\\\\/g, '\\')
+    .replace(/\\n/g, '\\n')
+    .replace(/\\r/g, '\\r')
+    .replace(/\\t/g, '\\t')
+    .replace(/\\b/g, '\\b')
+    .replace(/\\f/g, '\\f')
 
   if (val.startsWith('"') && val.endsWith('"')) {
-    const inner = val.slice(1, -1);
+    const inner = val.slice(1, -1)
     if ((inner.startsWith('{') && inner.endsWith('}')) || (inner.startsWith('[') && inner.endsWith(']'))) {
-      val = inner;
+      val = inner
     }
   }
 
-  rawInput.value = val;
-  update();
-  ElMessage.success('部分去除转义完成');
-};
+  rawInput.value = val
+  update()
+  ElMessage.success('部分去除转义完成')
+}
 
 const handleEscape = () => {
-  let val = rawInput.value.trim();
+  let val = rawInput.value.trim()
   if (!val) {
-    return;
+    return
   }
 
   try {
-    val = JSON.stringify(parseJsonLike(val));
+    val = JSON.stringify(parseJsonLike(val))
   } catch {
+    // ignore
   }
 
-  rawInput.value = JSON.stringify(val);
-  update();
-  ElMessage.success('添加转义完成');
-};
+  rawInput.value = JSON.stringify(val)
+  update()
+  ElMessage.success('添加转义完成')
+}
 
 const startResizing = () => {
-  isResizing = true;
-  document.body.style.cursor = 'col-resize';
-  document.body.style.userSelect = 'none';
-};
+  isResizing = true
+  document.body.style.cursor = 'col-resize'
+  document.body.style.userSelect = 'none'
+}
 
-const handleMouseMove = (e) => {
+const handleMouseMove = e => {
   if (!isResizing || !containerRef.value) {
-    return;
+    return
   }
 
-  const containerRect = containerRef.value.getBoundingClientRect();
-  const newLeftWidth = e.clientX - containerRect.left;
+  const containerRect = containerRef.value.getBoundingClientRect()
+  const newLeftWidth = e.clientX - containerRect.left
   if (newLeftWidth > 200 && newLeftWidth < containerRect.width - 200) {
-    leftWidth.value = newLeftWidth;
+    leftWidth.value = newLeftWidth
   }
-};
+}
 
 const stopResizing = () => {
   if (!isResizing) {
-    return;
+    return
   }
 
-  isResizing = false;
-  document.body.style.cursor = 'default';
-  document.body.style.userSelect = '';
-};
+  isResizing = false
+  document.body.style.cursor = 'default'
+  document.body.style.userSelect = ''
+}
 
 onMounted(() => {
-  worker = new JsonWorker();
+  worker = new JsonWorker()
 
-  worker.onmessage = (e) => {
-    const {id, success, html, error} = e.data;
+  worker.onmessage = e => {
+    const { id, success, html, error } = e.data
 
     if (id === 'strict') {
       if (success) {
-        stringResultHtml.value = html;
-        hasError.value = false;
+        stringResultHtml.value = html
+        hasError.value = false
       } else {
-        stringResultHtml.value = buildErrorHtml(`Error: ${error}`);
-        hasError.value = true;
+        stringResultHtml.value = buildErrorHtml(`Error: ${error}`)
+        hasError.value = true
       }
-      return;
+      return
     }
 
-    evalResultHtml.value = success ? html : buildErrorHtml(`Eval error: ${error}`, 'error-box--italic');
-  };
+    evalResultHtml.value = success ? html : buildErrorHtml(`Eval error: ${error}`, 'error-box--italic')
+  }
 
-  document.addEventListener('mousemove', handleMouseMove);
-  document.addEventListener('mouseup', stopResizing);
+  document.addEventListener('mousemove', handleMouseMove)
+  document.addEventListener('mouseup', stopResizing)
 
   if (containerRef.value) {
-    leftWidth.value = containerRef.value.getBoundingClientRect().width * 0.4;
+    leftWidth.value = containerRef.value.getBoundingClientRect().width * 0.4
   }
-});
+})
 
 onUnmounted(() => {
-  if (worker) worker.terminate();
-  document.removeEventListener('mousemove', handleMouseMove);
-  document.removeEventListener('mouseup', stopResizing);
-});
+  if (worker) worker.terminate()
+  document.removeEventListener('mousemove', handleMouseMove)
+  document.removeEventListener('mouseup', stopResizing)
+})
 </script>
 
 <template>
@@ -262,7 +265,7 @@ onUnmounted(() => {
           <el-button plain>
             <template #icon>
               <el-icon>
-                <IconEpSetting/>
+                <IconEpSetting />
               </el-icon>
             </template>
             显示选项
@@ -270,11 +273,11 @@ onUnmounted(() => {
         </template>
         <div class="settings-panel">
           <el-checkbox
-              v-for="item in renderOptionItems"
-              :key="item.key"
-              v-model="options[item.key]"
-              class="settings-checkbox"
-              @change="debouncedUpdate"
+            v-for="item in renderOptionItems"
+            :key="item.key"
+            v-model="options[item.key]"
+            class="settings-checkbox"
+            @change="debouncedUpdate"
           >
             {{ item.label }}
           </el-checkbox>
@@ -291,27 +294,20 @@ onUnmounted(() => {
             <el-button plain size="small" @click="handleCompress">压缩</el-button>
             <el-button plain size="small" @click="handleEscape">转义</el-button>
             <el-button plain size="small" @click="handleUnescape">去转义</el-button>
-            <el-button
-                class="panel-action-icon"
-                plain
-                size="small"
-                title="清空"
-                type="danger"
-                @click="handleClear"
-            >
+            <el-button class="panel-action-icon" plain size="small" title="清空" type="danger" @click="handleClear">
               <el-icon>
-                <IconEpDelete/>
+                <IconEpDelete />
               </el-icon>
             </el-button>
           </div>
         </div>
         <textarea
-            v-model="rawInput"
-            class="editor-area"
-            placeholder="在此输入或粘贴您的 JSON 数据... (双击任意处自动格式化)"
-            spellcheck="false"
-            @dblclick="handleFormat"
-            @input="debouncedUpdate"
+          v-model="rawInput"
+          class="editor-area"
+          placeholder="在此输入或粘贴您的 JSON 数据... (双击任意处自动格式化)"
+          spellcheck="false"
+          @dblclick="handleFormat"
+          @input="debouncedUpdate"
         ></textarea>
       </div>
 
@@ -562,8 +558,9 @@ html.dark .app-container {
   border-radius: 2px;
   transform: translateX(-50%);
   background: var(--el-border-color);
-  transition: background var(--transition-fast),
-  height var(--transition-fast);
+  transition:
+    background var(--transition-fast),
+    height var(--transition-fast);
 }
 
 .gutter:hover::after {

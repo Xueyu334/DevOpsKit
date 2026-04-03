@@ -97,7 +97,7 @@ const resetConfig = () => {
 }
 
 // 处理 Logo 上传
-const handleLogoUpload = (file) => {
+const handleLogoUpload = file => {
   const isImage = file.raw.type.startsWith('image/')
   const isLt2M = file.raw.size / 1024 / 1024 < 2
 
@@ -111,13 +111,12 @@ const handleLogoUpload = (file) => {
   }
 
   const reader = new FileReader()
-  reader.onload = (e) => {
+  reader.onload = e => {
     config.imageSettings.src = e.target.result
   }
   reader.readAsDataURL(file.raw)
   return false // 阻止自动上传
 }
-
 </script>
 
 <template>
@@ -130,20 +129,28 @@ const handleLogoUpload = (file) => {
               <span class="title">
                 <el-icon>
                   <IconEpPicture />
-                </el-icon> 生成配置
+                </el-icon>
+                生成配置
               </span>
               <el-button type="info" link @click="resetConfig">
                 <el-icon>
                   <IconEpRefresh />
-                </el-icon> 重置
+                </el-icon>
+                重置
               </el-button>
             </div>
           </template>
 
           <el-form :model="config" label-position="top">
             <el-form-item label="内容文本 / URL">
-              <el-input v-model="config.value" type="textarea" :clearable="true" :rows="4" placeholder="请输入要生成二维码的内容..."
-                resize="none" />
+              <el-input
+                v-model="config.value"
+                type="textarea"
+                :clearable="true"
+                :rows="4"
+                placeholder="请输入要生成二维码的内容..."
+                resize="none"
+              />
             </el-form-item>
 
             <el-row :gutter="20">
@@ -170,8 +177,12 @@ const handleLogoUpload = (file) => {
               <el-col :span="12">
                 <el-form-item label="渲染方式">
                   <el-select v-model="config.renderAs" style="width: 100%">
-                    <el-option v-for="item in renderOptions" :key="item.value" :label="item.label"
-                      :value="item.value" />
+                    <el-option
+                      v-for="item in renderOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
                   </el-select>
                 </el-form-item>
               </el-col>
@@ -218,8 +229,13 @@ const handleLogoUpload = (file) => {
               </el-col>
               <el-col :span="12">
                 <el-form-item label="本地上传 Logo">
-                  <el-upload action="#" :auto-upload="false" :on-change="handleLogoUpload" :show-file-list="false"
-                    accept="image/*">
+                  <el-upload
+                    action="#"
+                    :auto-upload="false"
+                    :on-change="handleLogoUpload"
+                    :show-file-list="false"
+                    accept="image/*"
+                  >
                     <el-button type="primary" plain size="small">点击上传</el-button>
                   </el-upload>
                 </el-form-item>
@@ -259,7 +275,8 @@ const handleLogoUpload = (file) => {
                   <el-button type="primary" @click="downloadQR">
                     <el-icon>
                       <IconEpDownload />
-                    </el-icon> 下载图片
+                    </el-icon>
+                    下载图片
                   </el-button>
                 </div>
               </div>
@@ -267,11 +284,20 @@ const handleLogoUpload = (file) => {
 
             <div class="qrcode-container">
               <div class="qrcode-wrapper" :style="{ backgroundColor: config.background }">
-                <qrcode-vue :value="config.value || ' '" :size="config.size" :level="config.level"
-                  :render-as="config.renderAs" :background="config.background" :foreground="config.foreground"
-                  :margin="config.margin" :gradient="config.gradient" :gradient-type="config.gradientType"
-                  :gradient-start-color="config.gradientStartColor" :gradient-end-color="config.gradientEndColor"
-                  :image-settings="computedImageSettings" />
+                <qrcode-vue
+                  :value="config.value || ' '"
+                  :size="config.size"
+                  :level="config.level"
+                  :render-as="config.renderAs"
+                  :background="config.background"
+                  :foreground="config.foreground"
+                  :margin="config.margin"
+                  :gradient="config.gradient"
+                  :gradient-type="config.gradientType"
+                  :gradient-start-color="config.gradientStartColor"
+                  :gradient-end-color="config.gradientEndColor"
+                  :image-settings="computedImageSettings"
+                />
               </div>
               <div class="qrcode-info">
                 <p>内容长度: {{ config.value?.length || 0 }} 字符</p>

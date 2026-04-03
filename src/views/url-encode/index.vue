@@ -6,14 +6,19 @@
           <el-tooltip content="复制全部" placement="top">
             <el-button class="copy-btn" link @click="handleCopy(leftText)">
               <el-icon>
-                <IconEpCopyDocument/>
+                <IconEpCopyDocument />
               </el-icon>
             </el-button>
           </el-tooltip>
         </div>
-        <textarea v-model="leftText" class="editor-area" placeholder="在此粘贴需要 URL编码/解码 的内容"
-                  spellcheck="false"
-                  @focus="activePane = 'left'" @input="activePane = 'left'"></textarea>
+        <textarea
+          v-model="leftText"
+          class="editor-area"
+          placeholder="在此粘贴需要 URL编码/解码 的内容"
+          spellcheck="false"
+          @focus="activePane = 'left'"
+          @input="activePane = 'left'"
+        ></textarea>
         <div v-if="leftText" class="panel-footer">{{ leftStats }}</div>
       </div>
 
@@ -22,21 +27,28 @@
           <el-tooltip content="复制全部" placement="top">
             <el-button class="copy-btn" link @click="handleCopy(rightText)">
               <el-icon>
-                <IconEpCopyDocument/>
+                <IconEpCopyDocument />
               </el-icon>
             </el-button>
           </el-tooltip>
         </div>
-        <textarea v-model="rightText" class="editor-area" placeholder="处理结果将在此处显示，也可在此粘贴进行逆向操作"
-                  spellcheck="false"
-                  @focus="activePane = 'right'" @input="activePane = 'right'"></textarea>
+        <textarea
+          v-model="rightText"
+          class="editor-area"
+          placeholder="处理结果将在此处显示，也可在此粘贴进行逆向操作"
+          spellcheck="false"
+          @focus="activePane = 'right'"
+          @input="activePane = 'right'"
+        ></textarea>
         <div v-if="rightText" class="panel-footer">{{ rightStats }}</div>
       </div>
     </div>
 
     <div class="action-bar mb-4">
-      <el-tooltip content="仅编码/解码包含的特定组件敏感字符(如 ? & =)，取消勾选则进行整个完整 URL 的低强度编解码"
-                  placement="top">
+      <el-tooltip
+        content="仅编码/解码包含的特定组件敏感字符(如 ? & =)，取消勾选则进行整个完整 URL 的低强度编解码"
+        placement="top"
+      >
         <el-checkbox v-model="options.encodeComponent">强转义模式 (URIComponent)</el-checkbox>
       </el-tooltip>
       <el-tooltip content="勾选后将按行执行，独立的解析异常不会影响其它行" placement="top">
@@ -50,21 +62,21 @@
 </template>
 
 <script setup>
-import {computed, reactive, ref} from 'vue'
-import {ElMessage} from 'element-plus'
-import {useCopyText} from '@/composables/useCopyText'
+import { computed, reactive, ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import { useCopyText } from '@/composables/useCopyText'
 
 const leftText = ref('')
 const rightText = ref('')
 const activePane = ref('left') // Tracks which pane is currently being used
-const {copyText} = useCopyText()
+const { copyText } = useCopyText()
 
 const options = reactive({
   multiLine: false,
   encodeComponent: true
 })
 
-const formatSize = (bytes) => {
+const formatSize = bytes => {
   if (bytes === 0) return '0 B'
   const k = 1024
   const sizes = ['B', 'KB', 'MB']
@@ -86,22 +98,22 @@ const rightStats = computed(() => {
   return `${chars} 字符  |  约 ${formatSize(bytes)}`
 })
 
-const handleCopy = (text) => copyText(text)
+const handleCopy = text => copyText(text)
 
 const handleClear = () => {
   leftText.value = ''
   rightText.value = ''
 }
 
-const encodeUrl = (str) => {
+const encodeUrl = str => {
   return options.encodeComponent ? encodeURIComponent(str) : encodeURI(str)
 }
 
-const decodeUrl = (str) => {
+const decodeUrl = str => {
   return options.encodeComponent ? decodeURIComponent(str) : decodeURI(str)
 }
 
-const processAction = (action) => {
+const processAction = action => {
   const isLeftActive = activePane.value === 'left'
   const sourceText = isLeftActive ? leftText.value : rightText.value
 
@@ -114,15 +126,18 @@ const processAction = (action) => {
     let result = ''
     if (options.multiLine) {
       let hasError = false
-      result = sourceText.split('\n').map(line => {
-        if (!line.trim()) return ''
-        try {
-          return action === 'encode' ? encodeUrl(line) : decodeUrl(line)
-        } catch (e) {
-          hasError = true
-          return line
-        }
-      }).join('\n')
+      result = sourceText
+        .split('\n')
+        .map(line => {
+          if (!line.trim()) return ''
+          try {
+            return action === 'encode' ? encodeUrl(line) : decodeUrl(line)
+          } catch (e) {
+            hasError = true
+            return line
+          }
+        })
+        .join('\n')
 
       if (hasError && action === 'decode') {
         ElMessage.warning('部分行 URL 解码失败，已保留原内容')

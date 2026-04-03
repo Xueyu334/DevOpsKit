@@ -6,13 +6,19 @@
           <el-tooltip content="复制全部" placement="top">
             <el-button class="copy-btn" link @click="handleCopy(leftText)">
               <el-icon>
-                <IconEpCopyDocument/>
+                <IconEpCopyDocument />
               </el-icon>
             </el-button>
           </el-tooltip>
         </div>
-        <textarea v-model="leftText" class="editor-area" placeholder="在此粘贴需要 编码/解码 的内容" spellcheck="false"
-                  @focus="activePane = 'left'" @input="activePane = 'left'"></textarea>
+        <textarea
+          v-model="leftText"
+          class="editor-area"
+          placeholder="在此粘贴需要 编码/解码 的内容"
+          spellcheck="false"
+          @focus="activePane = 'left'"
+          @input="activePane = 'left'"
+        ></textarea>
         <div v-if="leftText" class="panel-footer">{{ leftStats }}</div>
       </div>
 
@@ -21,14 +27,19 @@
           <el-tooltip content="复制全部" placement="top">
             <el-button class="copy-btn" link @click="handleCopy(rightText)">
               <el-icon>
-                <IconEpCopyDocument/>
+                <IconEpCopyDocument />
               </el-icon>
             </el-button>
           </el-tooltip>
         </div>
-        <textarea v-model="rightText" class="editor-area" placeholder="处理结果将在此处显示，也可在此粘贴进行逆向操作"
-                  spellcheck="false"
-                  @focus="activePane = 'right'" @input="activePane = 'right'"></textarea>
+        <textarea
+          v-model="rightText"
+          class="editor-area"
+          placeholder="处理结果将在此处显示，也可在此粘贴进行逆向操作"
+          spellcheck="false"
+          @focus="activePane = 'right'"
+          @input="activePane = 'right'"
+        ></textarea>
         <div v-if="rightText" class="panel-footer">{{ rightStats }}</div>
       </div>
     </div>
@@ -45,20 +56,20 @@
 </template>
 
 <script setup>
-import {computed, reactive, ref} from 'vue'
-import {ElMessage} from 'element-plus'
-import {useCopyText} from '@/composables/useCopyText'
+import { computed, reactive, ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import { useCopyText } from '@/composables/useCopyText'
 
 const leftText = ref('')
 const rightText = ref('')
 const activePane = ref('left') // Tracks which pane is currently being used
-const {copyText} = useCopyText()
+const { copyText } = useCopyText()
 
 const options = reactive({
   multiLine: false
 })
 
-const formatSize = (bytes) => {
+const formatSize = bytes => {
   if (bytes === 0) return '0 B'
   const k = 1024
   const sizes = ['B', 'KB', 'MB']
@@ -80,33 +91,31 @@ const rightStats = computed(() => {
   return `${chars} 字符  |  约 ${formatSize(bytes)}`
 })
 
-const handleCopy = (text) => copyText(text)
+const handleCopy = text => copyText(text)
 
 const handleClear = () => {
   leftText.value = ''
   rightText.value = ''
 }
 
-const encodeBase64 = (str) => {
+const encodeBase64 = str => {
   const bytes = new TextEncoder().encode(str)
-  const binString = Array.from(bytes, (byte) =>
-      String.fromCodePoint(byte),
-  ).join("")
+  const binString = Array.from(bytes, byte => String.fromCodePoint(byte)).join('')
   return btoa(binString)
 }
 
-const decodeBase64 = (b64) => {
+const decodeBase64 = b64 => {
   // Try to remove any whitespaces if user accidentally included them
   b64 = b64.replace(/\s/g, '')
   if (!/^[A-Za-z0-9+/]+={0,2}$/.test(b64)) {
     throw new Error('Invalid Base64 string')
   }
   const binString = atob(b64)
-  const bytes = Uint8Array.from(binString, (m) => m.codePointAt(0))
+  const bytes = Uint8Array.from(binString, m => m.codePointAt(0))
   return new TextDecoder().decode(bytes)
 }
 
-const processAction = (action) => {
+const processAction = action => {
   const isLeftActive = activePane.value === 'left'
   const sourceText = isLeftActive ? leftText.value : rightText.value
 
@@ -119,15 +128,19 @@ const processAction = (action) => {
     let result = ''
     if (options.multiLine) {
       let hasError = false
-      result = sourceText.split('\n').map(line => {
-        if (!line.trim()) return ''
-        try {
-          return action === 'encode' ? encodeBase64(line) : decodeBase64(line)
-        } catch (e) {
-          hasError = true
-          return line
-        }
-      }).join('\n')
+      result = sourceText
+        .split('\n')
+        .map(line => {
+          if (!line.trim()) return ''
+          try {
+            return action === 'encode' ? encodeBase64(line) : decodeBase64(line)
+          } catch (e) {
+            console.error('Error processing line:', e)
+            hasError = true
+            return line
+          }
+        })
+        .join('\n')
 
       if (hasError && action === 'decode') {
         ElMessage.warning('部分行 Base64 解码失败，已保留原内容')

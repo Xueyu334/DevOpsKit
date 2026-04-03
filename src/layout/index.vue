@@ -1,7 +1,7 @@
 <script setup>
-import {computed} from 'vue'
-import {useRoute, useRouter} from 'vue-router'
-import {toolCategories} from '../config/tool-categories'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { toolCategories } from '../config/tool-categories'
 
 const router = useRouter()
 const route = useRoute()
@@ -12,26 +12,24 @@ const isDark = useDark({
   valueLight: 'light',
   storageKey: 'devopskit-color-mode'
 })
-const themeTooltip = computed(() => isDark.value ? '切换为浅色模式' : '切换为深色模式')
+const themeTooltip = computed(() => (isDark.value ? '切换为浅色模式' : '切换为深色模式'))
 
 const menuCategories = computed(() =>
-    toolCategories
-        .map(category => ({
-          ...category,
-          tools: category.tools.filter(tool => tool.route)
-        }))
-        .filter(category => category.tools.length > 0)
+  toolCategories
+    .map(category => ({
+      ...category,
+      tools: category.tools.filter(tool => tool.route)
+    }))
+    .filter(category => category.tools.length > 0)
 )
 
-const handleSelect = (key) => {
+const handleSelect = key => {
   router.push(key)
 }
 
 const handleLogoClick = () => {
   router.push('/')
 }
-
-
 </script>
 
 <template>
@@ -43,11 +41,13 @@ const handleLogoClick = () => {
           <div class="logo" @click="handleLogoClick">DevOpsKit</div>
         </el-col>
         <el-col :lg="18" :md="22" :sm="22" :xl="18" :xs="22">
-          <el-menu :default-active="route.path"
-                   :ellipsis="true"
-                   class="header-menu"
-                   mode="horizontal"
-                   @select="handleSelect">
+          <el-menu
+            :default-active="route.path"
+            :ellipsis="true"
+            class="header-menu"
+            mode="horizontal"
+            @select="handleSelect"
+          >
             <el-menu-item index="/home">首页</el-menu-item>
             <el-sub-menu v-for="category in menuCategories" :key="category.menuKey" :index="category.menuKey">
               <template #title>{{ category.name }}</template>
@@ -61,10 +61,10 @@ const handleLogoClick = () => {
           <el-tooltip :content="themeTooltip" placement="bottom">
             <el-switch v-model="isDark" class="theme-switch" inline-prompt>
               <template #active-action>
-                <IconEpMoon/>
+                <IconEpMoon />
               </template>
               <template #inactive-action>
-                <IconEpSunny/>
+                <IconEpSunny />
               </template>
             </el-switch>
           </el-tooltip>
@@ -73,24 +73,23 @@ const handleLogoClick = () => {
     </el-header>
 
     <!-- 中间主要内容区域（路由页面） -->
-    <el-main class="app-main" style="--el-main-padding: 0;">
+    <el-main class="app-main" style="--el-main-padding: 0">
       <router-view v-slot="{ Component }">
         <transition mode="out-in" name="fade">
-          <component :is="Component"/>
+          <component :is="Component" />
         </transition>
       </router-view>
     </el-main>
 
     <!-- 全局底部 -->
     <!-- 清除 el-footer 自带的 20px 左右 padding 和高度限制 -->
-    <el-footer class="app-footer" style="--el-footer-padding: 0; height: auto;padding-bottom: 10px;">
+    <el-footer class="app-footer" style="--el-footer-padding: 0; height: auto; padding-bottom: 10px">
       <p>&copy; {{ new Date().getFullYear() }} DevOpsKit. All rights reserved.</p>
     </el-footer>
   </el-container>
 </template>
 
 <style scoped>
-
 .layout-wrapper {
   height: 100vh;
   width: 100%;

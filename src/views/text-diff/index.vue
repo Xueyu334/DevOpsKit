@@ -29,8 +29,12 @@
         <el-col v-bind="{ xs: 24, sm: 24, md: 8, lg: 6, xl: 6 }">
           <el-form-item label="语言" prop="language">
             <el-select v-model="data.language" class="language-select" placeholder="请选择语言">
-              <el-option v-for="option in languageOptions" :key="option.value" :label="option.label"
-                :value="option.value" />
+              <el-option
+                v-for="option in languageOptions"
+                :key="option.value"
+                :label="option.label"
+                :value="option.value"
+              />
             </el-select>
           </el-form-item>
         </el-col>
@@ -38,14 +42,26 @@
           <el-row :gutter="12">
             <el-col :md="12" :xs="24">
               <el-form-item label="左侧内容" prop="prevText">
-                <el-input v-model="data.prevText" :autosize="{ minRows: 10, maxRows: 10 }" :maxlength="MAX_TEXT_LENGTH"
-                  class="text-input" show-word-limit type="textarea" />
+                <el-input
+                  v-model="data.prevText"
+                  :autosize="{ minRows: 10, maxRows: 10 }"
+                  :maxlength="MAX_TEXT_LENGTH"
+                  class="text-input"
+                  show-word-limit
+                  type="textarea"
+                />
               </el-form-item>
             </el-col>
             <el-col :md="12" :xs="24">
               <el-form-item label="右侧内容" prop="currText">
-                <el-input v-model="data.currText" :autosize="{ minRows: 10, maxRows: 10 }" :maxlength="MAX_TEXT_LENGTH"
-                  class="text-input" show-word-limit type="textarea" />
+                <el-input
+                  v-model="data.currText"
+                  :autosize="{ minRows: 10, maxRows: 10 }"
+                  :maxlength="MAX_TEXT_LENGTH"
+                  class="text-input"
+                  show-word-limit
+                  type="textarea"
+                />
               </el-form-item>
             </el-col>
           </el-row>
@@ -66,17 +82,25 @@
       </div>
     </div>
     <div class="diff-viewer-wrapper">
-      <VueDiff :current="data.currText" :folding="data.folding" :input-delay="data.inputDelay" :language="data.language"
-        :mode="data.diffMode" :prev="data.prevText" :theme="data.theme" :virtual-scroll="virtualScroll" />
+      <VueDiff
+        :current="data.currText"
+        :folding="data.folding"
+        :input-delay="data.inputDelay"
+        :language="data.language"
+        :mode="data.diffMode"
+        :prev="data.prevText"
+        :theme="data.theme"
+        :virtual-scroll="virtualScroll"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import { text1, text2 } from "@/views/text-diff/ext.js"
+import { text1, text2 } from '@/views/text-diff/ext.js'
 
 // 定义全局文本最大长度限制常量
-const MAX_TEXT_LENGTH = 1000000;
+const MAX_TEXT_LENGTH = 1000000
 const languageOptions = [
   { label: '纯文本', value: 'plaintext' },
   { label: 'JSON', value: 'json' },
@@ -130,7 +154,6 @@ const handleClearText = () => {
   data.prevText = ''
   data.currText = ''
 }
-
 </script>
 
 <style scoped>

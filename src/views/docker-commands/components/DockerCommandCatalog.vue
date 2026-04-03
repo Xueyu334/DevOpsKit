@@ -1,6 +1,6 @@
 <script setup>
 import DockerCommandCard from './DockerCommandCard.vue'
-import {useDockerCommandSearch} from '../composables/useDockerCommandSearch'
+import { useDockerCommandSearch } from '../composables/useDockerCommandSearch'
 
 const props = defineProps({
   sections: {
@@ -25,22 +25,22 @@ const contentRootRef = useTemplateRef('contentRoot')
 const scrollbarRef = useTemplateRef('scrollbarRef') // 明确 scrollbar 引用
 
 watch(
-    filteredSections,
-    (sections) => {
-      if (!sections.length) {
-        activeCategoryKey.value = ''
-        return
-      }
+  filteredSections,
+  sections => {
+    if (!sections.length) {
+      activeCategoryKey.value = ''
+      return
+    }
 
-      const hasActiveCategory = sections.some((section) => section.key === activeCategoryKey.value)
-      if (!hasActiveCategory) {
-        activeCategoryKey.value = sections[0].key
-      }
-    },
-    {immediate: true}
+    const hasActiveCategory = sections.some(section => section.key === activeCategoryKey.value)
+    if (!hasActiveCategory) {
+      activeCategoryKey.value = sections[0].key
+    }
+  },
+  { immediate: true }
 )
 
-const scrollToCategory = async (categoryKey) => {
+const scrollToCategory = async categoryKey => {
   activeCategoryKey.value = categoryKey
   await nextTick()
 
@@ -54,7 +54,7 @@ const scrollToCategory = async (categoryKey) => {
   }
 }
 
-const handleSelectCategory = (categoryKey) => {
+const handleSelectCategory = categoryKey => {
   scrollToCategory(categoryKey)
 }
 
@@ -81,10 +81,10 @@ const handleClearSearch = () => {
             </div>
           </template>
           <el-menu
-              v-if="filteredSections.length"
-              :default-active="activeCategoryKey"
-              class="catalog-nav__menu"
-              @select="handleSelectCategory"
+            v-if="filteredSections.length"
+            :default-active="activeCategoryKey"
+            class="catalog-nav__menu"
+            @select="handleSelectCategory"
           >
             <el-menu-item v-for="section in filteredSections" :key="section.key" :index="section.key">
               <span class="catalog-nav__label">{{ section.label }}</span>
@@ -107,16 +107,16 @@ const handleClearSearch = () => {
               </div>
               <div class="catalog-toolbar__actions">
                 <el-input
-                    v-model="keyword"
-                    class="catalog-search"
-                    clearable
-                    placeholder="搜索命令名、参数或场景，例如：logs / -p / 清理"
-                    size="large"
-                    @clear="handleClearSearch"
+                  v-model="keyword"
+                  class="catalog-search"
+                  clearable
+                  placeholder="搜索命令名、参数或场景，例如：logs / -p / 清理"
+                  size="large"
+                  @clear="handleClearSearch"
                 >
                   <template #prefix>
                     <el-icon>
-                      <IconEpSearch/>
+                      <IconEpSearch />
                     </el-icon>
                   </template>
                 </el-input>
@@ -124,22 +124,21 @@ const handleClearSearch = () => {
             </div>
           </template>
           <div class="catalog-summary">
-            <el-tag effect="light" round type="primary">命令 {{ filteredCommandCount }} / {{ totalCommandCount }}
+            <el-tag effect="light" round type="primary"
+              >命令 {{ filteredCommandCount }} / {{ totalCommandCount }}
             </el-tag>
             <el-tag effect="light" round type="info">分类 {{ filteredSections.length }}</el-tag>
-            <el-tag v-if="hasKeyword" effect="light" round type="success">
-              关键词：{{ keyword.trim() }}
-            </el-tag>
+            <el-tag v-if="hasKeyword" effect="light" round type="success"> 关键词：{{ keyword.trim() }} </el-tag>
           </div>
           <div ref="contentRoot" class="catalog-sections">
             <template v-if="hasResults">
               <el-scrollbar ref="scrollbarRef" class="catalog-sections__scrollbar">
                 <div>
                   <section
-                      v-for="section in filteredSections"
-                      :key="section.key"
-                      :data-category="section.key"
-                      class="command-section"
+                    v-for="section in filteredSections"
+                    :key="section.key"
+                    :data-category="section.key"
+                    class="command-section"
                   >
                     <div class="command-section__header">
                       <div class="command-section__heading">
@@ -150,12 +149,12 @@ const handleClearSearch = () => {
                     </div>
                     <el-row :gutter="16">
                       <el-col
-                          v-for="command in section.commands"
-                          :key="command.id"
-                          class="command-section__col"
-                          v-bind="{ xs: 24, sm: 24, md: 24, lg: 12, xl: 12 }"
+                        v-for="command in section.commands"
+                        :key="command.id"
+                        class="command-section__col"
+                        v-bind="{ xs: 24, sm: 24, md: 24, lg: 12, xl: 12 }"
                       >
-                        <DockerCommandCard :command="command" :highlight-text="highlightText"/>
+                        <DockerCommandCard :command="command" :highlight-text="highlightText" />
                       </el-col>
                     </el-row>
                   </section>
@@ -165,7 +164,7 @@ const handleClearSearch = () => {
             <el-empty v-else class="catalog-empty" description="未找到匹配的 Docker 命令">
               <template #image>
                 <el-icon class="catalog-empty__icon">
-                  <IconEpSearch/>
+                  <IconEpSearch />
                 </el-icon>
               </template>
               <el-button plain type="primary" @click="handleClearSearch">清空搜索</el-button>
@@ -344,7 +343,7 @@ const handleClearSearch = () => {
 }
 
 .command-section__title::before {
-  content: "";
+  content: '';
   display: inline-block;
   width: 4px;
   height: 18px;

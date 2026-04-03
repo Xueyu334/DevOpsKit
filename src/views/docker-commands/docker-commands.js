@@ -333,9 +333,7 @@ export const dockerCommandSections = [
         command: 'docker info',
         desc: '查看 Docker 引擎、存储驱动和系统概要信息。',
         scene: '环境巡检、排查驱动或资源限制配置时使用。',
-        options: [
-          { key: '-f, --format', desc: '按模板或 JSON 输出系统信息，便于脚本读取。' }
-        ]
+        options: [{ key: '-f, --format', desc: '按模板或 JSON 输出系统信息，便于脚本读取。' }]
       },
       {
         id: 'system-version',
@@ -344,9 +342,7 @@ export const dockerCommandSections = [
         command: 'docker version',
         desc: '查看客户端与服务端版本信息。',
         scene: '确认版本兼容性或排查 API 行为差异时使用。',
-        options: [
-          { key: '-f, --format', desc: '按模板输出客户端或服务端版本字段。' }
-        ]
+        options: [{ key: '-f, --format', desc: '按模板输出客户端或服务端版本字段。' }]
       },
       {
         id: 'system-df',

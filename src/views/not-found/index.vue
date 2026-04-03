@@ -42,16 +42,14 @@ const goBack = () => {
           <code>{{ missingPath }}</code>
         </div>
 
-        <p class="description">
-          虽然没找到您要的内容，但工具箱里还有很多利器等着您。
-        </p>
+        <p class="description">虽然没找到您要的内容，但工具箱里还有很多利器等着您。</p>
 
         <div class="actions">
           <el-button type="primary" size="large" class="btn-primary" @click="goHome">
             <template #icon><icon-ep-home-filled /></template>
             返回首页
           </el-button>
-          <el-button size="large" class="btn-back" @click="goBack" text>
+          <el-button size="large" class="btn-back" text @click="goBack">
             <template #icon><icon-ep-back /></template>
             返回上一页
           </el-button>

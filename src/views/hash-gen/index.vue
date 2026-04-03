@@ -1,22 +1,16 @@
 <script setup>
-import {ElMessage} from 'element-plus'
-import {useCopyText} from '@/composables/useCopyText'
-import {defaultHashAlgorithms, hashAlgorithmOptions, useHashGenerator} from './useHashGenerator'
+import { ElMessage } from 'element-plus'
+import { useCopyText } from '@/composables/useCopyText'
+import { defaultHashAlgorithms, hashAlgorithmOptions, useHashGenerator } from './useHashGenerator'
 
 const form = reactive({
   text: '',
   algorithms: [...defaultHashAlgorithms]
 })
 
-const {copyText} = useCopyText()
+const { copyText } = useCopyText()
 
-const {
-  results,
-  loading,
-  errorMessage,
-  calculateHashes,
-  resetResults
-} = useHashGenerator()
+const { results, loading, errorMessage, calculateHashes, resetResults } = useHashGenerator()
 
 const canGenerate = computed(() => Boolean(form.text.trim()) && form.algorithms.length > 0)
 
@@ -25,23 +19,21 @@ const inputStats = computed(() => {
   const bytes = new Blob([form.text]).size
 
   return [
-    {label: '字符数:', value: chars},
-    {label: '字节数:', value: bytes},
-    {label: '已选算法:', value: form.algorithms.length}
+    { label: '字符数:', value: chars },
+    { label: '字节数:', value: bytes },
+    { label: '已选算法:', value: form.algorithms.length }
   ]
 })
 
 const resultText = computed(() => {
-  return results.value
-      .map((item) => `${item.label}: ${item.digest}`)
-      .join('\n')
+  return results.value.map(item => `${item.label}: ${item.digest}`).join('\n')
 })
 
 watch(
-    () => [form.text, form.algorithms.join('|')],
-    () => {
-      resetResults()
-    }
+  () => [form.text, form.algorithms.join('|')],
+  () => {
+    resetResults()
+  }
 )
 
 const handleGenerate = async () => {
@@ -77,11 +69,11 @@ const handleClear = () => {
 <template>
   <div class="app-container hash-page">
     <el-alert
-        :closable="false"
-        class="notice-banner"
-        show-icon
-        title="摘要计算在浏览器本地完成，不会上传输入文本。MD5 / SHA-1 适合兼容与校验场景，不建议用于新的安全设计。"
-        type="info"
+      :closable="false"
+      class="notice-banner"
+      show-icon
+      title="摘要计算在浏览器本地完成，不会上传输入文本。MD5 / SHA-1 适合兼容与校验场景，不建议用于新的安全设计。"
+      type="info"
     />
     <el-row :gutter="6" class="top-row">
       <el-col :lg="12" :xs="24">
@@ -97,21 +89,17 @@ const handleClear = () => {
           </template>
 
           <el-input
-              v-model="form.text"
-              :rows="12"
-              class="hash-input"
-              clearable
-              placeholder="请输入需要计算摘要的文本，例如配置内容、接口签名原文或待校验字符串"
-              resize="none"
-              type="textarea"
+            v-model="form.text"
+            :rows="12"
+            class="hash-input"
+            clearable
+            placeholder="请输入需要计算摘要的文本，例如配置内容、接口签名原文或待校验字符串"
+            resize="none"
+            type="textarea"
           />
 
           <div class="stats-row">
-            <div
-                v-for="item in inputStats"
-                :key="item.label"
-                class="stat-chip"
-            >
+            <div v-for="item in inputStats" :key="item.label" class="stat-chip">
               <span class="stat-chip-label">{{ item.label }}</span>
               <span class="stat-chip-value">{{ item.value }}</span>
             </div>
@@ -132,19 +120,12 @@ const handleClear = () => {
           <el-form label-position="top">
             <el-form-item label="算法选择">
               <el-checkbox-group v-model="form.algorithms" class="algorithm-grid">
-                <el-checkbox-button
-                    v-for="option in hashAlgorithmOptions"
-                    :key="option.value"
-                    :value="option.value"
-                >
+                <el-checkbox-button v-for="option in hashAlgorithmOptions" :key="option.value" :value="option.value">
                   <span class="algorithm-option">
                     <span class="algorithm-option-text">{{ option.label }}</span>
-                    <el-tooltip
-                        :content="`${option.description} · ${option.digestSize} bit`"
-                        placement="top"
-                    >
+                    <el-tooltip :content="`${option.description} · ${option.digestSize} bit`" placement="top">
                       <el-icon class="algorithm-option-tip">
-                        <IconEpInfoFilled/>
+                        <IconEpInfoFilled />
                       </el-icon>
                     </el-tooltip>
                   </span>
@@ -157,10 +138,10 @@ const handleClear = () => {
             <span class="selected-algorithms-label">当前选择</span>
             <div class="selected-algorithms-list">
               <el-tag
-                  v-for="option in hashAlgorithmOptions.filter(item => form.algorithms.includes(item.value))"
-                  :key="option.value"
-                  effect="light"
-                  round
+                v-for="option in hashAlgorithmOptions.filter(item => form.algorithms.includes(item.value))"
+                :key="option.value"
+                effect="light"
+                round
               >
                 {{ option.label }}
               </el-tag>
@@ -169,18 +150,18 @@ const handleClear = () => {
 
           <div class="action-panel">
             <el-button
-                :disabled="!canGenerate"
-                :loading="loading"
-                class="action-button"
-                type="primary"
-                @click="handleGenerate"
+              :disabled="!canGenerate"
+              :loading="loading"
+              class="action-button"
+              type="primary"
+              @click="handleGenerate"
             >
               计算摘要
             </el-button>
             <el-button
-                :disabled="!results.length"
-                class="action-button"
-                @click="copyText(resultText, { successMessage: '全部摘要已复制' })"
+              :disabled="!results.length"
+              class="action-button"
+              @click="copyText(resultText, { successMessage: '全部摘要已复制' })"
             >
               复制全部
             </el-button>
@@ -201,8 +182,7 @@ const handleClear = () => {
       <div v-if="results.length" class="result-panel">
         <el-scrollbar class="result-scrollbar">
           <el-row :gutter="14" class="result-list">
-            <el-col v-for="item in results"
-                    :key="item.algorithm" :lg="12" :xs="24">
+            <el-col v-for="item in results" :key="item.algorithm" :lg="12" :xs="24">
               <article class="result-item">
                 <div class="result-item-head">
                   <div class="result-item-summary">
@@ -211,9 +191,12 @@ const handleClear = () => {
                     <span class="result-dot">·</span>
                     <span class="result-description">{{ item.description }}</span>
                   </div>
-                  <el-button class="result-copy-button" link
-                             type="primary"
-                             @click="copyText(item.digest, { successMessage: `${item.label} 已复制` })">
+                  <el-button
+                    class="result-copy-button"
+                    link
+                    type="primary"
+                    @click="copyText(item.digest, { successMessage: `${item.label} 已复制` })"
+                  >
                     复制
                   </el-button>
                 </div>
@@ -224,11 +207,7 @@ const handleClear = () => {
         </el-scrollbar>
       </div>
 
-      <el-empty
-          v-else
-          class="result-empty"
-          description="输入文本并点击“计算摘要”后，在这里查看结果"
-      />
+      <el-empty v-else class="result-empty" description="输入文本并点击“计算摘要”后，在这里查看结果" />
     </el-card>
   </div>
 </template>

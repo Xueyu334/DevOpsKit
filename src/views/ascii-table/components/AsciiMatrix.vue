@@ -1,5 +1,5 @@
 <script setup>
-import {computed} from 'vue';
+import { computed } from 'vue'
 
 const props = defineProps({
   activeCode: {
@@ -14,21 +14,21 @@ const props = defineProps({
     type: Array,
     required: true
   }
-});
+})
 
-const emit = defineEmits(['select']);
+const emit = defineEmits(['select'])
 
-const highlightedCodeSet = computed(() => new Set(props.highlightedCodes));
+const highlightedCodeSet = computed(() => new Set(props.highlightedCodes))
 
-const getCellClass = (item) => ({
+const getCellClass = item => ({
   'ascii-cell': true,
   'ascii-cell--active': item.dec === props.activeCode,
   'ascii-cell--match': highlightedCodeSet.value.has(item.dec)
-});
+})
 
-const handleSelect = (code) => {
-  emit('select', code);
-};
+const handleSelect = code => {
+  emit('select', code)
+}
 </script>
 
 <template>
@@ -43,31 +43,27 @@ const handleSelect = (code) => {
     <div class="matrix-table-wrap">
       <table class="ascii-table">
         <thead>
-        <tr>
-          <template v-for="blockStart in [0, 32, 64, 96]" :key="blockStart">
-            <th class="ascii-header ascii-header--value">ASCII值</th>
-            <th class="ascii-header ascii-header--label">
-              {{ blockStart < 32 ? '控制字符' : '字符 / 含义' }}
-            </th>
-          </template>
-        </tr>
+          <tr>
+            <template v-for="blockStart in [0, 32, 64, 96]" :key="blockStart">
+              <th class="ascii-header ascii-header--value">ASCII值</th>
+              <th class="ascii-header ascii-header--label">
+                {{ blockStart < 32 ? '控制字符' : '字符 / 含义' }}
+              </th>
+            </template>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="row in rows" :key="row.rowIndex">
-          <template v-for="item in row.cells" :key="item.dec">
-            <td class="ascii-value-cell">{{ item.dec }}</td>
-            <td class="ascii-label-cell">
-              <button
-                  :class="getCellClass(item)"
-                  type="button"
-                  @click="handleSelect(item.dec)"
-              >
-                <span class="ascii-cell-main">{{ item.displayLabel }}</span>
-                <span class="ascii-cell-meta">{{ item.hex }}</span>
-              </button>
-            </td>
-          </template>
-        </tr>
+          <tr v-for="row in rows" :key="row.rowIndex">
+            <template v-for="item in row.cells" :key="item.dec">
+              <td class="ascii-value-cell">{{ item.dec }}</td>
+              <td class="ascii-label-cell">
+                <button :class="getCellClass(item)" type="button" @click="handleSelect(item.dec)">
+                  <span class="ascii-cell-main">{{ item.displayLabel }}</span>
+                  <span class="ascii-cell-meta">{{ item.hex }}</span>
+                </button>
+              </td>
+            </template>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -174,9 +170,10 @@ const handleSelect = (code) => {
   color: var(--el-text-color-primary);
   text-align: left;
   cursor: pointer;
-  transition: background-color 0.18s ease,
-  color 0.18s ease,
-  box-shadow 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .ascii-cell:hover {

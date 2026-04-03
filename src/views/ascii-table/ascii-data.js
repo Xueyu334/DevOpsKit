@@ -32,7 +32,7 @@ const CONTROL_CHAR_META = {
   30: { name: 'RS', description: '记录分隔' },
   31: { name: 'US', description: '单元分隔' },
   127: { name: 'DEL', description: '删除', escape: '\\x7F' }
-};
+}
 
 const CATEGORY_META = {
   control: { label: '控制字符', tagType: 'danger' },
@@ -41,28 +41,28 @@ const CATEGORY_META = {
   uppercase: { label: '大写字母', tagType: 'primary' },
   lowercase: { label: '小写字母', tagType: 'primary' },
   punctuation: { label: '符号', tagType: 'info' }
-};
+}
 
-const PUNCTUATION_LABEL = '可打印符号';
+const PUNCTUATION_LABEL = '可打印符号'
 
-const getCategory = (code) => {
-  if (code <= 31 || code === 127) return 'control';
-  if (code === 32) return 'space';
-  if (code >= 48 && code <= 57) return 'digit';
-  if (code >= 65 && code <= 90) return 'uppercase';
-  if (code >= 97 && code <= 122) return 'lowercase';
-  return 'punctuation';
-};
+const getCategory = code => {
+  if (code <= 31 || code === 127) return 'control'
+  if (code === 32) return 'space'
+  if (code >= 48 && code <= 57) return 'digit'
+  if (code >= 65 && code <= 90) return 'uppercase'
+  if (code >= 97 && code <= 122) return 'lowercase'
+  return 'punctuation'
+}
 
 const buildPrintableDescription = (code, category) => {
-  if (category === 'digit') return '十进制数字';
-  if (category === 'uppercase') return '英文大写字母';
-  if (category === 'lowercase') return '英文小写字母';
-  return PUNCTUATION_LABEL;
-};
+  if (category === 'digit') return '十进制数字'
+  if (category === 'uppercase') return '英文大写字母'
+  if (category === 'lowercase') return '英文小写字母'
+  return PUNCTUATION_LABEL
+}
 
 const buildPrintableItem = (code, category) => {
-  const char = String.fromCharCode(code);
+  const char = String.fromCharCode(code)
   return {
     char,
     displayLabel: char,
@@ -70,11 +70,11 @@ const buildPrintableItem = (code, category) => {
     description: buildPrintableDescription(code, category),
     escape: code === 92 ? '\\\\' : code === 34 ? '\\"' : '',
     isPrintable: true
-  };
-};
+  }
+}
 
-const buildControlItem = (code) => {
-  const meta = CONTROL_CHAR_META[code];
+const buildControlItem = code => {
+  const meta = CONTROL_CHAR_META[code]
   return {
     char: '',
     displayLabel: meta.name,
@@ -82,8 +82,8 @@ const buildControlItem = (code) => {
     description: meta.description,
     escape: meta.escape || '',
     isPrintable: false
-  };
-};
+  }
+}
 
 const buildSpaceItem = () => ({
   char: ' ',
@@ -92,37 +92,38 @@ const buildSpaceItem = () => ({
   description: '空格字符',
   escape: "' '",
   isPrintable: true
-});
+})
 
-const toSearchTokens = (item) => [
-  item.dec,
-  item.hex,
-  item.binary,
-  item.char,
-  item.displayLabel,
-  item.previewLabel,
-  item.name,
-  item.description,
-  item.categoryLabel,
-  item.escape
-]
-  .filter(Boolean)
-  .map((token) => String(token).toLowerCase());
+const toSearchTokens = item =>
+  [
+    item.dec,
+    item.hex,
+    item.binary,
+    item.char,
+    item.displayLabel,
+    item.previewLabel,
+    item.name,
+    item.description,
+    item.categoryLabel,
+    item.escape
+  ]
+    .filter(Boolean)
+    .map(token => String(token).toLowerCase())
 
-export const ASCII_BLOCK_STARTS = [0, 32, 64, 96];
-export const ASCII_ROW_COUNT = 32;
+export const ASCII_BLOCK_STARTS = [0, 32, 64, 96]
+export const ASCII_ROW_COUNT = 32
 
 export const ASCII_ITEMS = Array.from({ length: 128 }, (_, code) => {
-  const category = getCategory(code);
-  const hex = `0x${code.toString(16).toUpperCase().padStart(2, '0')}`;
-  const binary = `0b${code.toString(2).padStart(7, '0')}`;
+  const category = getCategory(code)
+  const hex = `0x${code.toString(16).toUpperCase().padStart(2, '0')}`
+  const binary = `0b${code.toString(2).padStart(7, '0')}`
 
   const baseItem =
     category === 'control'
       ? buildControlItem(code)
       : category === 'space'
         ? buildSpaceItem()
-        : buildPrintableItem(code, category);
+        : buildPrintableItem(code, category)
 
   const item = {
     dec: code,
@@ -134,11 +135,11 @@ export const ASCII_ITEMS = Array.from({ length: 128 }, (_, code) => {
     tagType: CATEGORY_META[category].tagType,
     name: category === 'control' ? CONTROL_CHAR_META[code].name : baseItem.displayLabel,
     ...baseItem
-  };
+  }
 
   return {
     ...item,
     searchTokens: toSearchTokens(item),
     searchText: toSearchTokens(item).join(' ')
-  };
-});
+  }
+})

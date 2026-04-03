@@ -26,8 +26,12 @@
               {{ category.name }}
             </h2>
             <el-row :gutter="16">
-              <el-col v-for="tool in category.tools" :key="tool.id" class="tool-col"
-                v-bind="{ xs: 24, sm: 12, md: 8, lg: 6, xl: 6 }">
+              <el-col
+                v-for="tool in category.tools"
+                :key="tool.id"
+                class="tool-col"
+                v-bind="{ xs: 24, sm: 12, md: 8, lg: 6, xl: 6 }"
+              >
                 <div class="tool-card" @click="handleNavigate(tool.route)">
                   <div :style="{ background: tool.color + '1A', color: tool.color }" class="card-icon">
                     <component :is="toolIconMap[tool.icon] || IconEpTools" class="tool-icon" />
@@ -35,8 +39,11 @@
                   <div class="card-content">
                     <div class="card-header">
                       <h3 class="tool-title">{{ tool.name }}</h3>
-                      <el-tooltip v-if="tool.tag" :content="tool.tagTip || tagTypeHints[tool.tagType || '']"
-                        placement="top">
+                      <el-tooltip
+                        v-if="tool.tag"
+                        :content="tool.tagTip || tagTypeHints[tool.tagType || '']"
+                        placement="top"
+                      >
                         <el-tag effect="light" round size="small" v-bind="tool.tagType ? { type: tool.tagType } : {}">
                           {{ tool.tag }}
                         </el-tag>
@@ -88,7 +95,7 @@ const toolIconMap = {
   Postcard: IconEpPostcard,
   Tickets: IconEpTickets,
   Timer: IconEpTimer,
-  Menu: IconEpMenu,
+  Menu: IconEpMenu
 }
 
 const flatTools = computed(() =>
@@ -100,17 +107,20 @@ const flatTools = computed(() =>
   )
 )
 
-const toolsFuse = computed(() => new Fuse(flatTools.value, {
-  includeScore: true,
-  threshold: 0.35,
-  ignoreLocation: true,
-  minMatchCharLength: 2,
-  keys: [
-    { name: 'name', weight: 0.5 },
-    { name: 'desc', weight: 0.3 },
-    { name: 'keywords', weight: 0.2 }
-  ]
-}))
+const toolsFuse = computed(
+  () =>
+    new Fuse(flatTools.value, {
+      includeScore: true,
+      threshold: 0.35,
+      ignoreLocation: true,
+      minMatchCharLength: 2,
+      keys: [
+        { name: 'name', weight: 0.5 },
+        { name: 'desc', weight: 0.3 },
+        { name: 'keywords', weight: 0.2 }
+      ]
+    })
+)
 
 // 过滤搜索逻辑，支持模糊搜索和关键词别名
 const filteredCategories = computed(() => {
@@ -119,8 +129,7 @@ const filteredCategories = computed(() => {
     return toolCategories
   }
 
-  const matchedToolIds = new Set(
-    toolsFuse.value.search(query).map(result => result.item.id))
+  const matchedToolIds = new Set(toolsFuse.value.search(query).map(result => result.item.id))
 
   return toolCategories.map(category => ({
     ...category,
@@ -168,10 +177,12 @@ const handleNavigate = route => {
   height: 520px;
   transform: translateX(-50%);
   border-radius: 50%;
-  background: radial-gradient(circle,
-      color-mix(in srgb, var(--el-color-primary) 14%, white) 0%,
-      color-mix(in srgb, var(--el-color-primary) 8%, transparent) 38%,
-      transparent 74%);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--el-color-primary) 14%, white) 0%,
+    color-mix(in srgb, var(--el-color-primary) 8%, transparent) 38%,
+    transparent 74%
+  );
   filter: blur(16px);
   pointer-events: none;
 }
@@ -225,7 +236,8 @@ const handleNavigate = route => {
   height: 40px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
   border: 1px solid var(--el-border-color-lighter);
-  transition: border-color 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+  transition:
+    border-color 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
     box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   background-color: var(--el-bg-color);
 }
@@ -236,7 +248,9 @@ const handleNavigate = route => {
 
 :deep(.search-bar .el-input__wrapper.is-focus) {
   border-color: var(--el-color-primary);
-  box-shadow: 0 0 0 1px var(--el-color-primary-light-5), 0 8px 24px rgba(64, 158, 255, 0.15) !important;
+  box-shadow:
+    0 0 0 1px var(--el-color-primary-light-5),
+    0 8px 24px rgba(64, 158, 255, 0.15) !important;
 }
 
 :deep(.search-bar .el-input__prefix) {
@@ -314,7 +328,8 @@ const handleNavigate = route => {
   border-radius: 10px;
   border: 1px solid var(--el-border-color-lighter);
   cursor: pointer;
-  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+  transition:
+    transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
     border-color 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
     box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   height: 100%;
@@ -435,10 +450,12 @@ const handleNavigate = route => {
 }
 
 html.dark .home-container::before {
-  background: radial-gradient(circle,
-      color-mix(in srgb, var(--el-color-primary) 20%, transparent) 0%,
-      color-mix(in srgb, var(--el-color-primary) 12%, transparent) 36%,
-      transparent 74%);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--el-color-primary) 20%, transparent) 0%,
+    color-mix(in srgb, var(--el-color-primary) 12%, transparent) 36%,
+    transparent 74%
+  );
   filter: blur(20px);
 }
 

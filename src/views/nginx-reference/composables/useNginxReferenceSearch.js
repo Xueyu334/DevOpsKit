@@ -15,13 +15,17 @@ const referenceFuseOptions = {
 }
 
 const escapeHtml = (value = '') =>
-  String(value).replace(/[&<>"']/g, (char) => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    '\'': '&#39;'
-  }[char]))
+  String(value).replace(
+    /[&<>"']/g,
+    char =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[char]
+  )
 
 const escapeRegExp = (value = '') => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 const normalizeText = (value = '') => String(value).trim().toLowerCase()
@@ -37,7 +41,7 @@ const createHighlightHtml = (value, keyword) => {
 
   return source
     .split(matcher)
-    .map((part) => {
+    .map(part => {
       if (!part) {
         return ''
       }
@@ -49,14 +53,12 @@ const createHighlightHtml = (value, keyword) => {
     .join('')
 }
 
-export const useNginxReferenceSearch = (sectionsSource) => {
+export const useNginxReferenceSearch = sectionsSource => {
   const keyword = shallowRef('')
   const normalizedKeyword = computed(() => normalizeText(keyword.value))
 
   const flatItems = computed(() =>
-    (unref(sectionsSource) || []).flatMap((section) =>
-      section.items.map((item) => ({ ...item }))
-    )
+    (unref(sectionsSource) || []).flatMap(section => section.items.map(item => ({ ...item })))
   )
 
   const referencesFuse = computed(() => new Fuse(flatItems.value, referenceFuseOptions))
@@ -65,21 +67,21 @@ export const useNginxReferenceSearch = (sectionsSource) => {
     const currentKeyword = keyword.value.trim()
 
     if (!currentKeyword) {
-      return new Set(flatItems.value.map((item) => item.id))
+      return new Set(flatItems.value.map(item => item.id))
     }
 
-    return new Set(referencesFuse.value.search(currentKeyword).map((result) => result.item.id))
+    return new Set(referencesFuse.value.search(currentKeyword).map(result => result.item.id))
   })
 
   const filteredSections = computed(() => {
     const sections = unref(sectionsSource) || []
 
     return sections
-      .map((section) => ({
+      .map(section => ({
         ...section,
-        items: section.items.filter((item) => matchedItemIds.value.has(item.id))
+        items: section.items.filter(item => matchedItemIds.value.has(item.id))
       }))
-      .filter((section) => section.items.length > 0)
+      .filter(section => section.items.length > 0)
   })
 
   const totalItemCount = computed(() =>
@@ -97,7 +99,7 @@ export const useNginxReferenceSearch = (sectionsSource) => {
     keyword.value = ''
   }
 
-  const highlightText = (value) => createHighlightHtml(value, normalizedKeyword.value)
+  const highlightText = value => createHighlightHtml(value, normalizedKeyword.value)
 
   return {
     keyword,
