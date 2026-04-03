@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { computed, reactive } from 'vue'
 import QrcodeVue from 'qrcode.vue'
 import IconEpDownload from '~icons/ep/download'
 import IconEpRefresh from '~icons/ep/refresh'
@@ -39,8 +39,6 @@ const renderOptions = [
   { label: 'Canvas (推荐)', value: 'canvas' },
   { label: 'SVG', value: 'svg' }
 ]
-
-const qrcodeRef = ref(null)
 
 // 解决子属性变化不触发更新的问题
 const computedImageSettings = computed(() => {
@@ -122,7 +120,7 @@ const handleLogoUpload = file => {
 <template>
   <div class="qrcode-view-container">
     <el-row :gutter="24">
-      <el-col :xs="24" :md="14">
+      <el-col :md="14" :xs="24">
         <el-card class="box-card-custom" shadow="never">
           <template #header>
             <div class="card-header">
@@ -132,7 +130,7 @@ const handleLogoUpload = file => {
                 </el-icon>
                 生成配置
               </span>
-              <el-button type="info" link @click="resetConfig">
+              <el-button link type="info" @click="resetConfig">
                 <el-icon>
                   <IconEpRefresh />
                 </el-icon>
@@ -145,23 +143,23 @@ const handleLogoUpload = file => {
             <el-form-item label="内容文本 / URL">
               <el-input
                 v-model="config.value"
-                type="textarea"
                 :clearable="true"
                 :rows="4"
                 placeholder="请输入要生成二维码的内容..."
                 resize="none"
+                type="textarea"
               />
             </el-form-item>
 
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="尺寸 (px)">
-                  <el-slider v-model="config.size" :min="100" :max="800" :step="10" show-input />
+                  <el-slider v-model="config.size" :max="800" :min="100" :step="10" show-input />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="外边距 (Margin)">
-                  <el-input-number v-model="config.margin" :min="0" :max="10" />
+                  <el-input-number v-model="config.margin" :max="10" :min="0" />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -230,13 +228,13 @@ const handleLogoUpload = file => {
               <el-col :span="12">
                 <el-form-item label="本地上传 Logo">
                   <el-upload
-                    action="#"
                     :auto-upload="false"
                     :on-change="handleLogoUpload"
                     :show-file-list="false"
                     accept="image/*"
+                    action="#"
                   >
-                    <el-button type="primary" plain size="small">点击上传</el-button>
+                    <el-button plain size="small" type="primary">点击上传</el-button>
                   </el-upload>
                 </el-form-item>
               </el-col>
@@ -246,12 +244,12 @@ const handleLogoUpload = file => {
               <el-row :gutter="20">
                 <el-col :span="8">
                   <el-form-item label="Logo 宽度">
-                    <el-input-number v-model="config.imageSettings.width" :min="10" :max="config.size / 2" />
+                    <el-input-number v-model="config.imageSettings.width" :max="config.size / 2" :min="10" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label="Logo 高度">
-                    <el-input-number v-model="config.imageSettings.height" :min="10" :max="config.size / 2" />
+                    <el-input-number v-model="config.imageSettings.height" :max="config.size / 2" :min="10" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
@@ -265,7 +263,7 @@ const handleLogoUpload = file => {
         </el-card>
       </el-col>
 
-      <el-col :xs="24" :md="10">
+      <el-col :md="10" :xs="24">
         <div class="preview-sticky">
           <el-card class="box-card-custom" shadow="hover">
             <template #header>
@@ -283,20 +281,20 @@ const handleLogoUpload = file => {
             </template>
 
             <div class="qrcode-container">
-              <div class="qrcode-wrapper" :style="{ backgroundColor: config.background }">
+              <div :style="{ backgroundColor: config.background }" class="qrcode-wrapper">
                 <qrcode-vue
-                  :value="config.value || ' '"
-                  :size="config.size"
-                  :level="config.level"
-                  :render-as="config.renderAs"
                   :background="config.background"
                   :foreground="config.foreground"
-                  :margin="config.margin"
                   :gradient="config.gradient"
-                  :gradient-type="config.gradientType"
-                  :gradient-start-color="config.gradientStartColor"
                   :gradient-end-color="config.gradientEndColor"
+                  :gradient-start-color="config.gradientStartColor"
+                  :gradient-type="config.gradientType"
                   :image-settings="computedImageSettings"
+                  :level="config.level"
+                  :margin="config.margin"
+                  :render-as="config.renderAs"
+                  :size="config.size"
+                  :value="config.value || ' '"
                 />
               </div>
               <div class="qrcode-info">
