@@ -77,7 +77,7 @@ const handleClearSearch = () => {
 
 <template>
   <div class="nginx-catalog-layout">
-    <el-row :gutter="16" class="catalog-grid">
+    <el-row :gutter="16">
       <el-col v-bind="{ xs: 24, sm: 24, md: 7, lg: 6, xl: 5 }">
         <el-card class="catalog-nav" shadow="never">
           <template #header>
