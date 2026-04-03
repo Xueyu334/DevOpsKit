@@ -1,4 +1,4 @@
-import Fuse from 'fuse.js'
+import { useUniversalSearch } from '@/composables/useUniversalSearch'
 
 const commandFuseOptions = {
   threshold: 0.35,
@@ -14,63 +14,14 @@ const commandFuseOptions = {
   ]
 }
 
-const escapeHtml = (value = '') =>
-  String(value).replace(
-    /[&<>"']/g,
-    char =>
-      ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;'
-      })[char]
-  )
-
-const escapeRegExp = (value = '') => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-
-const createHighlightHtml = (value, keyword) => {
-  const source = String(value ?? '')
-
-  if (!keyword) {
-    return escapeHtml(source)
-  }
-
-  const matcher = new RegExp(`(${escapeRegExp(keyword)})`, 'ig')
-
-  return source
-    .split(matcher)
-    .map(part => {
-      if (!part) {
-        return ''
-      }
-
-      return part.toLowerCase() === keyword.toLowerCase()
-        ? `<mark class="docker-highlight">${escapeHtml(part)}</mark>`
-        : escapeHtml(part)
-    })
-    .join('')
-}
-
-const normalizeText = (value = '') => String(value).trim().toLowerCase()
-
 export const useDockerCommandSearch = sectionsSource => {
-  const keyword = shallowRef('')
-  const normalizedKeyword = computed(() => normalizeText(keyword.value.trim()))
   const flatCommands = computed(() =>
     (unref(sectionsSource) || []).flatMap(section => section.commands.map(command => ({ ...command })))
   )
 
-  const commandsFuse = computed(() => new Fuse(flatCommands.value, commandFuseOptions))
-
-  const matchedCommandIds = computed(() => {
-    const currentKeyword = keyword.value.trim()
-
-    if (!currentKeyword) {
-      return new Set(flatCommands.value.map(command => command.id))
-    }
-
-    return new Set(commandsFuse.value.search(currentKeyword).map(result => result.item.id))
+  const { keyword, hasKeyword, matchedIds, highlightText, clearKeyword } = useUniversalSearch(flatCommands, {
+    fuseOptions: commandFuseOptions,
+    highlightClass: 'docker-highlight'
   })
 
   const filteredSections = computed(() => {
@@ -79,7 +30,7 @@ export const useDockerCommandSearch = sectionsSource => {
     return sections
       .map(section => ({
         ...section,
-        commands: section.commands.filter(command => matchedCommandIds.value.has(command.id))
+        commands: section.commands.filter(command => matchedIds.value.has(command.id))
       }))
       .filter(section => section.commands.length > 0)
   })
@@ -92,14 +43,7 @@ export const useDockerCommandSearch = sectionsSource => {
     filteredSections.value.reduce((total, section) => total + section.commands.length, 0)
   )
 
-  const hasKeyword = computed(() => Boolean(keyword.value.trim()))
   const hasResults = computed(() => filteredCommandCount.value > 0)
-
-  const highlightText = value => createHighlightHtml(value, normalizedKeyword.value)
-
-  const clearKeyword = () => {
-    keyword.value = ''
-  }
 
   return {
     keyword,
