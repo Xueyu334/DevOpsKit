@@ -195,6 +195,19 @@ export const toolCategories = [
         tag: 'New',
         tagType: 'success',
         tagTip: '快速生成自定义二维码'
+      },
+      {
+        id: 'mermaid-editor',
+        name: 'Mermaid 图表渲染',
+        menuTitle: 'Mermaid 渲染',
+        desc: '支持 Mermaid 语法的实时渲染，可导出为 SVG 或 PNG 图片。',
+        keywords: ['mermaid', '流程图', '时序图', '甘特图', '图表生成', 'diagram', 'chart'],
+        route: '/mermaid-editor',
+        icon: 'Platform',
+        color: '#FF9900',
+        tag: 'New',
+        tagType: 'primary',
+        tagTip: '基于 Mermaid 的图表实时渲染工具'
       }
     ]
   }

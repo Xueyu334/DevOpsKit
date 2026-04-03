@@ -12,6 +12,7 @@ import IdCardGenerator from '../views/id-card-generator/index.vue'
 import DockerCommands from '../views/docker-commands/index.vue'
 import NginxReference from '../views/nginx-reference/index.vue'
 import QrcodeGenerator from '../views/qrcode-generator/index.vue'
+import MermaidEditor from '../views/mermaid-editor/index.vue'
 import NotFound from '../views/not-found/index.vue'
 
 const routes = [
@@ -85,6 +86,12 @@ const routes = [
         name: 'qrcodeGenerator',
         component: QrcodeGenerator,
         meta: { title: '二维码生成器' }
+      },
+      {
+        path: '/mermaid-editor',
+        name: 'mermaidEditor',
+        component: MermaidEditor,
+        meta: { title: 'Mermaid 图表渲染' }
       }
     ]
   },
