@@ -15,6 +15,11 @@ try {
 }
 
 export default [
+  // 忽略路径（放在首位）
+  {
+    ignores: ['dist/**', 'public/**', '.idea/**', 'node_modules/**']
+  },
+
   // 1. 全局配置
   {
     files: ['**/*.{js,mjs,cjs,vue}'],
