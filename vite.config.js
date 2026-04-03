@@ -1,6 +1,6 @@
-import {fileURLToPath, URL} from 'node:url'
+import { fileURLToPath, URL } from 'node:url'
 
-import {defineConfig, loadEnv} from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
@@ -8,11 +8,11 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
-import {ElementPlusResolver} from 'unplugin-vue-components/resolvers'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import viteCompression from 'vite-plugin-compression'
 
 // https://vite.dev/config/
-export default defineConfig(({command, mode}) => {
+export default defineConfig(({ command, mode }) => {
     // 根据当前工作目录中的 `mode` 加载 .env 文件
     const env = loadEnv(mode, process.cwd(), '')
     const publicBase = env.VITE_PUBLIC_PATH?.trim() || '/'
@@ -33,7 +33,7 @@ export default defineConfig(({command, mode}) => {
                 ],
                 dts: fileURLToPath(new URL('./src/auto-imports.d.ts', import.meta.url)),
                 eslintrc: {
-                    enabled: true, // 1、改为true用于生成eslint配置。2、生成后改回false，避免重复生成消耗
+                    enabled: false, // 1、改为true用于生成eslint配置。2、生成后改回false，避免重复生成消耗
                 },
             }),
             Components({
