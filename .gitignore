@@ -25,7 +25,6 @@ coverage
 *.sw?
 
 *.tsbuildinfo
-
 .eslintcache
 
 # Cypress
@@ -39,6 +38,10 @@ __screenshots__/
 *.timestamp-*-*.mjs
 
 AGENTS.md
-#自动导入生成的dts
+
+# 自动生成或导入的声明/配置文件
 components.d.ts
 auto-imports.d.ts
+src/components.d.ts
+src/auto-imports.d.ts
+.eslintrc-auto-import.json
