@@ -1,19 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import Layout from '@/layout/index.vue'
-import Home from '@/views/Home.vue'
-import TextDiff from '@/views/text-diff/index.vue'
-import JsonTools from '@/views/json-tools/index.vue'
-import AsciiTable from '@/views/ascii-table/index.vue'
-import Base64 from '@/views/base64/index.vue'
-import HashGen from '@/views/hash-gen/index.vue'
-import UrlEncode from '@/views/url-encode/index.vue'
-import IdCardGenerator from '@/views/id-card-generator/index.vue'
-import DockerCommands from '@/views/docker-commands/index.vue'
-import NginxReference from '@/views/nginx-reference/index.vue'
-import QrcodeGenerator from '@/views/qrcode-generator/index.vue'
-import MermaidEditor from '@/views/mermaid-editor/index.vue'
-import NotFound from '@/views/not-found/index.vue'
 
 /**
  * 路由配置数组。
@@ -29,73 +16,73 @@ const routes = [
       {
         path: '/home', // 也可以写 'home'，使用 absolute path 保持兼容
         name: 'home',
-        component: Home, // 真实的首页组件
+        component: () => import('@/views/Home.vue'), // 真实的首页组件
         meta: { title: '首页' }
       },
       {
         path: '/text-diff',
         name: 'textDiff',
-        component: TextDiff,
+        component: () => import('@/views/text-diff/index.vue'),
         meta: { title: '文本比对' }
       },
       {
         path: '/json-tools',
         name: 'jsonTools',
-        component: JsonTools,
+        component: () => import('@/views/json-tools/index.vue'),
         meta: { title: 'JSON 工具' }
       },
       {
         path: '/ascii-table',
         name: 'asciiTable',
-        component: AsciiTable,
+        component: () => import('@/views/ascii-table/index.vue'),
         meta: { title: 'ASCII码对照表' }
       },
       {
         path: '/base64',
         name: 'base64',
-        component: Base64,
+        component: () => import('@/views/base64/index.vue'),
         meta: { title: 'Base64 编解码' }
       },
       {
         path: '/hash-gen',
         name: 'hashGen',
-        component: HashGen,
+        component: () => import('@/views/hash-gen/index.vue'),
         meta: { title: 'Hash 生成器' }
       },
       {
         path: '/url-encode',
         name: 'urlEncode',
-        component: UrlEncode,
+        component: () => import('@/views/url-encode/index.vue'),
         meta: { title: 'URL 编解码' }
       },
       {
         path: '/id-card-generator',
         name: 'idCardGenerator',
-        component: IdCardGenerator,
+        component: () => import('@/views/id-card-generator/index.vue'),
         meta: { title: '身份证号码生成器' }
       },
       {
         path: '/docker-commands',
         name: 'dockerCommands',
-        component: DockerCommands,
+        component: () => import('@/views/docker-commands/index.vue'),
         meta: { title: 'Docker 命令大全备查' }
       },
       {
         path: '/nginx-reference',
         name: 'nginxReference',
-        component: NginxReference,
+        component: () => import('@/views/nginx-reference/index.vue'),
         meta: { title: 'Nginx 命令与配置大全' }
       },
       {
         path: '/qrcode-generator',
         name: 'qrcodeGenerator',
-        component: QrcodeGenerator,
+        component: () => import('@/views/qrcode-generator/index.vue'),
         meta: { title: '二维码生成器' }
       },
       {
         path: '/mermaid-editor',
         name: 'mermaidEditor',
-        component: MermaidEditor,
+        component: () => import('@/views/mermaid-editor/index.vue'),
         meta: { title: 'Mermaid 图表渲染' }
       }
     ]
@@ -103,7 +90,7 @@ const routes = [
   {
     path: '/:pathMatch(.*)*',
     name: 'notFound',
-    component: NotFound,
+    component: () => import('@/views/not-found/index.vue'),
     meta: { title: '404' }
   }
 ]
