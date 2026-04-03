@@ -266,7 +266,7 @@ onMounted(() => {
   document.addEventListener('mouseup', stopResizing)
 
   if (containerRef.value) {
-    leftWidth.value = containerRef.value.getBoundingClientRect().width * 0.4
+    leftWidth.value = Math.max(containerRef.value.getBoundingClientRect().width * 0.3, 400)
   }
 })
 
