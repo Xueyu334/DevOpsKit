@@ -41,13 +41,8 @@ const handleLogoClick = () => {
           <div class="logo" @click="handleLogoClick">DevOpsKit</div>
         </el-col>
         <el-col :lg="18" :md="22" :sm="22" :xl="18" :xs="22">
-          <el-menu
-            :default-active="route.path"
-            :ellipsis="true"
-            class="header-menu"
-            mode="horizontal"
-            @select="handleSelect"
-          >
+          <el-menu :default-active="route.path" :ellipsis="true" class="header-menu" mode="horizontal"
+            @select="handleSelect">
             <el-menu-item index="/home">首页</el-menu-item>
             <el-sub-menu v-for="category in menuCategories" :key="category.menuKey" :index="category.menuKey">
               <template #title>{{ category.name }}</template>
@@ -81,10 +76,15 @@ const handleLogoClick = () => {
       </router-view>
     </el-main>
 
-    <!-- 全局底部 -->
-    <!-- 清除 el-footer 自带的 20px 左右 padding 和高度限制 -->
-    <el-footer class="app-footer" style="--el-footer-padding: 0; height: auto; padding-bottom: 10px">
-      <p>&copy; {{ new Date().getFullYear() }} DevOpsKit. All rights reserved.</p>
+    <!-- 全局底部：极简风格 -->
+    <el-footer class="app-footer">
+      <div class="footer-inner">
+        <span>© {{ new Date().getFullYear() }} DevOpsKit</span>
+        <span class="divider">/</span>
+        <a href="https://github.com/Xueyu334/DevOpsKit" target="_blank" class="footer-link">GitHub</a>
+        <span class="divider">/</span>
+        <a href="https://github.com/Xueyu334/DevOpsKit/issues" target="_blank" class="footer-link">问题反馈</a>
+      </div>
     </el-footer>
   </el-container>
 </template>
@@ -153,13 +153,32 @@ const handleLogoClick = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 60px;
-  color: var(--el-text-color-secondary);
-  font-size: 14px;
+  height: 30px !important;
+  border-top: 1px solid var(--el-border-color-lighter);
+  background-color: var(--el-bg-color);
+  color: var(--el-text-color-placeholder);
+  font-size: 11px;
 }
 
-.app-footer p {
-  margin: 0;
+.footer-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.footer-link {
+  color: var(--el-text-color-secondary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+  color: var(--el-color-primary);
+}
+
+.divider {
+  color: var(--el-border-color);
+  font-style: normal;
 }
 
 /* 简单的路由切换动画 */
