@@ -85,6 +85,32 @@ export const toolCategories = [
         tagTip: '二进制协议与字符串转换'
       },
       {
+        id: 'image-to-base64',
+        name: '图片转 Base64',
+        menuTitle: '图片转 Base64',
+        desc: '支持图片的上传或拖拽转换，生成适用于 CSS、HTML 的 Base64 数据。',
+        keywords: ['image to base64', '图片转base64', 'base64图片', 'data uri', '图片编码'],
+        route: '/image-to-base64',
+        icon: 'Picture',
+        color: '#67C23A',
+        tag: 'Encoding',
+        tagType: 'success',
+        tagTip: '前端开发常用图片内嵌方案'
+      },
+      {
+        id: 'base64-to-image',
+        name: 'Base64 转图片',
+        menuTitle: 'Base64 转图片',
+        desc: '将 Data URI 或纯 Base64 内容还原为图片预览，并支持一键下载还原后的文件。',
+        keywords: ['base64 to image', 'base64转图片', '图片还原', 'base64解码图片'],
+        route: '/base64-to-image',
+        icon: 'Finished',
+        color: '#E6A23C',
+        tag: 'Decoding',
+        tagType: 'info',
+        tagTip: '快速查看与下载代码中的 Base64 图片'
+      },
+      {
         id: 'url-encode',
         name: 'URL 编解码',
         menuTitle: 'URL 编解码',

@@ -50,6 +50,18 @@ const routes = [
         meta: { title: 'Hash 生成器' }
       },
       {
+        path: '/image-to-base64',
+        name: 'imageBase64',
+        component: () => import('@/views/image-to-base64/index.vue'),
+        meta: { title: '图片转 Base64' }
+      },
+      {
+        path: '/base64-to-image',
+        name: 'base64Image',
+        component: () => import('@/views/base64-to-image/index.vue'),
+        meta: { title: 'Base64 转图片' }
+      },
+      {
         path: '/url-encode',
         name: 'urlEncode',
         component: () => import('@/views/url-encode/index.vue'),
