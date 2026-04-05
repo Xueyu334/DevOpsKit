@@ -276,7 +276,7 @@ const handleNavigate = route => {
 }
 
 .tools-scroll-content {
-  padding: 2px 4px 16px;
+  padding: 2px 20px 16px;
   overflow-x: hidden;
 }
 

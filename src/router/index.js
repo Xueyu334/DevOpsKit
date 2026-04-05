@@ -84,6 +84,18 @@ const routes = [
         name: 'mermaidEditor',
         component: () => import('@/views/mermaid-editor/index.vue'),
         meta: { title: 'Mermaid 图表渲染' }
+      },
+      {
+        path: '/password-generator',
+        name: 'passwordGenerator',
+        component: () => import('@/views/password-generator/index.vue'),
+        meta: { title: '密码生成器' }
+      },
+      {
+        path: '/timestamp-converter',
+        name: 'timestampConverter',
+        component: () => import('@/views/timestamp-converter/index.vue'),
+        meta: { title: '时间戳转换' }
       }
     ]
   },
