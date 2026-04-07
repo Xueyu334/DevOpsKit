@@ -1,8 +1,27 @@
 <template>
   <div class="color-converter-container">
     <el-row :gutter="15">
-      <!-- 左侧主控制区 -->
-      <el-col :xs="24" :sm="24" :md="18">
+      <!-- 1. 最近选择 (左侧) -->
+      <el-col :xs="24" :sm="24" :md="4">
+        <el-card class="sidebar-card" shadow="hover">
+          <template #header>
+            <div class="sidebar-card-header">
+              <el-icon><icon-ep-clock /></el-icon>
+              <span>最近选择</span>
+            </div>
+          </template>
+          <div class="sidebar-list">
+            <div v-for="(color, index) in colorHistory" :key="index" class="sidebar-item" @click="applyColor(color)">
+              <div class="history-dot" :style="{ backgroundColor: color }"></div>
+              <span class="mono-label">{{ color }}</span>
+            </div>
+            <div v-if="colorHistory.length === 0" class="empty-tip">暂无选择记录</div>
+          </div>
+        </el-card>
+      </el-col>
+
+      <!-- 2. 主控制区 (中间) -->
+      <el-col :xs="24" :sm="24" :md="14">
         <el-card class="converter-card" shadow="hover">
           <template #header>
             <div class="card-header">
@@ -126,25 +145,23 @@
         </el-card>
       </el-col>
 
-      <!-- 右侧常用色彩库 -->
+      <!-- 3. 常用色彩库 (右侧) -->
       <el-col :xs="24" :sm="24" :md="6">
-        <el-card class="recommend-card" shadow="hover">
+        <el-card class="sidebar-card" shadow="hover">
           <template #header>
-            <div class="recommend-header">
+            <div class="sidebar-card-header">
               <el-icon><icon-ep-collection /></el-icon>
               <span>常用色彩库</span>
             </div>
           </template>
-          <div class="recommend-card-content">
-            <div class="color-grid-vertical">
-              <div v-for="color in commonColors" :key="color.value" class="color-item-sidebar"
-                :class="{ active: hexValue.toUpperCase() === color.value.toUpperCase() }"
-                @click="applyColor(color.value)">
-                <div class="color-dot" :style="{ backgroundColor: color.value }"></div>
-                <div class="color-info">
-                  <span class="color-name">{{ color.name }}</span>
-                  <span class="color-hex">{{ color.value }}</span>
-                </div>
+          <div class="sidebar-list">
+            <div v-for="color in commonColors" :key="color.value" class="sidebar-item"
+              :class="{ active: hexValue.toUpperCase() === color.value.toUpperCase() }"
+              @click="applyColor(color.value)">
+              <div class="color-dot" :style="{ backgroundColor: color.value }"></div>
+              <div class="color-info">
+                <span class="color-name">{{ color.name }}</span>
+                <span class="mono-label">{{ color.value }}</span>
               </div>
             </div>
           </div>
@@ -162,6 +179,8 @@ import { ElMessage } from 'element-plus'
 
 const currentColor = ref('#409EFF')
 const hexValue = ref('409EFF')
+const colorHistory = ref([]) // 历史记录列表
+const maxHistoryCount = 12   // 最大记录数
 
 const rgba = reactive({ r: 64, g: 158, b: 255, a: 1 })
 const hsla = reactive({ h: 210, s: 100, l: 63, a: 1 })
@@ -370,11 +389,33 @@ const handleHexInput = (val) => {
   }
 }
 
+const recordHistory = (color) => {
+  if (!color) return
+  const normalizedColor = color.startsWith('#') ? color.toUpperCase() : '#' + color.toUpperCase()
+
+  // 核心逻辑：去重并置顶 (MRU)
+  const index = colorHistory.value.indexOf(normalizedColor)
+  if (index > -1) {
+    // 如果已经存在，先从原位置删除
+    colorHistory.value.splice(index, 1)
+  }
+
+  // 将最新使用的颜色置顶
+  colorHistory.value.unshift(normalizedColor)
+
+  // 保持记录上限
+  if (colorHistory.value.length > maxHistoryCount) {
+    colorHistory.value.pop()
+  }
+}
+
 const handlePickerChange = (val) => {
   if (!val) return
   const rgb = parseColor(val)
   Object.assign(rgba, rgb)
   syncFromRgba()
+  // 只有在选择器确定改变后才记录新颜色
+  recordHistory(val)
 }
 
 const applyColor = (val) => {
@@ -382,6 +423,8 @@ const applyColor = (val) => {
   if (val.startsWith('#')) {
     hexValue.value = val.replace('#', '')
     handleHexInput(hexValue.value)
+    // 记录这次成功的应用操作
+    recordHistory(val)
   }
 }
 
@@ -398,7 +441,7 @@ onMounted(() => {
 
 <style scoped>
 .color-converter-container {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 5px auto;
   animation: fadeIn 0.5s ease-out;
 }
@@ -600,8 +643,8 @@ onMounted(() => {
   color: #C0C4CC;
 }
 
-/* 推荐色卡片 */
-.recommend-card {
+/* 侧边栏通用样式 (最近选择 & 常用色彩) */
+.sidebar-card {
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.3);
   background: rgba(255, 255, 255, 0.7);
@@ -610,7 +653,7 @@ onMounted(() => {
   top: 10px;
 }
 
-.recommend-header {
+.sidebar-card-header {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -619,45 +662,53 @@ onMounted(() => {
   color: #303133;
 }
 
-.recommend-card-content {
-  padding-right: 0;
-}
-
-.color-grid-vertical {
+.sidebar-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.color-item-sidebar {
+.sidebar-item {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 8px;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s;
-  border: 1px solid transparent;
   background: rgba(255, 255, 255, 0.4);
+  border: 1px solid transparent;
+  transition: all 0.2s;
 }
 
-.color-item-sidebar:hover {
+.sidebar-item:hover {
   background: #fff;
   transform: translateX(3px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.color-item-sidebar.active {
+.sidebar-item.active {
   border-color: #409EFF;
   background: #fff;
   box-shadow: 0 2px 8px rgba(64, 158, 255, 0.1);
+}
+
+.color-dot,
+.history-dot {
+  flex-shrink: 0;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .color-dot {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: 2px solid #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.history-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
 }
 
 .color-info {
@@ -671,10 +722,17 @@ onMounted(() => {
   color: #303133;
 }
 
-.color-hex {
+.mono-label {
   font-size: 0.75rem;
   color: #909399;
-  font-family: monospace;
+  font-family: 'Fira Code', monospace;
+}
+
+.empty-tip {
+  font-size: 0.85rem;
+  color: #C0C4CC;
+  text-align: center;
+  padding: 20px 0;
 }
 
 @keyframes fadeIn {
@@ -693,10 +751,5 @@ onMounted(() => {
   margin: 12px 0;
 }
 
-/* 移动端适配 */
-@media (max-width: 768px) {
-  .step-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
+
 </style>
