@@ -174,12 +174,17 @@
 <script setup>
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { colord, extend } from 'colord'
+import mixPlugin from 'colord/plugins/mix'
+
+extend([mixPlugin])
 
 // --- 数据定义 ---
 
 const currentColor = ref('#409EFF')
 const hexValue = ref('409EFF')
-const colorHistory = ref([]) // 历史记录列表
+// 历史记录列表持久化
+const colorHistory = useStorage('devopskit_color_history', [])
 const maxHistoryCount = 12   // 最大记录数
 
 const rgba = reactive({ r: 64, g: 158, b: 255, a: 1 })
@@ -211,145 +216,39 @@ const commonColors = [
   { name: '云朵白', value: '#f1f2f6' }
 ]
 
-// --- 核心转换逻辑 ---
-
-// RGB to HSL
-const rgbToHsl = (r = 0, g = 0, b = 0) => {
-  r = (r || 0) / 255; g = (g || 0) / 255; b = (b || 0) / 255
-  const max = Math.max(r, g, b), min = Math.min(r, g, b)
-  let h, s, l = (max + min) / 2
-
-  if (max === min) {
-    h = s = 0 // achromatic
-  } else {
-    const d = max - min
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-    switch (max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break
-      case g: h = (b - r) / d + 2; break
-      case b: h = (r - g) / d + 4; break
-    }
-    h /= 6
-  }
-  return {
-    h: Math.round(h * 360),
-    s: Math.round(s * 100),
-    l: Math.round(l * 100)
-  }
-}
-
-// HSL to RGB
-const hslToRgb = (h = 0, s = 0, l = 0) => {
-  h = (h || 0) / 360; s = (s || 0) / 100; l = (l || 0) / 100
-  let r, g, b
-  if (s === 0) {
-    r = g = b = l // achromatic
-  } else {
-    const hue2rgb = (p, q, t) => {
-      if (t < 0) t += 1
-      if (t > 1) t -= 1
-      if (t < 1 / 6) return p + (q - p) * 6 * t
-      if (t < 1 / 2) return q
-      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6
-      return p
-    }
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s
-    const p = 2 * l - q
-    r = hue2rgb(p, q, h + 1 / 3)
-    g = hue2rgb(p, q, h)
-    b = hue2rgb(p, q, h - 1 / 3)
-  }
-  return {
-    r: Math.round(r * 255),
-    g: Math.round(g * 255),
-    b: Math.round(b * 255)
-  }
-}
-
-// RGB to HEX
-const rgbToHex = (r = 0, g = 0, b = 0, a = 1) => {
-  const toHex = x => {
-    const val = Math.round(Number(x) || 0)
-    return Math.max(0, Math.min(255, val)).toString(16).padStart(2, '0').toUpperCase()
-  }
-  let hex = toHex(r) + toHex(g) + toHex(b)
-  if (a < 1) {
-    hex += toHex(a * 255)
-  }
-  return hex
-}
-
-// 颜色解析器：支持 HEX, RGB, RGBA
-const parseColor = (color) => {
-  if (!color) return { r: 0, g: 0, b: 0, a: 1 }
-
-  // 处理 RGB(A) 格式
-  if (color.startsWith('rgb')) {
-    const vals = color.match(/[\d.]+/g)
-    if (vals && vals.length >= 3) {
-      return {
-        r: parseInt(vals[0]) || 0,
-        g: parseInt(vals[1]) || 0,
-        b: parseInt(vals[2]) || 0,
-        a: vals[3] !== undefined ? parseFloat(vals[3]) : 1
-      }
-    }
-  }
-
-  // 处理 HEX 格式
-  let hex = color.replace('#', '')
-  if (hex.length === 3) {
-    hex = hex.split('').map(x => x + x).join('')
-  }
-
-  const r = parseInt(hex.substring(0, 2), 16) || 0
-  const g = parseInt(hex.substring(2, 4), 16) || 0
-  const b = parseInt(hex.substring(4, 6), 16) || 0
-  let a = 1
-  if (hex.length === 8) {
-    a = +(parseInt(hex.substring(6, 8), 16) / 255).toFixed(2)
-  }
-  return { r, g, b, a }
-}
-
 // --- 衍生逻辑 ---
 
 const rgbValue = computed(() => {
-  return rgba.a === 1 ? `rgb(${rgba.r}, ${rgba.g}, ${rgba.b})` : `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})`
+  return colord(rgba).toRgbString()
 })
 
 const hslValue = computed(() => {
-  return hsla.a === 1 ? `hsl(${hsla.h}, ${hsla.s}%, ${hsla.l}%)` : `hsla(${hsla.h}, ${hsla.s}%, ${hsla.l}%, ${hsla.a})`
+  return colord(hsla).toHslString()
 })
 
 const contrastColor = computed(() => {
-  const { r, g, b } = rgba
-  const yiq = (r * 299 + g * 587 + b * 114) / 1000
-  return yiq >= 128 ? '#000000' : '#FFFFFF'
+  return colord(currentColor.value).isLight() ? '#000000' : '#FFFFFF'
 })
 
 const uiStates = computed(() => {
-  // 生成 hover / active / disabled
-  const { h, s, l } = hsla
+  const c = colord(currentColor.value)
   return [
-    { name: 'Hover', value: rgbToHex(...Object.values(hslToRgb(h, s, Math.min(100, l + 10))), rgba.a) },
-    { name: 'Active', value: rgbToHex(...Object.values(hslToRgb(h, s, Math.max(0, l - 10))), rgba.a) },
-    { name: 'Disabled', value: rgbToHex(...Object.values(hslToRgb(h, 20, 80)), 0.6) }
-  ].map(it => ({ ...it, value: '#' + it.value }))
+    { name: 'Hover', value: c.lighten(0.1).toHex() },
+    { name: 'Active', value: c.darken(0.1).toHex() },
+    { name: 'Disabled', value: c.desaturate(0.5).alpha(0.6).toHex() }
+  ]
 })
 
 const colorSteps = computed(() => {
-  const { h, s, l } = hsla
+  const c = colord(currentColor.value)
   const steps = []
-  // Lighten steps
+  // Lighten steps (mix with white)
   for (let i = 1; i <= 5; i++) {
-    const newL = l + (100 - l) * (i / 6)
-    steps.push({ name: `light-${i}`, value: '#' + rgbToHex(...Object.values(hslToRgb(h, s, newL)), rgba.a) })
+    steps.push({ name: `light-${i}`, value: c.mix('#ffffff', i / 6).toHex() })
   }
-  // Darken steps
+  // Darken steps (mix with black)
   for (let i = 1; i <= 3; i++) {
-    const newL = l * (1 - i / 4)
-    steps.push({ name: `dark-${i}`, value: '#' + rgbToHex(...Object.values(hslToRgb(h, s, newL)), rgba.a) })
+    steps.push({ name: `dark-${i}`, value: c.mix('#000000', i / 4).toHex() })
   }
   return steps
 })
@@ -357,35 +256,38 @@ const colorSteps = computed(() => {
 // --- 同步逻辑 ---
 
 const syncFromRgba = () => {
-  const { r, g, b, a } = rgba
-  hexValue.value = rgbToHex(r, g, b, a)
-  const hsl = rgbToHsl(r, g, b)
-  hsla.h = hsl.h
-  hsla.s = hsl.s
-  hsla.l = hsl.l
-  hsla.a = a
-  currentColor.value = '#' + hexValue.value
+  const c = colord(rgba)
+  const hex = c.toHex()
+  hexValue.value = hex.replace('#', '').toUpperCase()
+  const hsl = c.toHsl()
+  hsla.h = Math.round(hsl.h)
+  hsla.s = Math.round(hsl.s)
+  hsla.l = Math.round(hsl.l)
+  hsla.a = hsl.a
+  currentColor.value = hex
 }
 
 const syncFromHsla = () => {
-  const { h, s, l, a } = hsla
-  const rgb = hslToRgb(h, s, l)
-  rgba.r = rgb.r
-  rgba.g = rgb.g
-  rgba.b = rgb.b
-  rgba.a = a
-  hexValue.value = rgbToHex(rgb.r, rgb.g, rgb.b, a)
-  currentColor.value = '#' + hexValue.value
+  const c = colord(hsla)
+  const rgb = c.toRgb()
+  rgba.r = Math.round(rgb.r)
+  rgba.g = Math.round(rgb.g)
+  rgba.b = Math.round(rgb.b)
+  rgba.a = rgb.a
+  const hex = c.toHex()
+  hexValue.value = hex.replace('#', '').toUpperCase()
+  currentColor.value = hex
 }
 
 const handleHexInput = (val) => {
-  const cleanHex = val.replace('#', '')
-  if (/^[0-9a-fA-F]{3,8}$/.test(cleanHex)) {
-    const rgb = parseColor(cleanHex)
-    Object.assign(rgba, rgb)
-    const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b)
-    Object.assign(hsla, { ...hsl, a: rgb.a })
-    currentColor.value = '#' + cleanHex
+  const prefixVal = val.startsWith('#') ? val : '#' + val
+  const c = colord(prefixVal)
+  if (c.isValid()) {
+    const rgb = c.toRgb()
+    Object.assign(rgba, { r: Math.round(rgb.r), g: Math.round(rgb.g), b: Math.round(rgb.b), a: rgb.a })
+    const hsl = c.toHsl()
+    Object.assign(hsla, { h: Math.round(hsl.h), s: Math.round(hsl.s), l: Math.round(hsl.l), a: hsl.a })
+    currentColor.value = c.toHex()
   }
 }
 
@@ -411,11 +313,14 @@ const recordHistory = (color) => {
 
 const handlePickerChange = (val) => {
   if (!val) return
-  const rgb = parseColor(val)
-  Object.assign(rgba, rgb)
-  syncFromRgba()
-  // 只有在选择器确定改变后才记录新颜色
-  recordHistory(val)
+  const c = colord(val)
+  if (c.isValid()) {
+    const rgb = c.toRgb()
+    Object.assign(rgba, { r: Math.round(rgb.r), g: Math.round(rgb.g), b: Math.round(rgb.b), a: rgb.a })
+    syncFromRgba()
+    // 只有在选择器确定改变后才记录新颜色
+    recordHistory(val)
+  }
 }
 
 const applyColor = (val) => {
@@ -750,6 +655,4 @@ onMounted(() => {
 :deep(.el-divider--horizontal) {
   margin: 12px 0;
 }
-
-
 </style>
