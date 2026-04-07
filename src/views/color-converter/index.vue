@@ -174,10 +174,7 @@
 <script setup>
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { colord, extend } from 'colord'
-import mixPlugin from 'colord/plugins/mix'
-
-extend([mixPlugin])
+import { colord } from 'colord'
 
 // --- 数据定义 ---
 

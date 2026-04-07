@@ -11,6 +11,12 @@ import 'vue-diff/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import './assets/global.css'
 
+import { extend as colordExtend } from 'colord'
+import mixPlugin from 'colord/plugins/mix'
+
+// Configure globally
+colordExtend([mixPlugin])
+
 // Configure dayjs globally
 dayjs.extend(utc)
 dayjs.extend(timezone)
