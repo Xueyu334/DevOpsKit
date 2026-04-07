@@ -41,8 +41,13 @@ const handleLogoClick = () => {
           <div class="logo" @click="handleLogoClick">DevOpsKit</div>
         </el-col>
         <el-col :lg="18" :md="22" :sm="22" :xl="18" :xs="22">
-          <el-menu :default-active="route.path" :ellipsis="true" class="header-menu" mode="horizontal"
-            @select="handleSelect">
+          <el-menu
+            :default-active="route.path"
+            :ellipsis="true"
+            class="header-menu"
+            mode="horizontal"
+            @select="handleSelect"
+          >
             <el-menu-item index="/home">首页</el-menu-item>
             <el-sub-menu v-for="category in menuCategories" :key="category.menuKey" :index="category.menuKey">
               <template #title>{{ category.name }}</template>

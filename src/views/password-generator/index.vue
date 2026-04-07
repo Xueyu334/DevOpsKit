@@ -38,12 +38,13 @@
             </el-form-item>
 
             <el-form-item label="生成条数">
-              <div style="display: flex; gap: 15px; width: 100%; align-items: center;">
+              <div style="display: flex; gap: 15px; width: 100%; align-items: center">
                 <el-input-number v-model="form.count" :min="1" :max="50" />
-                <el-button type="primary" style="flex: 1;" @click="generatePasswords">
+                <el-button type="primary" style="flex: 1" @click="generatePasswords">
                   <el-icon>
                     <IconEpRefresh />
-                  </el-icon> 立即生成
+                  </el-icon>
+                  立即生成
                 </el-button>
               </div>
             </el-form-item>
@@ -53,13 +54,11 @@
 
       <!-- 结果展示区 -->
       <el-col :xs="24" :md="16">
-        <el-card class="result-card" v-loading="generating" element-loading-text="正在生成安全密码...">
+        <el-card v-loading="generating" class="result-card" element-loading-text="正在生成安全密码...">
           <template #header>
             <div class="card-header">
               <span>生成结果</span>
-              <el-button type="success" size="small" @click="copyAll" :disabled="!results.length">
-                复制全部
-              </el-button>
+              <el-button type="success" size="small" :disabled="!results.length" @click="copyAll"> 复制全部 </el-button>
             </div>
           </template>
 
@@ -116,7 +115,10 @@ const generatePasswords = () => {
       }
 
       // Parse excluded characters (support both English and Chinese commas as separators)
-      const excluded = form.excludeChars.split(/[,，]/).map(c => c.trim()).filter(c => c)
+      const excluded = form.excludeChars
+        .split(/[,，]/)
+        .map(c => c.trim())
+        .filter(c => c)
       const excludedSet = new Set(excluded)
 
       // Build the pool and required char pools
@@ -124,7 +126,10 @@ const generatePasswords = () => {
       const requiredChars = []
 
       for (const type of form.chars) {
-        let availableChars = charSets[type].split('').filter(c => !excludedSet.has(c)).join('')
+        let availableChars = charSets[type]
+          .split('')
+          .filter(c => !excludedSet.has(c))
+          .join('')
 
         if (availableChars) {
           pool += availableChars
@@ -166,8 +171,8 @@ const generatePasswords = () => {
 
         // Shuffle the array to avoid predictable positions for required characters
         for (let j = pwdArray.length - 1; j > 0; j--) {
-          const k = Math.floor(Math.random() * (j + 1));
-          [pwdArray[j], pwdArray[k]] = [pwdArray[k], pwdArray[j]];
+          const k = Math.floor(Math.random() * (j + 1))
+          ;[pwdArray[j], pwdArray[k]] = [pwdArray[k], pwdArray[j]]
         }
 
         generated.push(pwdArray.join(''))
@@ -180,7 +185,7 @@ const generatePasswords = () => {
   }, 300)
 }
 
-const copy = async (text) => {
+const copy = async text => {
   try {
     await toClipboard(text)
     ElMessage.success('复制成功')
@@ -262,7 +267,7 @@ const copyAll = async () => {
   padding: 10px 15px;
   border-radius: 4px;
   border: 1px solid var(--el-border-color-lighter);
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
   font-size: 16px;
   transition: all 0.3s;
 }

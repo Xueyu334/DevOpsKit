@@ -20,14 +20,14 @@
             @input="handleInput"
           />
 
-          <div class="input-actions" v-if="base64Input">
+          <div v-if="base64Input" class="input-actions">
             <el-alert
               v-if="!hasPrefix && base64Input.length > 10"
               title="提示: 缺少 Data URI 前缀，系统已尝试自动识别格式"
               type="info"
               :closable="false"
               show-icon
-              style="margin-top: 15px;"
+              style="margin-top: 15px"
             />
           </div>
         </el-card>
@@ -35,13 +35,11 @@
 
       <!-- 预览与结果区 -->
       <el-col :xs="24" :md="12">
-        <el-card class="preview-card" v-loading="loading">
+        <el-card v-loading="loading" class="preview-card">
           <template #header>
             <div class="card-header">
               <span>图片预览</span>
-              <el-button type="primary" size="small" @click="downloadImage" :disabled="!isReady">
-                下载图片
-              </el-button>
+              <el-button type="primary" size="small" :disabled="!isReady" @click="downloadImage"> 下载图片 </el-button>
             </div>
           </template>
 
@@ -59,7 +57,7 @@
               </el-descriptions>
             </div>
           </div>
-          
+
           <el-empty v-else description="等待输入有效的 Base64 数据..." />
         </el-card>
       </el-col>
@@ -85,7 +83,7 @@ const detectedExt = ref('png')
 const finalImageData = ref('')
 
 // 辅助：格式化大小
-const formatSize = (bytes) => {
+const formatSize = bytes => {
   if (bytes === 0) return '0 B'
   const k = 1024
   const sizes = ['B', 'KB', 'MB', 'GB']
@@ -102,7 +100,7 @@ const handleInput = () => {
   }
 
   loading.value = true
-  
+
   // 简易正则判断是否有前缀
   if (/^data:image\/[a-z+]+;base64,/.test(val)) {
     hasPrefix.value = true
@@ -119,7 +117,7 @@ const handleInput = () => {
     if (val.startsWith('/9j/')) mime = 'image/jpeg'
     else if (val.startsWith('R0lG')) mime = 'image/gif'
     else if (val.startsWith('UklG')) mime = 'image/webp'
-    
+
     detectedMime.value = mime
     detectedExt.value = mime.split('/')[1]
     finalImageData.value = `data:${mime};base64,${val}`
@@ -142,7 +140,7 @@ const handleInput = () => {
   img.src = finalImageData.value
 }
 
-const onImageLoad = (e) => {
+const onImageLoad = e => {
   imgMeta.width = e.target.naturalWidth
   imgMeta.height = e.target.naturalHeight
 }
@@ -173,7 +171,8 @@ const clearAll = () => {
   margin: 10px auto;
 }
 
-.input-card, .preview-card {
+.input-card,
+.preview-card {
   height: 100%;
 }
 
@@ -184,7 +183,7 @@ const clearAll = () => {
 }
 
 .base64-textarea {
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
   font-size: 12px;
 }
 
@@ -207,13 +206,17 @@ const clearAll = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-image: 
+  background-image:
     linear-gradient(45deg, var(--el-fill-color-light) 25%, transparent 25%),
     linear-gradient(-45deg, var(--el-fill-color-light) 25%, transparent 25%),
     linear-gradient(45deg, transparent 75%, var(--el-fill-color-light) 75%),
     linear-gradient(-45deg, transparent 75%, var(--el-fill-color-light) 75%);
   background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  background-position:
+    0 0,
+    0 10px,
+    10px -10px,
+    -10px 0px;
   border: 1px solid var(--el-border-color-lighter);
   border-radius: 4px;
   overflow: auto;

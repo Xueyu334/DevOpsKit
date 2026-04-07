@@ -8,7 +8,7 @@
             <IconEpTimer />
           </el-icon>
           <span class="label">当前时间 ({{ currentTzLabel }})</span>
-          <el-select v-model="selectedTz" size="small" placeholder="切换时区" style="width: 180px; margin-left: 10px;">
+          <el-select v-model="selectedTz" size="small" placeholder="切换时区" style="width: 180px; margin-left: 10px">
             <el-option v-for="tz in tzList" :key="tz.value" :label="tz.label" :value="tz.value" />
           </el-select>
         </div>
@@ -33,9 +33,13 @@
         <el-card class="convert-card">
           <template #header>
             <div class="card-header">
-              <span>时间戳 <el-icon>
+              <span
+                >时间戳
+                <el-icon>
                   <IconEpRight />
-                </el-icon> 时间</span>
+                </el-icon>
+                时间</span
+              >
             </div>
           </template>
 
@@ -59,7 +63,7 @@
             <el-form-item label="转换结果" class="result-item">
               <el-input v-model="tsToTime.output" readonly placeholder="转换后的本地时间">
                 <template #append>
-                  <el-button @click="copy(tsToTime.output)" :disabled="!tsToTime.output">复制</el-button>
+                  <el-button :disabled="!tsToTime.output" @click="copy(tsToTime.output)">复制</el-button>
                 </template>
               </el-input>
             </el-form-item>
@@ -72,16 +76,26 @@
         <el-card class="convert-card">
           <template #header>
             <div class="card-header">
-              <span>时间 <el-icon>
+              <span
+                >时间
+                <el-icon>
                   <IconEpRight />
-                </el-icon> 时间戳</span>
+                </el-icon>
+                时间戳</span
+              >
             </div>
           </template>
 
           <el-form label-position="top">
             <el-form-item label="选择或输入日期时间">
-              <el-date-picker v-model="timeToTs.input" type="datetime" placeholder="YYYY-MM-DD HH:mm:ss"
-                format="YYYY-MM-DD HH:mm:ss" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" />
+              <el-date-picker
+                v-model="timeToTs.input"
+                type="datetime"
+                placeholder="YYYY-MM-DD HH:mm:ss"
+                format="YYYY-MM-DD HH:mm:ss"
+                value-format="YYYY-MM-DD HH:mm:ss"
+                style="width: 100%"
+              />
             </el-form-item>
 
             <div class="action-bar">
@@ -98,7 +112,7 @@
                   </el-select>
                 </template>
                 <template #append>
-                  <el-button @click="copy(timeToTs.output)" :disabled="!timeToTs.output">复制</el-button>
+                  <el-button :disabled="!timeToTs.output" @click="copy(timeToTs.output)">复制</el-button>
                 </template>
               </el-input>
             </el-form-item>
@@ -154,9 +168,7 @@ const commonTimezones = {
 
 const generateTzList = () => {
   const browserTz = dayjs.tz.guess()
-  const list = [
-    { label: `本地 (浏览器: ${browserTz})`, value: browserTz }
-  ]
+  const list = [{ label: `本地 (浏览器: ${browserTz})`, value: browserTz }]
 
   Object.entries(commonTimezones).forEach(([offset, info]) => {
     list.push({
@@ -284,7 +296,7 @@ const resetTimeToTs = () => {
   timeToTs.unit = 's'
 }
 
-const copy = async (text) => {
+const copy = async text => {
   if (!text) return
   try {
     await toClipboard(text.toString())
@@ -348,7 +360,7 @@ const copy = async (text) => {
   font-size: 38px;
   font-weight: 700;
   color: var(--el-text-color-primary);
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
   margin-bottom: 12px;
   letter-spacing: -1px;
 }

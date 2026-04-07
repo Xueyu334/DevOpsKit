@@ -108,6 +108,12 @@ const routes = [
         name: 'timestampConverter',
         component: () => import('@/views/timestamp-converter/index.vue'),
         meta: { title: '时间戳转换' }
+      },
+      {
+        path: '/color-converter',
+        name: 'colorConverter',
+        component: () => import('@/views/color-converter/index.vue'),
+        meta: { title: '颜色转换' }
       }
     ]
   },

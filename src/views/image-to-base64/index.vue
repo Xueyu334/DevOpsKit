@@ -11,8 +11,15 @@
             </div>
           </template>
 
-          <el-upload class="image-uploader" drag action="#" :auto-upload="false" :show-file-list="false"
-            accept="image/*" @change="handleFileChange">
+          <el-upload
+            class="image-uploader"
+            drag
+            action="#"
+            :auto-upload="false"
+            :show-file-list="false"
+            accept="image/*"
+            @change="handleFileChange"
+          >
             <div v-if="!imageInfo.previewUrl" class="upload-placeholder">
               <el-icon class="el-icon--upload">
                 <IconEpUploadFilled />
@@ -47,23 +54,29 @@
                   <el-radio-button label="css">CSS</el-radio-button>
                   <el-radio-button label="html">HTML</el-radio-button>
                 </el-radio-group>
-                <el-button type="primary" size="small" @click="copyResult" :disabled="!base64Result">
+                <el-button type="primary" size="small" :disabled="!base64Result" @click="copyResult">
                   复制结果
                 </el-button>
               </div>
             </div>
           </template>
 
-          <el-input v-model="formattedResult" type="textarea" :rows="14" readonly placeholder="上传图片后此处将展示 Base64 结果..."
-            class="result-textarea" />
+          <el-input
+            v-model="formattedResult"
+            type="textarea"
+            :rows="14"
+            readonly
+            placeholder="上传图片后此处将展示 Base64 结果..."
+            class="result-textarea"
+          />
 
-          <div class="result-footer" v-if="base64Result">
+          <div v-if="base64Result" class="result-footer">
             <span class="char-count">
               字符数: {{ base64Result.length.toLocaleString() }}
               <el-divider direction="vertical" />
               体积: {{ formatSize(base64Result.length) }}
             </span>
-            <el-tag size="small" type="warning" v-if="base64Result.length > 32768">
+            <el-tag v-if="base64Result.length > 32768" size="small" type="warning">
               提示: 字符串较大，建议用于小图或图标
             </el-tag>
           </div>
@@ -74,7 +87,6 @@
 </template>
 
 <script setup>
-
 // 状态定义
 const imageInfo = reactive({
   name: '',
@@ -90,7 +102,7 @@ const outputType = ref('raw')
 const { copy: toClipboard } = useClipboard({ legacy: true })
 
 // 辅助函数：格式化文件大小
-const formatSize = (bytes) => {
+const formatSize = bytes => {
   if (bytes === 0) return '0 B'
   const k = 1024
   const sizes = ['B', 'KB', 'MB', 'GB']
@@ -99,7 +111,7 @@ const formatSize = (bytes) => {
 }
 
 // 核心逻辑：处理文件选择
-const handleFileChange = (uploadFile) => {
+const handleFileChange = uploadFile => {
   const file = uploadFile.raw
   if (!file) return
 
@@ -115,7 +127,7 @@ const handleFileChange = (uploadFile) => {
 
   // 读取 Base64 和 预览图
   const reader = new FileReader()
-  reader.onload = (e) => {
+  reader.onload = e => {
     const base64 = e.target.result
     imageInfo.base64 = base64
     imageInfo.previewUrl = base64
@@ -224,7 +236,7 @@ const clearAll = () => {
 }
 
 .result-textarea {
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
   font-size: 13px;
 }
 

@@ -78,8 +78,16 @@ import IconEpLink from '~icons/ep/link'
 import IconEpPostcard from '~icons/ep/postcard'
 import IconEpTickets from '~icons/ep/tickets'
 import IconEpTimer from '~icons/ep/timer'
-import IconEpTools from '~icons/ep/tools'
 import IconEpMenu from '~icons/ep/menu'
+import IconEpBrush from '~icons/ep/brush'
+import IconEpOperation from '~icons/ep/operation'
+import IconEpTools from '~icons/ep/tools'
+import IconEpDataAnalysis from '~icons/ep/data-analysis'
+import IconEpGrid from '~icons/ep/grid'
+import IconEpConnection from '~icons/ep/connection'
+import IconEpPicture from '~icons/ep/picture'
+import IconEpFinished from '~icons/ep/finished'
+import IconEpLock from '~icons/ep/lock'
 import Fuse from 'fuse.js'
 import { tagTypeHints, toolCategories } from '../config/tool-categories'
 
@@ -95,7 +103,16 @@ const toolIconMap = {
   Postcard: IconEpPostcard,
   Tickets: IconEpTickets,
   Timer: IconEpTimer,
-  Menu: IconEpMenu
+  Menu: IconEpMenu,
+  Brush: IconEpBrush,
+  Operation: IconEpOperation,
+  Tools: IconEpTools,
+  DataAnalysis: IconEpDataAnalysis,
+  Grid: IconEpGrid,
+  Connection: IconEpConnection,
+  Picture: IconEpPicture,
+  Finished: IconEpFinished,
+  Lock: IconEpLock
 }
 
 const flatTools = computed(() =>

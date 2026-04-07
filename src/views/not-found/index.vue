@@ -127,6 +127,7 @@ const goBack = () => {
   line-height: 1;
   margin: 0;
   background: linear-gradient(135deg, #0f172a 0%, #475569 100%);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -6px;
@@ -221,7 +222,9 @@ const goBack = () => {
 
 :deep(html.dark) .digit-404 {
   background: linear-gradient(135deg, #f8fafc 0%, #94a3b8 100%);
+  background-clip: text;
   -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 :deep(html.dark) .title {

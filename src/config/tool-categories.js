@@ -193,6 +193,19 @@ export const toolCategories = [
         tag: 'Citizen',
         tagType: 'info',
         tagTip: '研发模拟数据填充辅助'
+      },
+      {
+        id: 'color-converter',
+        name: '颜色转换 (Color Converter)',
+        menuTitle: '颜色转换',
+        desc: '支持 HEX 与 RGB 互相转换，提供实时取色、预览及常用 Web 安全色推荐。',
+        keywords: ['color', 'hex', 'rgb', 'rgba', 'color picker', '颜色转换', '取色器'],
+        route: '/color-converter',
+        icon: 'Brush',
+        color: '#F06292',
+        tag: 'Design',
+        tagType: 'success',
+        tagTip: '前端开发与 UI 设计配色辅助'
       }
     ]
   },
