@@ -206,6 +206,19 @@ export const toolCategories = [
         tag: 'Design',
         tagType: 'success',
         tagTip: '前端开发与 UI 设计配色辅助'
+      },
+      {
+        id: 'base-converter',
+        name: '进制转换 (Base Converter)',
+        menuTitle: '进制转换',
+        desc: '支持 2, 8, 10, 16 进制之间的实时互相转换，支持大数与千分符格式化。',
+        keywords: ['base', 'converter', 'binary', 'hex', 'decimal', 'octal', '进制转换', '二进制', '十六进制'],
+        route: '/base-converter',
+        icon: 'Finished',
+        color: '#409EFF',
+        tag: 'Math',
+        tagType: 'warning',
+        tagTip: '开发者必备的基数转换工具'
       }
     ]
   },

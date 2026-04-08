@@ -114,6 +114,12 @@ const routes = [
         name: 'colorConverter',
         component: () => import('@/views/color-converter/index.vue'),
         meta: { title: '颜色转换' }
+      },
+      {
+        path: '/base-converter',
+        name: 'baseConverter',
+        component: () => import('@/views/base-converter/index.vue'),
+        meta: { title: '进制转换' }
       }
     ]
   },
