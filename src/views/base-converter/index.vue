@@ -159,10 +159,11 @@ updateValues(10, '1024')
     <div class="reference-section">
       <h3 class="section-title">常见数值参考 (Cheat Sheet)</h3>
       <el-table :data="commonValues" border stripe style="width: 100%" class="modern-table">
-        <el-table-column prop="name" label="名称" width="180" />
-        <el-table-column prop="dec" label="十进制 (Dec)" />
-        <el-table-column prop="hex" label="十六进制 (Hex)" />
-        <el-table-column prop="bin" label="二进制 (Bin)" width="300" />
+        <el-table-column prop="name" label="名称" width="180" align="center" />
+        <el-table-column prop="dec" label="十进制 (Dec)" align="center" />
+        <el-table-column prop="oct" label="八进制 (Oct)" align="center" />
+        <el-table-column prop="hex" label="十六进制 (Hex)" align="center" />
+        <el-table-column prop="bin" label="二进制 (Bin)" width="300" align="center" />
       </el-table>
     </div>
   </div>
@@ -173,11 +174,11 @@ export default {
   data() {
     return {
       commonValues: [
-        { name: 'Byte Max', dec: '255', hex: 'FF', bin: '1111 1111' },
-        { name: 'Word Max (16-bit)', dec: '65535', hex: 'FFFF', bin: '1111 1111 1111 1111' },
-        { name: 'DWord Max (32-bit)', dec: '4294967295', hex: 'FFFF FFFF', bin: '... FFFF' },
-        { name: '1 KB (Binary)', dec: '1024', hex: '400', bin: '0100 0000 0000' },
-        { name: 'Int32 Max', dec: '2147483647', hex: '7FFF FFFF', bin: '0111 1111 ... 1111' }
+        { name: 'Byte Max', dec: '255', oct: '377', hex: 'FF', bin: '1111 1111' },
+        { name: 'Word Max (16-bit)', dec: '65535', oct: '177777', hex: 'FFFF', bin: '1111 1111 1111 1111' },
+        { name: 'DWord Max (32-bit)', dec: '4294967295', oct: '37777777777', hex: 'FFFF FFFF', bin: '... FFFF' },
+        { name: '1 KB (Binary)', dec: '1024', oct: '2000', hex: '400', bin: '0100 0000 0000' },
+        { name: 'Int32 Max', dec: '2147483647', oct: '17777777777', hex: '7FFF FFFF', bin: '0111 1111 ... 1111' }
       ]
     }
   }
@@ -332,7 +333,7 @@ export default {
 }
 
 .reference-section {
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .section-title {
