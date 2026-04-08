@@ -100,6 +100,15 @@ const clearAll = () => {
 // 模拟数据初始化
 values.value[10] = '1024'
 updateValues(10, '1024')
+
+// 常用常数参考数据
+const commonValues = [
+  { name: 'Byte Max', dec: '255', oct: '377', hex: 'FF', bin: '1111 1111' },
+  { name: 'Word Max (16-bit)', dec: '65535', oct: '177777', hex: 'FFFF', bin: '1111 1111 1111 1111' },
+  { name: 'DWord Max (32-bit)', dec: '4294967295', oct: '37777777777', hex: 'FFFF FFFF', bin: '... FFFF' },
+  { name: '1 KB (Binary)', dec: '1024', oct: '2000', hex: '400', bin: '0100 0000 0000' },
+  { name: 'Int32 Max', dec: '2147483647', oct: '17777777777', hex: '7FFF FFFF', bin: '0111 1111 ... 1111' }
+]
 </script>
 
 <template>
@@ -169,21 +178,6 @@ updateValues(10, '1024')
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      commonValues: [
-        { name: 'Byte Max', dec: '255', oct: '377', hex: 'FF', bin: '1111 1111' },
-        { name: 'Word Max (16-bit)', dec: '65535', oct: '177777', hex: 'FFFF', bin: '1111 1111 1111 1111' },
-        { name: 'DWord Max (32-bit)', dec: '4294967295', oct: '37777777777', hex: 'FFFF FFFF', bin: '... FFFF' },
-        { name: '1 KB (Binary)', dec: '1024', oct: '2000', hex: '400', bin: '0100 0000 0000' },
-        { name: 'Int32 Max', dec: '2147483647', oct: '17777777777', hex: '7FFF FFFF', bin: '0111 1111 ... 1111' }
-      ]
-    }
-  }
-}
-</script>
 
 <style scoped>
 .base-converter-container {
