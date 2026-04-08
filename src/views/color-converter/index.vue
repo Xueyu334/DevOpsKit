@@ -290,7 +290,9 @@ const handleHexInput = (val) => {
 
 const recordHistory = (color) => {
   if (!color) return
-  const normalizedColor = color.startsWith('#') ? color.toUpperCase() : '#' + color.toUpperCase()
+  const c = colord(color)
+  if (!c.isValid()) return
+  const normalizedColor = c.toHex().toUpperCase()
 
   // 核心逻辑：去重并置顶 (MRU)
   const index = colorHistory.value.indexOf(normalizedColor)
@@ -322,9 +324,11 @@ const handlePickerChange = (val) => {
 
 const applyColor = (val) => {
   if (!val) return
-  if (val.startsWith('#')) {
-    hexValue.value = val.replace('#', '')
-    handleHexInput(hexValue.value)
+  const c = colord(val)
+  if (c.isValid()) {
+    const hexWithoutHash = c.toHex().replace('#', '').toUpperCase()
+    hexValue.value = hexWithoutHash
+    handleHexInput(hexWithoutHash)
     // 记录这次成功的应用操作
     recordHistory(val)
   }
