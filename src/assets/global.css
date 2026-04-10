@@ -13,3 +13,15 @@ body,
 .pagination-container {
   margin-top: 30px;
 }
+
+/* NProgress 进度条定制 */
+#nprogress .bar {
+  background: var(--el-color-primary) !important;
+  height: 3px !important;
+}
+
+#nprogress .peg {
+  box-shadow:
+    0 0 10px var(--el-color-primary),
+    0 0 5px var(--el-color-primary) !important;
+}

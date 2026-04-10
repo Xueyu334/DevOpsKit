@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from 'vue'
 import figlet from 'figlet'
 import { ElMessage } from 'element-plus'
+import progress from '@/utils/nprogress'
 
 const inputText = ref('DevOps Kit')
 const resultText = ref('')
@@ -91,6 +92,7 @@ const generateBanner = () => {
   }
 
   loading.value = true
+  progress.start() // 开始加载进度条
 
   // figlet.text is asynchronous when loading fonts
   figlet.text(
@@ -104,6 +106,7 @@ const generateBanner = () => {
     },
     (err, data) => {
       loading.value = false
+      progress.done() // 结束进度条
       if (err) {
         console.error('Figlet error:', err)
         ElMessage.error('生成失败: ' + err.message)

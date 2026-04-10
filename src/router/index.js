@@ -137,19 +137,37 @@ const routes = [
   }
 ]
 
+// 导入增强版进度条工具
+import progress from '@/utils/nprogress'
+
+// 路由配置... (省略 routes 变量部分)
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
 })
 
-// 添加路由前置守卫用于动态更新标题
+// 添加路由前置守卫用于动态更新标题和开启进度条
 router.beforeEach(to => {
+  progress.start() // 使用增强版 start
   const title = to.meta.title
   if (title) {
     document.title = `${title} - DevOpsKit`
   } else {
     document.title = 'DevOpsKit'
   }
+  return true
+})
+
+// 添加路由后置守卫关闭进度条
+router.afterEach(() => {
+  progress.done() // 使用增强版 done
+})
+
+// 处理路由解析错误，防止进度条卡死
+router.onError(error => {
+  progress.clear() // 发生错误时强制清理
+  console.error('Router Error:', error)
 })
 
 export default router
