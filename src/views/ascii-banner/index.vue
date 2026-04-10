@@ -187,8 +187,8 @@ const downloadAscii = () => {
               <el-col :span="24">
                 <el-form-item label="生成模式">
                   <el-radio-group v-model="dotMatrixMode">
-                    <el-radio :label="false">标准模式 (FIGfont)</el-radio>
-                    <el-radio :label="true">点阵模式 (支持中文)</el-radio>
+                    <el-radio :value="false">标准模式 (FIGfont)</el-radio>
+                    <el-radio :value="true">点阵模式 (支持中文)</el-radio>
                   </el-radio-group>
                 </el-form-item>
               </el-col>

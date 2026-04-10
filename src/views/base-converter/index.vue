@@ -119,7 +119,7 @@ const commonValues = [
             <p class="card-subtitle">支持 2、8、10、16 进制之间的实时互转，支持超大数字与千分符格式化。</p>
           </div>
           <div class="header-actions">
-            <el-checkbox v-model="useSeparator" label="启用格式化分隔符" />
+            <el-checkbox v-model="useSeparator">启用格式化分隔符</el-checkbox>
             <el-button type="danger" link :icon="Delete" @click="clearAll">清空全部</el-button>
           </div>
         </div>

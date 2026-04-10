@@ -50,9 +50,9 @@
               <span>Base64 结果</span>
               <div class="header-ops">
                 <el-radio-group v-model="outputType" size="small" class="type-selector">
-                  <el-radio-button label="raw">Data URI</el-radio-button>
-                  <el-radio-button label="css">CSS</el-radio-button>
-                  <el-radio-button label="html">HTML</el-radio-button>
+                  <el-radio-button value="raw">Data URI</el-radio-button>
+                  <el-radio-button value="css">CSS</el-radio-button>
+                  <el-radio-button value="html">HTML</el-radio-button>
                 </el-radio-group>
                 <el-button type="primary" size="small" :disabled="!base64Result" @click="copyResult">
                   复制结果

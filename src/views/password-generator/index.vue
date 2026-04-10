@@ -18,10 +18,10 @@
 
             <el-form-item label="包含字符">
               <el-checkbox-group v-model="form.chars" class="char-checkbox-group">
-                <el-checkbox label="lowercase">小写字母 (a-z)</el-checkbox>
-                <el-checkbox label="uppercase">大写字母 (A-Z)</el-checkbox>
-                <el-checkbox label="numbers">数字 (0-9)</el-checkbox>
-                <el-checkbox label="special">特殊字符 (!@#$%^&*)</el-checkbox>
+                <el-checkbox value="lowercase">小写字母 (a-z)</el-checkbox>
+                <el-checkbox value="uppercase">大写字母 (A-Z)</el-checkbox>
+                <el-checkbox value="numbers">数字 (0-9)</el-checkbox>
+                <el-checkbox value="special">特殊字符 (!@#$%^&*)</el-checkbox>
               </el-checkbox-group>
             </el-form-item>
 
