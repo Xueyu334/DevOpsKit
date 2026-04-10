@@ -88,10 +88,19 @@ export default defineConfig(({ command, mode }) => {
     },
     build: {
       outDir: 'dist', // 打包输出的文件夹名
-      sourcemap: false, // 生产环境是否生成 source map（建议为 false，减少体积、防源码泄露）
+      sourcemap: mode === 'preview', // 预览模式开启 sourcemap 以便调试，生产环境保持关闭
       chunkSizeWarningLimit: 1500, // 触发大文件体积警告的阈值 (单位 kb)
       rollupOptions: {
+        // 告诉打包工具哪些库不需要打包进最终的 bundle
+        external: ['mermaid', 'vue', 'vue-demi', 'vue-router'],
         output: {
+          // 将外部依赖映射到 CDN 地址，利用浏览器原生的 ESM 加载能力
+          paths: {
+            'vue': 'https://cdn.jsdelivr.net/npm/vue@3.5.30/+esm',
+            'vue-router': 'https://cdn.jsdelivr.net/npm/vue-router@5.0.4/+esm',
+            'vue-demi': 'https://cdn.jsdelivr.net/npm/vue-demi@0.14.10/+esm',
+            'mermaid': 'https://cdn.jsdelivr.net/npm/mermaid@11.14.0/dist/mermaid.esm.min.mjs'
+          },
           // 静态资源分类打包，让所有的文件都有自己的独立目录
           chunkFileNames: 'assets/js/[name]-[hash].js',
           entryFileNames: 'assets/js/[name]-[hash].js',
@@ -102,25 +111,6 @@ export default defineConfig(({ command, mode }) => {
               // 核心 UI 库
               if (id.includes('element-plus')) {
                 return 'element-plus'
-              }
-              // 框架核心
-              if (
-                id.includes('/vue/') ||
-                id.includes('/@vue/') ||
-                id.includes('vue-router') ||
-                id.includes('@vueuse')
-              ) {
-                return 'vue'
-              }
-              // 巨型渲染库及其依赖，分别拆分以避免循环依赖
-              if (id.includes('mermaid')) {
-                return 'mermaid'
-              }
-              if (id.includes('d3')) {
-                return 'd3'
-              }
-              if (id.includes('dagre')) {
-                return 'dagre'
               }
               // 巨型数据文件
               if (id.includes('china-area-data')) {
