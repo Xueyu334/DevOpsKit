@@ -10,6 +10,7 @@ import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import viteCompression from 'vite-plugin-compression'
+import ElementPlus from 'unplugin-element-plus/vite'
 
 // https://vite.dev/config/
 export default defineConfig(({ command, mode }) => {
@@ -56,7 +57,8 @@ export default defineConfig(({ command, mode }) => {
         threshold: 10240,
         algorithm: 'gzip',
         ext: '.gz'
-      })
+      }),
+      ElementPlus()
     ].filter(Boolean),
     resolve: {
       alias: {
