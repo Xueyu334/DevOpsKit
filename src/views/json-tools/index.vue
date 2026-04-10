@@ -1,7 +1,9 @@
 <script setup>
-import { ElMessage } from 'element-plus'
+import JSON5 from 'json5'
 import JsonWorker from './json.worker.js?worker'
 
+const STORAGE_KEY = 'devopskit_json_input'
+const OPTIONS_KEY = 'devopskit_json_options'
 const EMPTY_STATE_HTML = '<span class="status-tip">等待输入...</span>'
 
 const renderOptionItems = [
@@ -22,16 +24,22 @@ const options = reactive({
 const stringResultHtml = ref(EMPTY_STATE_HTML)
 const evalResultHtml = ref(EMPTY_STATE_HTML)
 const hasError = ref(false)
+const hasNonStandard = ref(false)
+const currentPath = ref('')
 
 const leftWidth = ref(400)
 const containerRef = ref(null)
 let isResizing = false
 let worker = null
 
+const { copy } = useClipboard()
+
 const setIdleState = () => {
   stringResultHtml.value = EMPTY_STATE_HTML
   evalResultHtml.value = EMPTY_STATE_HTML
   hasError.value = false
+  hasNonStandard.value = false
+  currentPath.value = ''
 }
 
 const buildErrorHtml = (message, modifierClass = '') =>
@@ -41,7 +49,8 @@ const parseJsonLike = value => {
   try {
     return JSON.parse(value)
   } catch {
-    return new Function(`return (${value})`)()
+    // 降级使用 JSON5 解析，支持注释、单引号、未加引号键等，且绝对安全
+    return JSON5.parse(value)
   }
 }
 
@@ -55,59 +64,186 @@ function debounce(func, wait) {
 
 const update = () => {
   const val = rawInput.value.trim()
+
+  // 数据持久化：完全依赖 try-catch（方案 A）
+  try {
+    if (val) {
+      localStorage.setItem(STORAGE_KEY, val)
+    } else {
+      localStorage.removeItem(STORAGE_KEY)
+    }
+    localStorage.setItem(OPTIONS_KEY, JSON.stringify(options))
+  } catch (e) {
+    // 如果超出存储配额（QuotaExceededError），则优雅降级，仅在控制台警告
+    if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+      console.warn('JSON 自动保存失败：内容超出 LocalStorage 存储上限。')
+    } else {
+      console.error('持久化失败:', e)
+    }
+  }
+
   if (!val) {
     setIdleState()
     return
   }
 
-  if (!worker) {
-    return
-  }
+  if (!worker) return
 
-  const workerOptions = {
-    compress: options.compress,
-    showIndex: options.showIndex,
-    showType: options.showType,
-    color: options.color
-  }
-
+  const workerOptions = { ...options }
   worker.postMessage({ id: 'strict', type: 'strict', content: val, options: workerOptions })
   worker.postMessage({ id: 'relaxed', type: 'relaxed', content: val, options: workerOptions })
 }
 
 const debouncedUpdate = debounce(update, 300)
 
-const handleToggle = e => {
+const lockedPath = ref('')
+let selectedElement = null
+
+const handleHover = e => {
+  if (lockedPath.value) return
+
   const target = e.target
-  if (!target?.classList.contains('json-toggle')) {
+  const pathNode = target.closest('[data-path]')
+  if (pathNode) {
+    currentPath.value = pathNode.getAttribute('data-path') || '[]'
+  }
+}
+
+/**
+ * 将 JSON 数组格式的路径段转换为人类可读的点语法/中括号语法
+ * @param {String} pathStr - JSON 序列化的路径数组字符串
+ * @returns {String} 人类可读路径
+ */
+const formatPath = pathStr => {
+  if (!pathStr || pathStr === 'root' || pathStr === '[]') return ''
+  try {
+    const parts = JSON.parse(pathStr)
+    if (!Array.isArray(parts)) return pathStr
+
+    return parts
+      .map((part, index) => {
+        if (typeof part === 'number') {
+          return `[${part}]`
+        }
+        // 如果 key 包含特殊字符，建议使用 [ "key" ] 格式，这里简化处理
+        const needsBrackets = /[^a-zA-Z0-9_$]/.test(part)
+        if (needsBrackets) {
+          return `["${part.replace(/"/g, '\\"')}"]`
+        }
+        return index === 0 ? part : `.${part}`
+      })
+      .join('')
+  } catch {
+    return pathStr
+  }
+}
+
+const handleClick = e => {
+  const target = e.target
+  const isToggle = target?.classList.contains('json-toggle')
+  const isLoadMore = target?.classList.contains('json-load-more')
+
+  // 处理属性层级的展开/收起切换
+  if (isToggle) {
+    const parent = target.parentElement
+    const list = parent?.querySelector('.json-tree')
+    const indicator = parent?.querySelector('.json-size-indicator')
+
+    if (list) {
+      if (list.classList.contains('folded')) {
+        list.classList.remove('folded')
+        if (indicator) indicator.style.display = 'none'
+        target.innerText = '-'
+      } else {
+        list.classList.add('folded')
+        if (indicator) indicator.style.display = 'inline'
+        target.innerText = '+'
+      }
+    }
     return
   }
 
-  const parent = target.parentElement
-  const list = parent?.querySelector('.json-tree')
-  const indicator = parent?.querySelector('.json-size-indicator')
-
-  if (!list) {
+  // 处理大数组/大对象的局部加载
+  if (isLoadMore) {
+    const path = target.getAttribute('data-path')
+    const offset = parseInt(target.getAttribute('data-offset') || '0', 10)
+    target.innerText = '正在加载更多内容...'
+    target.style.pointerEvents = 'none'
+    worker.postMessage({ type: 'partial', path, offset, options: { ...options } })
     return
   }
 
-  if (list.classList.contains('folded')) {
-    list.classList.remove('folded')
-    if (indicator) indicator.style.display = 'none'
-    target.innerText = '-'
-    return
-  }
+  // 处理路径的锁定与解锁
+  const pathNode = target.closest('[data-path]')
+  if (pathNode) {
+    // 清除上一次的选中状态
+    if (selectedElement) {
+      selectedElement.classList.remove('json-selected-node')
+    }
 
-  list.classList.add('folded')
-  if (indicator) indicator.style.display = 'inline'
-  target.innerText = '+'
+    if (selectedElement === pathNode) {
+      // 再次点击同一路径：解除锁定
+      selectedElement = null
+      lockedPath.value = ''
+      ElMessage.info({ message: '路径锁定已解除', duration: 1000 })
+    } else {
+      // 点击新路径：执行锁定
+      selectedElement = pathNode
+      selectedElement.classList.add('json-selected-node')
+      lockedPath.value = pathNode.getAttribute('data-path') || '[]'
+      currentPath.value = lockedPath.value
+      ElMessage.success({ message: '路径已锁定，可点击下方复制', duration: 1000 })
+    }
+  } else {
+    // 点击空白区域：解除当前锁定
+    if (selectedElement) {
+      selectedElement.classList.remove('json-selected-node')
+      selectedElement = null
+      lockedPath.value = ''
+    }
+  }
+}
+
+const handleCopyPath = () => {
+  if (!currentPath.value) return
+  const formatted = formatPath(currentPath.value)
+  const fullPath = `root${formatted.startsWith('[') ? '' : formatted ? '.' : ''}${formatted}`
+  copy(fullPath)
+  ElMessage.success('路径已复制')
+}
+
+const handleExpandAll = (expand = true) => {
+  const resultArea = document.querySelector('.result-area')
+  if (!resultArea) return
+  const toggles = resultArea.querySelectorAll('.json-toggle')
+  const trees = resultArea.querySelectorAll('.json-tree')
+  const indicators = resultArea.querySelectorAll('.json-size-indicator')
+
+  toggles.forEach(t => (t.innerText = expand ? '-' : '+'))
+  trees.forEach(tree => {
+    if (expand) tree.classList.remove('folded')
+    else tree.classList.add('folded')
+  })
+  indicators.forEach(ind => (ind.style.display = expand ? 'none' : 'inline'))
+}
+
+const handleDrop = e => {
+  e.preventDefault()
+  const file = e.dataTransfer.files[0]
+  if (file && (file.name.endsWith('.json') || file.type === 'application/json')) {
+    const reader = new FileReader()
+    reader.onload = event => {
+      rawInput.value = event.target.result
+      update()
+      ElMessage.success('文件加载成功')
+    }
+    reader.readAsText(file)
+  }
 }
 
 const transformParsedInput = (formatter, successMessage, errorPrefix) => {
   const val = rawInput.value.trim()
-  if (!val) {
-    return
-  }
+  if (!val) return
 
   try {
     rawInput.value = formatter(parseJsonLike(val))
@@ -121,6 +257,7 @@ const transformParsedInput = (formatter, successMessage, errorPrefix) => {
 const handleClear = () => {
   rawInput.value = ''
   setIdleState()
+  localStorage.removeItem(STORAGE_KEY)
 }
 
 const handleFormat = () => {
@@ -133,9 +270,7 @@ const handleCompress = () => {
 
 const handleUnescape = () => {
   let val = rawInput.value.trim()
-  if (!val) {
-    return
-  }
+  if (!val) return
 
   try {
     if (val.startsWith('"') && val.endsWith('"')) {
@@ -174,9 +309,7 @@ const handleUnescape = () => {
 
 const handleEscape = () => {
   let val = rawInput.value.trim()
-  if (!val) {
-    return
-  }
+  if (!val) return
 
   try {
     val = JSON.stringify(parseJsonLike(val))
@@ -189,54 +322,26 @@ const handleEscape = () => {
   ElMessage.success('添加转义完成')
 }
 
-/**
- * 开始调整大小的函数。
- *
- * 该方法会启用调整大小的模式，将全局 `isResizing` 状态设置为 `true`。
- * 同时，它会更新页面的光标样式为列调整光标，并禁用用户选择，以增强用户体验。
- */
 const startResizing = () => {
   isResizing = true
   document.body.style.cursor = 'col-resize'
   document.body.style.userSelect = 'none'
 }
 
-/**
- * 处理鼠标移动事件的回调函数。
- *
- * 该函数用于在分隔容器处于调整大小状态时，根据鼠标的当前位置动态调整左侧区域的宽度。
- *
- * @param {MouseEvent} e 鼠标移动事件对象。
- */
 const handleMouseMove = e => {
-  if (!isResizing || !containerRef.value) {
-    return
-  }
+  if (!isResizing || !containerRef.value) return
 
   const containerRect = containerRef.value.getBoundingClientRect()
   const newLeftWidth = e.clientX - containerRect.left
-  const leftMinimumWidth = 400
-  const rightMinimumWidth = 400
+  const minWidth = 300
 
-  // 检查左侧最小宽度限制
-  if (newLeftWidth < leftMinimumWidth) {
-    console.warn('Resize blocked: left panel width reached minimum limit')
-    return
-  }
-  // 检查右侧最小宽度限制
-  if (newLeftWidth > containerRect.width - rightMinimumWidth) {
-    console.warn('Resize blocked: right panel width reached minimum limit')
-    return
-  }
+  if (newLeftWidth < minWidth || newLeftWidth > containerRect.width - minWidth) return
 
   leftWidth.value = newLeftWidth
 }
 
 const stopResizing = () => {
-  if (!isResizing) {
-    return
-  }
-
+  if (!isResizing) return
   isResizing = false
   document.body.style.cursor = 'default'
   document.body.style.userSelect = ''
@@ -245,16 +350,43 @@ const stopResizing = () => {
 onMounted(() => {
   worker = new JsonWorker()
 
+  // 从本地存储加载历史数据
+  const savedInput = localStorage.getItem(STORAGE_KEY)
+  const savedOptions = localStorage.getItem(OPTIONS_KEY)
+  if (savedInput) rawInput.value = savedInput
+  if (savedOptions) {
+    try {
+      Object.assign(options, JSON.parse(savedOptions))
+    } catch {
+      /* 忽略格式错误的备份 */
+    }
+  }
+
   worker.onmessage = e => {
-    const { id, success, html, error } = e.data
+    const { id, success, html, error, hasNonStandard: nonStandard, type, path } = e.data
+
+    if (type === 'partial') {
+      // 处理分段加载返回
+      const selector = `.json-load-more[data-path="${path.replace(/"/g, '\\"')}"]`
+      const el = document.querySelector(selector)
+      if (el) {
+        // 使用 beforebegin 在占位符前插入新得到的 100 条数据
+        el.insertAdjacentHTML('beforebegin', html)
+        // 移除旧的占位符（Worker 返回的新 HTML 中如果还有剩余，会包含一个新的占位符）
+        el.remove()
+      }
+      return
+    }
 
     if (id === 'strict') {
       if (success) {
         stringResultHtml.value = html
         hasError.value = false
+        hasNonStandard.value = nonStandard
       } else {
         stringResultHtml.value = buildErrorHtml(`Error: ${error}`)
         hasError.value = true
+        hasNonStandard.value = false
       }
       return
     }
@@ -268,6 +400,8 @@ onMounted(() => {
   if (containerRef.value) {
     leftWidth.value = Math.max(containerRef.value.getBoundingClientRect().width * 0.3, 400)
   }
+
+  if (rawInput.value) update()
 })
 
 onUnmounted(() => {
@@ -283,31 +417,38 @@ onUnmounted(() => {
       <div class="tool-title">
         <span class="icon-bracket">{ }</span>
         JSON在线解析
-        <span class="subtitle">(双击自动格式化)</span>
+        <span class="subtitle">(支持文件拖拽)</span>
       </div>
-      <el-popover :width="180" placement="bottom-end" title="渲染设置" trigger="click">
-        <template #reference>
-          <el-button plain>
-            <template #icon>
-              <el-icon>
-                <IconEpSetting />
-              </el-icon>
-            </template>
-            显示选项
-          </el-button>
-        </template>
-        <div class="settings-panel">
-          <el-checkbox
-            v-for="item in renderOptionItems"
-            :key="item.key"
-            v-model="options[item.key]"
-            class="settings-checkbox"
-            @change="debouncedUpdate"
-          >
-            {{ item.label }}
-          </el-checkbox>
-        </div>
-      </el-popover>
+      <div class="header-actions">
+        <el-button-group class="mr-2">
+          <el-button plain size="default" @click="handleExpandAll(true)">全部展开</el-button>
+          <el-button plain size="default" @click="handleExpandAll(false)">全部收起</el-button>
+        </el-button-group>
+
+        <el-popover :width="180" placement="bottom-end" title="渲染设置" trigger="click">
+          <template #reference>
+            <el-button plain>
+              <template #icon>
+                <el-icon>
+                  <IconEpSetting />
+                </el-icon>
+              </template>
+              显示选项
+            </el-button>
+          </template>
+          <div class="settings-panel">
+            <el-checkbox
+              v-for="item in renderOptionItems"
+              :key="item.key"
+              v-model="options[item.key]"
+              class="settings-checkbox"
+              @change="debouncedUpdate"
+            >
+              {{ item.label }}
+            </el-checkbox>
+          </div>
+        </el-popover>
+      </div>
     </div>
 
     <div ref="containerRef" class="panel-container">
@@ -329,9 +470,11 @@ onUnmounted(() => {
         <textarea
           v-model="rawInput"
           class="editor-area"
-          placeholder="在此输入或粘贴您的 JSON 数据... (双击任意处自动格式化)"
+          placeholder="在此输入或粘贴您的 JSON 数据... (双击任意处自动格式化，支持拖拽 .json 文件)"
           spellcheck="false"
           @dblclick="handleFormat"
+          @drop="handleDrop"
+          @dragover.prevent
           @input="debouncedUpdate"
         ></textarea>
       </div>
@@ -344,8 +487,35 @@ onUnmounted(() => {
           <div class="panel-header-cell panel-header-cell--offset">JS Eval (Relaxed)</div>
         </div>
         <div class="result-area">
-          <div class="result-col parse-col" @click="handleToggle" v-html="stringResultHtml"></div>
-          <div class="result-col eval-col" @click="handleToggle" v-html="evalResultHtml"></div>
+          <div
+            class="result-col parse-col"
+            @click="handleClick"
+            @mouseover="handleHover"
+            v-html="stringResultHtml"
+          ></div>
+          <div class="result-col eval-col" @click="handleClick" @mouseover="handleHover" v-html="evalResultHtml"></div>
+        </div>
+        <div v-if="hasNonStandard" class="non-standard-warning">
+          <el-icon>
+            <IconEpWarning />
+          </el-icon>
+          <span>检测到包含 undefined / NaN 等非标准 JSON 值，执行压缩或格式化可能会导致数据丢失。</span>
+        </div>
+        <div :class="{ 'path-bar--locked': lockedPath }" class="path-bar">
+          <div class="path-display">
+            <span class="path-label">path:</span>
+            <code class="path-text">{{
+              currentPath
+                ? (function () {
+                    const formatted = formatPath(currentPath)
+                    return `root${formatted.startsWith('[') ? '' : formatted ? '.' : ''}${formatted}`
+                  })()
+                : 'root'
+            }}</code>
+          </div>
+          <el-button v-if="lockedPath" class="path-copy-btn" link size="small" type="primary" @click="handleCopyPath">
+            复制路径
+          </el-button>
         </div>
       </div>
     </div>
@@ -358,7 +528,7 @@ onUnmounted(() => {
   --panel-padding: 16px;
   --panel-radius: 8px;
   --panel-border: 1px solid var(--el-border-color-light);
-  --panel-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --panel-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   --panel-header-height: 42px;
   --gutter-width: 10px;
   --gutter-offset: -5px;
@@ -397,6 +567,7 @@ html.dark .app-container {
   --json-string-color: #34d399;
   --json-number-color: #a78bfa;
   --json-boolean-color: #fb923c;
+  --panel-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
 }
 
 .tool-header {
@@ -413,6 +584,15 @@ html.dark .app-container {
   color: var(--el-text-color-primary);
   font-size: 24px;
   font-weight: 700;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.mr-2 {
+  margin-right: 12px;
 }
 
 .icon-bracket {
@@ -556,6 +736,81 @@ html.dark .app-container {
   border-right: var(--panel-border);
 }
 
+.non-standard-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  background: var(--el-color-warning-light-9);
+  color: var(--el-color-warning);
+  font-size: 11px;
+  border-top: 1px solid var(--el-color-warning-light-7);
+}
+
+:deep(.json-selected-node) {
+  background: var(--el-fill-color-light) !important;
+  box-shadow: 0 0 0 1px var(--el-color-primary-light-7);
+  border-radius: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+.path-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 22px;
+  padding: 0 10px;
+  border-top: 1px solid var(--el-border-color-extra-light);
+  background: transparent;
+  font-size: 10px;
+  color: var(--el-text-color-placeholder);
+  transition: all 0.2s ease;
+}
+
+.path-bar--locked {
+  background: transparent;
+  border-top: 1px solid var(--el-border-color);
+  color: var(--el-text-color-primary);
+}
+
+.path-display {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.path-label {
+  font-weight: 500;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--el-text-color-placeholder);
+}
+
+.path-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--json-font-family);
+  color: var(--el-text-color-secondary);
+  padding: 0 4px;
+}
+
+.path-bar--locked .path-text {
+  color: var(--el-text-color-primary);
+  font-weight: 600;
+}
+
+.path-copy-btn {
+  margin-left: 6px;
+  height: 18px !important;
+  font-size: 10px !important;
+  padding: 0 4px !important;
+}
+
 .gutter {
   position: relative;
   z-index: 10;
@@ -636,6 +891,10 @@ html.dark .app-container {
   word-break: break-all;
 }
 
+:deep(.json-tree li:hover) {
+  background: var(--el-fill-color-light);
+}
+
 :deep(.json-toggle) {
   display: inline-flex;
   align-items: center;
@@ -675,6 +934,17 @@ html.dark .app-container {
   font-weight: 500;
 }
 
+:deep([data-path]) {
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.1s;
+}
+
+:deep([data-path]:hover) {
+  background: var(--el-color-primary-light-9);
+  box-shadow: 0 0 0 2px var(--el-color-primary-light-9);
+}
+
 :deep(.json-key-0) {
   color: var(--json-key-0-color);
 }
@@ -709,6 +979,22 @@ html.dark .app-container {
 
 :deep(.json-key-8) {
   color: var(--json-key-8-color);
+}
+
+:deep(.json-load-more) {
+  color: var(--el-color-primary);
+  cursor: pointer;
+  font-style: italic;
+  padding: 4px 0;
+  list-style: none !important;
+  font-size: 11px;
+  opacity: 0.8;
+  transition: all 0.2s;
+}
+
+:deep(.json-load-more:hover) {
+  opacity: 1;
+  text-decoration: underline;
 }
 
 :deep(.json-string) {
