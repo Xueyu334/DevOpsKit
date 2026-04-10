@@ -10,6 +10,7 @@
             <span>CSS 渐变生成器</span>
           </div>
           <div class="header-actions">
+            <el-checkbox v-model="showCheckered" label="显示透明背景" class="checkered-toggle" />
             <el-button type="primary" link @click="clearHistory">清空记录</el-button>
           </div>
         </div>
@@ -19,7 +20,10 @@
         <!-- 左侧：预览与代码 -->
         <el-col :md="12" :xs="24">
           <div class="preview-section">
-            <div class="gradient-preview" :style="{ background: gradientCss }"></div>
+            <div class="preview-wrapper">
+              <div class="preview-background" :class="{ 'is-checkered': showCheckered }"></div>
+              <div class="gradient-preview" :style="{ background: gradientCss }"></div>
+            </div>
 
             <div class="code-output">
               <div class="code-label">
@@ -148,6 +152,7 @@ const config = reactive({
   ]
 })
 
+const showCheckered = ref(true)
 const history = ref([])
 const STORAGE_KEY = 'devops_gradient_history'
 
@@ -207,8 +212,12 @@ const addColorStop = () => {
 // 随机颜色与位置
 const randomizeColors = () => {
   config.stops.forEach(stop => {
-    // 随机色值
-    stop.color = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')
+    // 随机色值（包含透明度）
+    const r = Math.floor(Math.random() * 256)
+    const g = Math.floor(Math.random() * 256)
+    const b = Math.floor(Math.random() * 256)
+    const a = Math.random().toFixed(2)
+    stop.color = `rgba(${r}, ${g}, ${b}, ${a})`
     // 随机位置 (0-100)
     stop.position = Math.floor(Math.random() * 101)
   })
@@ -246,6 +255,8 @@ const applyPreset = preset => {
   if (preset.radialShape !== undefined) config.radialShape = preset.radialShape
   if (preset.radialSize !== undefined) config.radialSize = preset.radialSize
   config.stops = JSON.parse(JSON.stringify(preset.stops))
+  // 滚动回顶部生成器位置 (容器为 .app-main)
+  document.querySelector('.app-main')?.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 // 保存到记录
@@ -336,12 +347,30 @@ onMounted(() => {
   gap: 20px;
 }
 
-.gradient-preview {
+.preview-wrapper {
+  position: relative;
   width: 100%;
   height: 240px;
   border-radius: 12px;
+  overflow: hidden;
   border: 1px solid #ebeef5;
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.preview-background,
+.gradient-preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.preview-background {
+  background-color: #ffffff;
+}
+
+.preview-background.is-checkered {
   background-image:
     linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
     linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
@@ -351,6 +380,16 @@ onMounted(() => {
     0 10px,
     10px -10px,
     -10px 0px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.checkered-toggle {
+  margin-right: 0;
 }
 
 .code-output {

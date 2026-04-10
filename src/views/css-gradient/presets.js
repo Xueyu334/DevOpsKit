@@ -211,5 +211,406 @@ export const gradientPresets = [
       { color: '#22D3EE', position: 100 }
     ],
     previewCss: 'linear-gradient(45deg, #1B1F3A 0%, #6D42C7 50%, #22D3EE 100%)'
+  },
+  {
+    name: '深夜蓝',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#0f2027', position: 0 },
+      { color: '#203a43', position: 50 },
+      { color: '#2c5364', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)'
+  },
+  {
+    name: '暗黑紫',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#20002c', position: 0 },
+      { color: '#cbb4d4', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #20002c 0%, #cbb4d4 100%)'
+  },
+  {
+    name: '冰川蓝',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#e0f7fa', position: 0 },
+      { color: '#80deea', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #e0f7fa 0%, #80deea 100%)'
+  },
+  {
+    name: '青柠绿',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#d4fc79', position: 0 },
+      { color: '#96e6a1', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)'
+  },
+  {
+    name: '热带海',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#00c6ff', position: 0 },
+      { color: '#0072ff', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #00c6ff 0%, #0072ff 100%)'
+  },
+  {
+    name: '樱花粉',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#ffdde1', position: 0 },
+      { color: '#ee9ca7', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #ffdde1 0%, #ee9ca7 100%)'
+  },
+  {
+    name: '奶油橙',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#fbc2eb', position: 0 },
+      { color: '#fcd2a5', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #fbc2eb 0%, #fcd2a5 100%)'
+  },
+  {
+    name: '极光绿',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#00f260', position: 0 },
+      { color: '#0575e6', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #00f260 0%, #0575e6 100%)'
+  },
+  {
+    name: '星空黑',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#000000', position: 0 },
+      { color: '#434343', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #000000 0%, #434343 100%)'
+  },
+  {
+    name: '蓝莓紫',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#667eea', position: 0 },
+      { color: '#764ba2', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+  },
+  {
+    name: '暖粉橙',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#ff9a9e', position: 0 },
+      { color: '#fad0c4', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)'
+  },
+  {
+    name: '水晶蓝',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#a1c4fd', position: 0 },
+      { color: '#c2e9fb', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)'
+  },
+  {
+    name: '冰火',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#ff512f', position: 0 },
+      { color: '#dd2476', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #ff512f 0%, #dd2476 100%)'
+  },
+  {
+    name: '柠檬茶',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#f7971e', position: 0 },
+      { color: '#ffd200', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #f7971e 0%, #ffd200 100%)'
+  },
+  {
+    name: '深海蓝',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#141e30', position: 0 },
+      { color: '#243b55', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #141e30 0%, #243b55 100%)'
+  },
+  {
+    name: '森林绿',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#134e5e', position: 0 },
+      { color: '#71b280', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #134e5e 0%, #71b280 100%)'
+  },
+  {
+    name: '紫霞',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#41295a', position: 0 },
+      { color: '#2f0743', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #41295a 0%, #2f0743 100%)'
+  },
+  {
+    name: '薄雾灰',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#bdc3c7', position: 0 },
+      { color: '#2c3e50', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #bdc3c7 0%, #2c3e50 100%)'
+  },
+  {
+    name: '橙蓝撞色',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#ff8008', position: 0 },
+      { color: '#ffc837', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #ff8008 0%, #ffc837 100%)'
+  },
+  {
+    name: '冷月',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#232526', position: 0 },
+      { color: '#414345', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #232526 0%, #414345 100%)'
+  },
+  {
+    name: '极夜蓝紫',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#1e3c72', position: 0 },
+      { color: '#2a5298', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)'
+  },
+  {
+    name: '晨曦橙粉',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#ff7e5f', position: 0 },
+      { color: '#feb47b', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%)'
+  },
+  {
+    name: '青空渐变',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#56ccf2', position: 0 },
+      { color: '#2f80ed', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #56ccf2 0%, #2f80ed 100%)'
+  },
+  {
+    name: '葡萄紫',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#6a11cb', position: 0 },
+      { color: '#2575fc', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)'
+  },
+  {
+    name: '青柠冰',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#a8ff78', position: 0 },
+      { color: '#78ffd6', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #a8ff78 0%, #78ffd6 100%)'
+  },
+  {
+    name: '玫瑰酒红',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#7b4397', position: 0 },
+      { color: '#dc2430', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #7b4397 0%, #dc2430 100%)'
+  },
+  {
+    name: '暖沙色',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#e6dada', position: 0 },
+      { color: '#274046', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #e6dada 0%, #274046 100%)'
+  },
+  {
+    name: '橘子汽水',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#f12711', position: 0 },
+      { color: '#f5af19', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #f12711 0%, #f5af19 100%)'
+  },
+  {
+    name: '冷蓝钢',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#485563', position: 0 },
+      { color: '#29323c', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #485563 0%, #29323c 100%)'
+  },
+  {
+    name: '水绿渐变',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#43e97b', position: 0 },
+      { color: '#38f9d7', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+  },
+  {
+    name: '梦境粉紫',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#ff9ff3', position: 0 },
+      { color: '#f368e0', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #ff9ff3 0%, #f368e0 100%)'
+  },
+  {
+    name: '电蓝荧光',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#00f2fe', position: 0 },
+      { color: '#4facfe', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)'
+  },
+  {
+    name: '落霞红',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#ff416c', position: 0 },
+      { color: '#ff4b2b', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%)'
+  },
+  {
+    name: '森林晨雾',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#5a3f37', position: 0 },
+      { color: '#2c7744', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #5a3f37 0%, #2c7744 100%)'
+  },
+  {
+    name: '冷灰蓝',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#cfd9df', position: 0 },
+      { color: '#e2ebf0', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%)'
+  },
+  {
+    name: '深紫夜幕',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#360033', position: 0 },
+      { color: '#0b8793', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #360033 0%, #0b8793 100%)'
+  },
+  {
+    name: '橙红火焰',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#ff512f', position: 0 },
+      { color: '#f09819', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #ff512f 0%, #f09819 100%)'
+  },
+  {
+    name: '极光粉蓝',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#a18cd1', position: 0 },
+      { color: '#fbc2eb', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)'
+  },
+  {
+    name: '蓝绿渐层',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#11998e', position: 0 },
+      { color: '#38ef7d', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)'
+  },
+  {
+    name: '深空黑蓝',
+    type: 'linear',
+    angle: 135,
+    stops: [
+      { color: '#000428', position: 0 },
+      { color: '#004e92', position: 100 }
+    ],
+    previewCss: 'linear-gradient(135deg, #000428 0%, #004e92 100%)'
   }
 ]
