@@ -45,3 +45,4 @@ auto-imports.d.ts
 src/components.d.ts
 src/auto-imports.d.ts
 .eslintrc-auto-import.json
+stats.html

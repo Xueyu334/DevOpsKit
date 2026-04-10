@@ -11,6 +11,7 @@ import IconsResolver from 'unplugin-icons/resolver'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import viteCompression from 'vite-plugin-compression'
 import ElementPlus from 'unplugin-element-plus/vite'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vite.dev/config/
 export default defineConfig(({ command, mode }) => {
@@ -58,7 +59,13 @@ export default defineConfig(({ command, mode }) => {
         algorithm: 'gzip',
         ext: '.gz'
       }),
-      ElementPlus()
+      ElementPlus(),
+      visualizer({
+        open: false,
+        filename: 'stats.html',
+        gzipSize: true,
+        brotliSize: true
+      })
     ].filter(Boolean),
     resolve: {
       alias: {
@@ -89,10 +96,14 @@ export default defineConfig(({ command, mode }) => {
           chunkFileNames: 'assets/js/[name]-[hash].js',
           entryFileNames: 'assets/js/[name]-[hash].js',
           assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
-          // 只保留少量稳定 vendor chunk，避免按包拆分导致请求数过多
+          // 优化分包策略，将体积较大的库拆分出来
           manualChunks(id) {
             if (id.includes('node_modules')) {
-              if (id.includes('element-plus')) return 'element-plus'
+              // 核心 UI 库
+              if (id.includes('element-plus')) {
+                return 'element-plus'
+              }
+              // 框架核心
               if (
                 id.includes('/vue/') ||
                 id.includes('/@vue/') ||
@@ -101,6 +112,36 @@ export default defineConfig(({ command, mode }) => {
               ) {
                 return 'vue'
               }
+              // 巨型渲染库及其依赖，分别拆分以避免循环依赖
+              if (id.includes('mermaid')) {
+                return 'mermaid'
+              }
+              if (id.includes('d3')) {
+                return 'd3'
+              }
+              if (id.includes('dagre')) {
+                return 'dagre'
+              }
+              // 巨型数据文件
+              if (id.includes('china-area-data')) {
+                return 'china-area-data'
+              }
+              // 文本搜索处理库
+              if (id.includes('fuse.js')) {
+                return 'fuse'
+              }
+              // 其他稳定库
+              if (id.includes('hash-wasm')) {
+                return 'hash-wasm'
+              }
+              if (id.includes('vue-diff')) {
+                return 'vue-diff'
+              }
+              if (id.includes('figlet')) {
+                return 'figlet'
+              }
+
+              // 其他第三方库进入 vendor
               return 'vendor'
             }
           }

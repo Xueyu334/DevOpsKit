@@ -1,5 +1,4 @@
 <script setup>
-import mermaid from 'mermaid'
 import { useCopyText } from '@/composables/useCopyText'
 
 const mermaidCode = ref(`graph TD
@@ -17,13 +16,8 @@ const previewContainer = ref(null)
 const svgContent = ref('')
 const { copyText } = useCopyText()
 
-// 初始化 mermaid
-mermaid.initialize({
-  startOnLoad: false,
-  theme: 'default',
-  securityLevel: 'loose',
-  fontFamily: 'inherit'
-})
+// 使用 shallowRef 避免对巨大的 mermaid 实例进行深度响应式处理
+const mermaidInstance = shallowRef(null)
 
 const renderDiagram = async () => {
   if (!mermaidCode.value.trim()) {
@@ -31,9 +25,26 @@ const renderDiagram = async () => {
     return
   }
 
+  // 确保 mermaid 已加载
+  if (!mermaidInstance.value) {
+    try {
+      const { default: m } = await import('mermaid')
+      m.initialize({
+        startOnLoad: false,
+        theme: 'default',
+        securityLevel: 'loose',
+        fontFamily: 'inherit'
+      })
+      mermaidInstance.value = m
+    } catch (error) {
+      console.error('Failed to load mermaid:', error)
+      return
+    }
+  }
+
   try {
     const id = `mermaid-${Date.now()}`
-    const { svg } = await mermaid.render(id, mermaidCode.value)
+    const { svg } = await mermaidInstance.value.render(id, mermaidCode.value)
     svgContent.value = svg
   } catch (error) {
     console.error('Mermaid render error:', error)
@@ -55,7 +66,9 @@ onMounted(() => {
 })
 
 const downloadSVG = () => {
-  if (!svgContent.value) return
+  if (!svgContent.value) {
+    return
+  }
   const blob = new Blob([svgContent.value], { type: 'image/svg+xml;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
@@ -67,10 +80,14 @@ const downloadSVG = () => {
 }
 
 const downloadPNG = () => {
-  if (!svgContent.value) return
+  if (!svgContent.value) {
+    return
+  }
 
   const svgElement = previewContainer.value.querySelector('svg')
-  if (!svgElement) return
+  if (!svgElement) {
+    return
+  }
 
   const svgData = new XMLSerializer().serializeToString(svgElement)
   const canvas = document.createElement('canvas')
