@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import Layout from '@/layout/index.vue'
+import progress from '@/utils/nprogress'
 
 /**
  * 路由配置数组。
@@ -142,11 +143,6 @@ const routes = [
     meta: { title: '404' }
   }
 ]
-
-// 导入增强版进度条工具
-import progress from '@/utils/nprogress'
-
-// 路由配置... (省略 routes 变量部分)
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

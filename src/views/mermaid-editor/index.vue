@@ -28,7 +28,8 @@ const renderDiagram = async () => {
   // 确保 mermaid 已加载
   if (!mermaidInstance.value) {
     try {
-      const { default: m } = await import('mermaid')
+      const mod = await import('mermaid')
+      const m = mod.default || mod
       m.initialize({
         startOnLoad: false,
         theme: 'default',

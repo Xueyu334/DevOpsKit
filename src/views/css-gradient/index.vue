@@ -37,8 +37,14 @@
             <div v-if="history.length > 0" class="history-section">
               <h3 class="section-title">最近记录</h3>
               <div class="history-list">
-                <div v-for="(item, index) in history" :key="index" class="history-item"
-                  :style="{ background: item.css }" title="点击应用此样式" @click="applyHistory(item)"></div>
+                <div
+                  v-for="(item, index) in history"
+                  :key="index"
+                  class="history-item"
+                  :style="{ background: item.css }"
+                  title="点击应用此样式"
+                  @click="applyHistory(item)"
+                ></div>
               </div>
             </div>
           </div>
@@ -80,12 +86,12 @@
                 <div class="section-header">
                   <span>颜色节点</span>
                   <div class="header-buttons">
-                    <el-button type="info" size="small" circle @click="randomizeColors" title="随机颜色与位置">
+                    <el-button type="info" size="small" circle title="随机颜色与位置" @click="randomizeColors">
                       <el-icon>
                         <IconEpRefresh />
                       </el-icon>
                     </el-button>
-                    <el-button type="primary" size="small" circle @click="addColorStop" title="添加颜色节点">
+                    <el-button type="primary" size="small" circle title="添加颜色节点" @click="addColorStop">
                       <el-icon>
                         <IconEpPlus />
                       </el-icon>
@@ -98,8 +104,13 @@
                     <el-color-picker v-model="stop.color" show-alpha size="small" />
                     <el-slider v-model="stop.position" :min="0" :max="100" class="stop-position-slider" />
                     <span class="stop-percent">{{ stop.position }}%</span>
-                    <el-button type="danger" circle size="small" :disabled="config.stops.length <= 2"
-                      @click="removeColorStop(index)">
+                    <el-button
+                      type="danger"
+                      circle
+                      size="small"
+                      :disabled="config.stops.length <= 2"
+                      @click="removeColorStop(index)"
+                    >
                       <el-icon>
                         <IconEpDelete />
                       </el-icon>
@@ -107,7 +118,6 @@
                   </div>
                 </div>
               </div>
-
             </el-form>
           </div>
         </el-col>
@@ -127,8 +137,15 @@
         </div>
       </template>
       <el-row :gutter="15" class="presets-row">
-        <el-col v-for="(preset, index) in gradientPresets" :key="index" :xs="12" :sm="8" :md="6" :lg="3"
-          class="preset-col">
+        <el-col
+          v-for="(preset, index) in gradientPresets"
+          :key="index"
+          :xs="12"
+          :sm="8"
+          :md="6"
+          :lg="3"
+          class="preset-col"
+        >
           <div class="preset-card" :style="{ background: preset.previewCss }" @click="applyPreset(preset)">
             <span class="preset-name">{{ preset.name }}</span>
           </div>
