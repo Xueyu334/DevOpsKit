@@ -5,6 +5,7 @@ export default function JsonWorker() {}
 let lastParsedObj = null
 let lastOptions = {}
 const MAX_CHILDREN = 100
+const JSON_ORDER_PREFIX = '\u200B'
 
 /**
  * Web Worker 消息监听入口
@@ -44,11 +45,17 @@ self.onmessage = function (e) {
 
   try {
     let obj
+    const patchRegex = /(^|[{,]\s*)(["']?)(\d+)\2(\s*:)/g
+    const patchedContent =
+      content && (type === 'strict' || type === 'relaxed')
+        ? content.replace(patchRegex, `$1"${JSON_ORDER_PREFIX}$3"$4`)
+        : content
+
     if (type === 'strict') {
-      obj = JSON.parse(content)
+      obj = JSON.parse(patchedContent)
     } else if (type === 'relaxed') {
       try {
-        obj = JSON5.parse(content)
+        obj = JSON5.parse(patchedContent)
       } catch (err) {
         throw new Error('解析失败：' + err.message)
       }
@@ -72,26 +79,60 @@ self.onmessage = function (e) {
  * @returns {*} 返回找到的值，如果路径不存在或为 null 则返回 undefined
  */
 function getValueByPath(obj, path) {
-  if (!path || path === 'root' || path === '[]') return obj
+  if (!path || path === '$' || path === 'root' || path === '[]') return obj
+  const parts = parsePath(path)
+  let current = obj
+  for (let part of parts) {
+    if (current == null) return undefined
+    // 再补前缀：仅在内存查找一瞬间为数字键名补齐外壳
+    const realKey = typeof part === 'string' && /^\d+$/.test(part) ? JSON_ORDER_PREFIX + part : part
+    current = current[realKey]
+  }
+  return current
+}
+
+/**
+ * 统一的路径解析函数，优先尝试 JSON.parse，并在失败时执行基于正则的启发式解析
+ * @param {String} path - 路径字符串
+ * @returns {Array} 解析出的路径段数组
+ */
+function parsePath(path) {
+  if (!path || path === '$' || path === 'root' || path === '[]') return []
   try {
     const parts = JSON.parse(path)
-    if (!Array.isArray(parts)) throw new Error('Invalid path')
-    let current = obj
-    for (const part of parts) {
-      if (current == null) return undefined
-      current = current[part]
-    }
-    return current
+    if (Array.isArray(parts)) return parts
   } catch {
-    // 降级支持：如果不是有效的 JSON 数组，尝试按旧有点语法/中括号语法拆分
-    const parts = path.split(/[.[\]]+/).filter(Boolean)
-    let current = obj
-    for (const part of parts) {
-      if (current == null) return undefined
-      current = current[part]
-    }
-    return current
+    // ignore
   }
+
+  // 降级支持：更健壮的路径解析，支持 a.b, a[0], a["key.with.dot"]
+  // 预处理：移除 JSONPath 标准根标识符 $ 以及跟随的点号
+  let normalizedPath = path
+  if (normalizedPath.startsWith('$')) {
+    normalizedPath = normalizedPath.slice(1)
+  } else if (normalizedPath.startsWith('root')) {
+    normalizedPath = normalizedPath.slice(4)
+  }
+
+  if (normalizedPath.startsWith('.')) {
+    normalizedPath = normalizedPath.slice(1)
+  }
+
+  const parts = []
+  const regex = /([^.[\]\s'"]+)|\[(?:'([^']*)'|"([^"]*)"|(\d+))\]/g
+  let match
+  while ((match = regex.exec(normalizedPath)) !== null) {
+    if (match[1]) {
+      parts.push(match[1]) // 普通属性名 (如 a.b 中的 a 或 b)
+    } else if (match[2] !== undefined) {
+      parts.push(match[2]) // 单引号键名 (如 ['a.b'])
+    } else if (match[3] !== undefined) {
+      parts.push(match[3]) // 双引号键名 (如 ["a.b"])
+    } else if (match[4] !== undefined) {
+      parts.push(parseInt(match[4], 10)) // 数组索引
+    }
+  }
+  return parts
 }
 
 /**
@@ -250,12 +291,8 @@ function renderJSON(obj, depth = 0, options, buffer, path = '[]') {
  */
 function renderPartial(obj, path, offset, options, buffer) {
   // 精确计算路径深度以保证颜色轮换接序正常
-  let depth
-  try {
-    depth = JSON.parse(path).length
-  } catch {
-    depth = (path.match(/[.[]/g) || []).length
-  }
+  const parts = parsePath(path)
+  const depth = parts.length
 
   if (Array.isArray(obj)) {
     const end = Math.min(obj.length, offset + MAX_CHILDREN)
@@ -335,7 +372,10 @@ function renderObjectKeys(obj, keys, offset, end, depth, options, buffer, path) 
   for (let i = offset; i < end; i++) {
     const key = keys[i]
     const colorIdx = (i + depth) % 9
-    const currentPath = JSON.stringify([...pathArr, key])
+    const cleanKey = key.startsWith(JSON_ORDER_PREFIX) ? key.slice(JSON_ORDER_PREFIX.length) : key
+
+    // 生成子节点 path 时，一律使用干净的 cleanKey，不污染外部 path 存储
+    const currentPath = JSON.stringify([...pathArr, cleanKey])
     const escapedCurrentPath = escapeAttr(currentPath)
 
     const displayKey = color
@@ -344,9 +384,9 @@ function renderObjectKeys(obj, keys, offset, end, depth, options, buffer, path) 
         '" data-path="' +
         escapedCurrentPath +
         '">"' +
-        escapeHtml(key) +
+        escapeHtml(cleanKey) +
         '"</span>'
-      : '<span data-path="' + escapedCurrentPath + '">"' + escapeHtml(key) + '"</span>'
+      : '<span data-path="' + escapedCurrentPath + '">"' + escapeHtml(cleanKey) + '"</span>'
 
     buffer.push('<li>')
     buffer.push(displayKey + '<span class="json-bracket">: </span>')

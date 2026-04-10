@@ -114,23 +114,28 @@ const handleHover = e => {
  * @param {String} pathStr - JSON 序列化的路径数组字符串
  * @returns {String} 人类可读路径
  */
+const JSON_ORDER_PREFIX = '\u200B'
+
 const formatPath = pathStr => {
-  if (!pathStr || pathStr === 'root' || pathStr === '[]') return ''
+  if (!pathStr || pathStr === '$' || pathStr === 'root' || pathStr === '[]') return ''
   try {
     const parts = JSON.parse(pathStr)
     if (!Array.isArray(parts)) return pathStr
 
     return parts
       .map((part, index) => {
+        // 移除内部渲染用的零宽前缀
+        const displayPart = typeof part === 'string' && part.startsWith(JSON_ORDER_PREFIX) ? part.slice(JSON_ORDER_PREFIX.length) : part
+
         if (typeof part === 'number') {
           return `[${part}]`
         }
-        // 如果 key 包含特殊字符，建议使用 [ "key" ] 格式，这里简化处理
-        const needsBrackets = /[^a-zA-Z0-9_$]/.test(part)
+        // 判定是否需要用中括号包裹：空字符串、不符合 JS 标识符命名规范的键（如包含点号、起始为数字等）
+        const needsBrackets = displayPart.length === 0 || !/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(displayPart)
         if (needsBrackets) {
-          return `["${part.replace(/"/g, '\\"')}"]`
+          return `["${displayPart.replace(/"/g, '\\"')}"]`
         }
-        return index === 0 ? part : `.${part}`
+        return index === 0 ? displayPart : `.${displayPart}`
       })
       .join('')
   } catch {
@@ -207,7 +212,7 @@ const handleClick = e => {
 const handleCopyPath = () => {
   if (!currentPath.value) return
   const formatted = formatPath(currentPath.value)
-  const fullPath = `root${formatted.startsWith('[') ? '' : formatted ? '.' : ''}${formatted}`
+  const fullPath = `$${formatted.startsWith('[') ? '' : formatted ? '.' : ''}${formatted}`
   copy(fullPath)
   ElMessage.success('路径已复制')
 }
@@ -246,7 +251,17 @@ const transformParsedInput = (formatter, successMessage, errorPrefix) => {
   if (!val) return
 
   try {
-    rawInput.value = formatter(parseJsonLike(val))
+    // 采用更安全的正则：支持单引号、无引号（JSON5），且限定前缀为 { 或 , 确保只匹配 Key 位置
+    const patchRegex = /(^|[{,]\s*)(["']?)(\d+)\2(\s*:)/g
+    const patched = val.replace(patchRegex, `$1"${JSON_ORDER_PREFIX}$3"$4`)
+    const obj = parseJsonLike(patched)
+
+    let result = formatter(obj)
+
+    // 格式化输出时移除补丁（仅还原键名位置）
+    const restoreRegex = new RegExp(`(^|[{, \\n])"${JSON_ORDER_PREFIX}(\\d+)"(\\s*:)`, 'g')
+    rawInput.value = result.replace(restoreRegex, '$1"$2"$3')
+
     update()
     ElMessage.success(successMessage)
   } catch (e) {
@@ -437,13 +452,8 @@ onUnmounted(() => {
             </el-button>
           </template>
           <div class="settings-panel">
-            <el-checkbox
-              v-for="item in renderOptionItems"
-              :key="item.key"
-              v-model="options[item.key]"
-              class="settings-checkbox"
-              @change="debouncedUpdate"
-            >
+            <el-checkbox v-for="item in renderOptionItems" :key="item.key" v-model="options[item.key]"
+              class="settings-checkbox" @change="debouncedUpdate">
               {{ item.label }}
             </el-checkbox>
           </div>
@@ -467,16 +477,9 @@ onUnmounted(() => {
             </el-button>
           </div>
         </div>
-        <textarea
-          v-model="rawInput"
-          class="editor-area"
-          placeholder="在此输入或粘贴您的 JSON 数据... (双击任意处自动格式化，支持拖拽 .json 文件)"
-          spellcheck="false"
-          @dblclick="handleFormat"
-          @drop="handleDrop"
-          @dragover.prevent
-          @input="debouncedUpdate"
-        ></textarea>
+        <textarea v-model="rawInput" class="editor-area" placeholder="在此输入或粘贴您的 JSON 数据... (双击任意处自动格式化，支持拖拽 .json 文件)"
+          spellcheck="false" @dblclick="handleFormat" @drop="handleDrop" @dragover.prevent
+          @input="debouncedUpdate"></textarea>
       </div>
 
       <div class="gutter" @mousedown="startResizing"></div>
@@ -487,12 +490,8 @@ onUnmounted(() => {
           <div class="panel-header-cell panel-header-cell--offset">JS Eval (Relaxed)</div>
         </div>
         <div class="result-area">
-          <div
-            class="result-col parse-col"
-            @click="handleClick"
-            @mouseover="handleHover"
-            v-html="stringResultHtml"
-          ></div>
+          <div class="result-col parse-col" @click="handleClick" @mouseover="handleHover" v-html="stringResultHtml">
+          </div>
           <div class="result-col eval-col" @click="handleClick" @mouseover="handleHover" v-html="evalResultHtml"></div>
         </div>
         <div v-if="hasNonStandard" class="non-standard-warning">
@@ -507,10 +506,10 @@ onUnmounted(() => {
             <code class="path-text">{{
               currentPath
                 ? (function () {
-                    const formatted = formatPath(currentPath)
-                    return `root${formatted.startsWith('[') ? '' : formatted ? '.' : ''}${formatted}`
-                  })()
-                : 'root'
+                  const formatted = formatPath(currentPath)
+                  return `$${formatted.startsWith('[') ? '' : formatted ? '.' : ''}${formatted}`
+                })()
+                : '$'
             }}</code>
           </div>
           <el-button v-if="lockedPath" class="path-copy-btn" link size="small" type="primary" @click="handleCopyPath">
