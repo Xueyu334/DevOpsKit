@@ -74,10 +74,24 @@
                   <div class="slider-controls">
                     <div v-for="item in rgbControls" :key="item.key" class="slider-item">
                       <span class="label">{{ item.label }}</span>
-                      <el-slider v-model="rgba[item.key]" :max="item.max" :min="0" :step="item.step" size="small"
-                        @input="syncFromRgba" />
-                      <el-input-number v-model="rgba[item.key]" :controls="false" :max="item.max" :min="0"
-                        :precision="item.precision" size="small" class="tiny-number" @change="syncFromRgba" />
+                      <el-slider
+                        v-model="rgba[item.key]"
+                        :max="item.max"
+                        :min="0"
+                        :step="item.step"
+                        size="small"
+                        @input="syncFromRgba"
+                      />
+                      <el-input-number
+                        v-model="rgba[item.key]"
+                        :controls="false"
+                        :max="item.max"
+                        :min="0"
+                        :precision="item.precision"
+                        size="small"
+                        class="tiny-number"
+                        @change="syncFromRgba"
+                      />
                     </div>
                   </div>
                 </div>
@@ -93,10 +107,23 @@
                   <div class="slider-controls">
                     <div v-for="item in hslControls" :key="item.key" class="slider-item">
                       <span class="label">{{ item.label }}</span>
-                      <el-slider v-model="hsla[item.key]" :max="item.max" :min="0" :step="1" size="small"
-                        @input="syncFromHsla" />
-                      <el-input-number v-model="hsla[item.key]" :controls="false" :max="item.max" :min="0" size="small"
-                        class="tiny-number" @change="syncFromHsla" />
+                      <el-slider
+                        v-model="hsla[item.key]"
+                        :max="item.max"
+                        :min="0"
+                        :step="1"
+                        size="small"
+                        @input="syncFromHsla"
+                      />
+                      <el-input-number
+                        v-model="hsla[item.key]"
+                        :controls="false"
+                        :max="item.max"
+                        :min="0"
+                        size="small"
+                        class="tiny-number"
+                        @change="syncFromHsla"
+                      />
                       <span class="unit">{{ item.unit }}</span>
                     </div>
                   </div>
@@ -118,8 +145,12 @@
                   <div class="derived-block">
                     <span class="block-title">UI 状态推断</span>
                     <div class="derived-grid">
-                      <div v-for="color in uiStates" :key="color.name" class="color-chip-wrapper"
-                        @click="applyColor(color.value)">
+                      <div
+                        v-for="color in uiStates"
+                        :key="color.name"
+                        class="color-chip-wrapper"
+                        @click="applyColor(color.value)"
+                      >
                         <div class="color-chip" :style="{ backgroundColor: color.value }"></div>
                         <span class="chip-name">{{ color.name }}</span>
                         <span class="chip-value">{{ color.value }}</span>
@@ -131,8 +162,12 @@
                   <div class="derived-block">
                     <span class="block-title">色阶 (Tints & Shades)</span>
                     <div class="derived-grid step-grid">
-                      <div v-for="color in colorSteps" :key="color.name" class="color-chip-wrapper"
-                        @click="applyColor(color.value)">
+                      <div
+                        v-for="color in colorSteps"
+                        :key="color.name"
+                        class="color-chip-wrapper"
+                        @click="applyColor(color.value)"
+                      >
                         <div class="color-chip" :style="{ backgroundColor: color.value }"></div>
                         <span class="chip-name">{{ color.name }}</span>
                       </div>
@@ -155,9 +190,13 @@
             </div>
           </template>
           <div class="sidebar-list">
-            <div v-for="color in commonColors" :key="color.value" class="sidebar-item"
+            <div
+              v-for="color in commonColors"
+              :key="color.value"
+              class="sidebar-item"
               :class="{ active: hexValue.toUpperCase() === color.value.toUpperCase() }"
-              @click="applyColor(color.value)">
+              @click="applyColor(color.value)"
+            >
               <div class="color-dot" :style="{ backgroundColor: color.value }"></div>
               <div class="color-info">
                 <span class="color-name">{{ color.name }}</span>
@@ -182,7 +221,7 @@ const currentColor = ref('#409EFF')
 const hexValue = ref('409EFF')
 // 历史记录列表持久化
 const colorHistory = useStorage('devopskit_color_history', [])
-const maxHistoryCount = 12   // 最大记录数
+const maxHistoryCount = 12 // 最大记录数
 
 const rgba = reactive({ r: 64, g: 158, b: 255, a: 1 })
 const hsla = reactive({ h: 210, s: 100, l: 63, a: 1 })
@@ -276,7 +315,7 @@ const syncFromHsla = () => {
   currentColor.value = hex
 }
 
-const handleHexInput = (val) => {
+const handleHexInput = val => {
   const prefixVal = val.startsWith('#') ? val : '#' + val
   const c = colord(prefixVal)
   if (c.isValid()) {
@@ -288,7 +327,7 @@ const handleHexInput = (val) => {
   }
 }
 
-const recordHistory = (color) => {
+const recordHistory = color => {
   if (!color) return
   const c = colord(color)
   if (!c.isValid()) return
@@ -310,7 +349,7 @@ const recordHistory = (color) => {
   }
 }
 
-const handlePickerChange = (val) => {
+const handlePickerChange = val => {
   if (!val) return
   const c = colord(val)
   if (c.isValid()) {
@@ -322,7 +361,7 @@ const handlePickerChange = (val) => {
   }
 }
 
-const applyColor = (val) => {
+const applyColor = val => {
   if (!val) return
   const c = colord(val)
   if (c.isValid()) {
@@ -334,7 +373,7 @@ const applyColor = (val) => {
   }
 }
 
-const copy = (text) => {
+const copy = text => {
   navigator.clipboard.writeText(text).then(() => {
     ElMessage.success('已复制: ' + text)
   })
@@ -378,7 +417,7 @@ onMounted(() => {
 .header-left .title {
   font-size: 1.4rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #2c3e50, #409EFF);
+  background: linear-gradient(135deg, #2c3e50, #409eff);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -400,7 +439,9 @@ onMounted(() => {
     linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee),
     linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee);
   background-size: 16px 16px;
-  background-position: 0 0, 8px 8px;
+  background-position:
+    0 0,
+    8px 8px;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
@@ -483,7 +524,7 @@ onMounted(() => {
 .unit {
   width: 15px;
   font-size: 0.85rem;
-  color: #C0C4CC;
+  color: #c0c4cc;
 }
 
 /* 衍生色 */
@@ -546,7 +587,7 @@ onMounted(() => {
 .chip-value {
   font-size: 0.7rem;
   font-family: monospace;
-  color: #C0C4CC;
+  color: #c0c4cc;
 }
 
 /* 侧边栏通用样式 (最近选择 & 常用色彩) */
@@ -593,7 +634,7 @@ onMounted(() => {
 }
 
 .sidebar-item.active {
-  border-color: #409EFF;
+  border-color: #409eff;
   background: #fff;
   box-shadow: 0 2px 8px rgba(64, 158, 255, 0.1);
 }
@@ -636,7 +677,7 @@ onMounted(() => {
 
 .empty-tip {
   font-size: 0.85rem;
-  color: #C0C4CC;
+  color: #c0c4cc;
   text-align: center;
   padding: 20px 0;
 }

@@ -138,8 +138,12 @@ const commonValues = [
             </div>
 
             <div class="input-wrapper">
-              <el-input v-model="values[base.value]" :placeholder="`请输入 ${base.value} 进制数值`" spellcheck="false"
-                @input="handleInput(base.value)">
+              <el-input
+                v-model="values[base.value]"
+                :placeholder="`请输入 ${base.value} 进制数值`"
+                spellcheck="false"
+                @input="handleInput(base.value)"
+              >
                 <template #append>
                   <el-button :icon="CopyDocument" @click="copyToClipboard(values[base.value])" />
                 </template>
@@ -158,7 +162,9 @@ const commonValues = [
         <el-alert type="info" :closable="false" show-icon>
           <template #title>
             <span class="tip-title">使用说明:</span>
-            <span class="tip-content">直接在任意框内输入；支持超大整数 (BigInt)；支持十进制千分符与二/十六进制分段预览。</span>
+            <span class="tip-content"
+              >直接在任意框内输入；支持超大整数 (BigInt)；支持十进制千分符与二/十六进制分段预览。</span
+            >
           </template>
         </el-alert>
       </div>
@@ -177,7 +183,6 @@ const commonValues = [
     </div>
   </div>
 </template>
-
 
 <style scoped>
 .base-converter-container {
@@ -230,8 +235,6 @@ const commonValues = [
   margin-bottom: 20px;
 }
 
-
-
 .base-input-item {
   background: #f8fafc;
   padding: 20px;
@@ -258,7 +261,6 @@ const commonValues = [
   color: #334155;
   font-size: 15px;
 }
-
 
 :deep(.el-input-group__append) {
   padding: 0;
