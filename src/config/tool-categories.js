@@ -221,6 +221,19 @@ export const toolCategories = [
         tagTip: '前端开发与 UI 设计配色辅助'
       },
       {
+        id: 'css-gradient',
+        name: 'CSS 渐变生成器 (CSS Gradient Generator)',
+        menuTitle: 'CSS 渐变生成器',
+        desc: '在线生成线性渐变与径向渐变 CSS 代码，支持角度调整、颜色方案选择及历史记录。',
+        keywords: ['css gradient', 'linear gradient', 'radial gradient', '渐变生成器', 'css渐变', '配色方案'],
+        route: '/css-gradient',
+        icon: 'MagicStick',
+        color: '#A855F7',
+        tag: 'Design',
+        tagType: 'success',
+        tagTip: '漂亮的 CSS 渐变色在线生成与预览'
+      },
+      {
         id: 'base-converter',
         name: '进制转换 (Base Converter)',
         menuTitle: '进制转换',

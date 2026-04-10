@@ -122,6 +122,12 @@ const routes = [
         meta: { title: '颜色转换' }
       },
       {
+        path: '/css-gradient',
+        name: 'cssGradient',
+        component: () => import('@/views/css-gradient/index.vue'),
+        meta: { title: 'CSS 渐变生成器' }
+      },
+      {
         path: '/base-converter',
         name: 'baseConverter',
         component: () => import('@/views/base-converter/index.vue'),
