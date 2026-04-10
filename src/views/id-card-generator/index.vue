@@ -1,6 +1,4 @@
 <script setup>
-import { computed, reactive, shallowRef, useTemplateRef } from 'vue'
-import { ElMessage } from 'element-plus'
 import areaData from 'china-area-data'
 import { useCopyText } from '@/composables/useCopyText'
 

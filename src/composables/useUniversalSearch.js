@@ -1,4 +1,3 @@
-import { computed, shallowRef, unref } from 'vue'
 import Fuse from 'fuse.js'
 import { normalizeText, createHighlightHtml } from '@/utils/text'
 

@@ -1,7 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
 import figlet from 'figlet'
-import { ElMessage } from 'element-plus'
 import progress from '@/utils/nprogress'
 
 const inputText = ref('DevOps Kit')
@@ -218,7 +216,9 @@ const downloadAscii = () => {
                     <template #label>
                       水平布局
                       <el-tooltip content="控制字符之间的水平间距和层叠方式" placement="top">
-                        <el-icon class="help-icon"><IconEpQuestionFilled /></el-icon>
+                        <el-icon class="help-icon">
+                          <IconEpQuestionFilled />
+                        </el-icon>
                       </el-tooltip>
                     </template>
                     <el-select v-model="horizontalLayout" placeholder="水平布局" style="width: 100%">
@@ -236,7 +236,9 @@ const downloadAscii = () => {
                     <template #label>
                       垂直布局
                       <el-tooltip content="控制字符在垂直方向上的层叠和间距" placement="top">
-                        <el-icon class="help-icon"><IconEpQuestionFilled /></el-icon>
+                        <el-icon class="help-icon">
+                          <IconEpQuestionFilled />
+                        </el-icon>
                       </el-tooltip>
                     </template>
                     <el-select v-model="verticalLayout" placeholder="垂直布局" style="width: 100%">
@@ -259,7 +261,9 @@ const downloadAscii = () => {
                     <template #label>
                       填充字符
                       <el-tooltip content="在预览中用于绘制点阵的单个字符" placement="top">
-                        <el-icon class="help-icon"><IconEpQuestionFilled /></el-icon>
+                        <el-icon class="help-icon">
+                          <IconEpQuestionFilled />
+                        </el-icon>
                       </el-tooltip>
                     </template>
                     <el-input v-model="dotChar" maxlength="1" placeholder="例如 #" />
@@ -270,7 +274,9 @@ const downloadAscii = () => {
                     <template #label>
                       字号大小
                       <el-tooltip content="数值越大点阵越精细，细节还原度越高，生成的字符画也越大" placement="top">
-                        <el-icon class="help-icon"><IconEpQuestionFilled /></el-icon>
+                        <el-icon class="help-icon">
+                          <IconEpQuestionFilled />
+                        </el-icon>
                       </el-tooltip>
                     </template>
                     <el-input-number v-model="dotSize" :min="8" :max="30" style="width: 100%" />

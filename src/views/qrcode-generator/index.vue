@@ -1,10 +1,8 @@
 <script setup>
-import { computed, reactive } from 'vue'
 import QrcodeVue from 'qrcode.vue'
 import IconEpDownload from '~icons/ep/download'
 import IconEpRefresh from '~icons/ep/refresh'
 import IconEpPicture from '~icons/ep/picture'
-import { ElMessage } from 'element-plus'
 
 // 二维码配置
 const config = reactive({

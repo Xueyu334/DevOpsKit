@@ -1,8 +1,6 @@
 <script setup>
-import { ref } from 'vue'
 import Big from 'big.js'
 import { CopyDocument, Delete } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 
 const bases = [
   { label: '二进制 (Binary)', value: 2, prefix: '0b' },

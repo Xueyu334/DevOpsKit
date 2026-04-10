@@ -1,7 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue'
 import mermaid from 'mermaid'
-import { ElMessage } from 'element-plus'
 import { useCopyText } from '@/composables/useCopyText'
 
 const mermaidCode = ref(`graph TD
@@ -124,11 +122,15 @@ const handleCopySvg = () => {
           <div class="actions">
             <el-button-group>
               <el-button type="primary" @click="downloadSVG">
-                <template #icon><IconEpDownload /></template>
+                <template #icon>
+                  <IconEpDownload />
+                </template>
                 下载 SVG
               </el-button>
               <el-button type="primary" @click="downloadPNG">
-                <template #icon><IconEpPicture /></template>
+                <template #icon>
+                  <IconEpPicture />
+                </template>
                 下载 PNG
               </el-button>
             </el-button-group>
@@ -171,27 +173,27 @@ const handleCopySvg = () => {
           <div class="help-item">
             <h4>流程图 (Flowchart)</h4>
             <pre><code>graph TD
-  A[开始] --> B{判断}
-  B -- 是 --> C[执行]
-  B -- 否 --> D[结束]</code></pre>
+            A[开始] --> B{判断}
+            B -- 是 --> C[执行]
+            B -- 否 --> D[结束]</code></pre>
           </div>
         </el-col>
         <el-col :md="8" :sm="12" :xs="24">
           <div class="help-item">
             <h4>时序图 (Sequence)</h4>
             <pre><code>sequenceDiagram
-  Alice->>John: Hello John, how are you?
-  John-->>Alice: Great!</code></pre>
+            Alice->>John: Hello John, how are you?
+            John-->>Alice: Great!</code></pre>
           </div>
         </el-col>
         <el-col :md="8" :sm="12" :xs="24">
           <div class="help-item">
             <h4>状态图 (State)</h4>
             <pre><code>stateDiagram-v2
-  [*] --> Still
-  Still --> [*]
-  Still --> Moving
-  Moving --> Still</code></pre>
+            [*] --> Still
+            Still --> [*]
+            Still --> Moving
+            Moving --> Still</code></pre>
           </div>
         </el-col>
       </el-row>
@@ -246,7 +248,8 @@ const handleCopySvg = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #fff; /* Mermaid 图表通常在白色背景下效果最好 */
+  background-color: #fff;
+  /* Mermaid 图表通常在白色背景下效果最好 */
   overflow: auto;
   padding: 40px;
 }

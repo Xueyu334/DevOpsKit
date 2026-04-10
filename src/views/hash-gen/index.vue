@@ -1,5 +1,4 @@
 <script setup>
-import { ElMessage } from 'element-plus'
 import { useCopyText } from '@/composables/useCopyText'
 import { defaultHashAlgorithms, hashAlgorithmOptions, useHashGenerator } from './useHashGenerator'
 

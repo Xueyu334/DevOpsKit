@@ -62,13 +62,11 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue'
-import { ElMessage } from 'element-plus'
 import { useCopyText } from '@/composables/useCopyText'
 
 const leftText = ref('')
 const rightText = ref('')
-const activePane = ref('left') // Tracks which pane is currently being used
+const activePane = ref('left')
 const { copyText } = useCopyText()
 
 const options = reactive({

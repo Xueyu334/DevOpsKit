@@ -1,4 +1,3 @@
-import { computed, shallowRef } from 'vue'
 import { ASCII_BLOCK_STARTS, ASCII_ITEMS, ASCII_ROW_COUNT } from '../ascii-data'
 
 const ASCII_MAP = new Map(ASCII_ITEMS.map(item => [item.dec, item]))

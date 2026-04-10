@@ -1,6 +1,4 @@
 <script setup>
-import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import { toolCategories } from '../config/tool-categories'
 
 const router = useRouter()

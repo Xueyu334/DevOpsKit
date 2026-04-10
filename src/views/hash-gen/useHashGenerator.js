@@ -1,5 +1,4 @@
 import { md5, sha1, sha256, sha384, sha512 } from 'hash-wasm'
-import { readonly, shallowRef } from 'vue'
 
 export const hashAlgorithmOptions = Object.freeze([
   { value: 'md5', label: 'MD5', digestSize: 128, description: '兼容性高，适合非安全校验场景' },

@@ -56,8 +56,6 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue'
-import { ElMessage } from 'element-plus'
 import { useCopyText } from '@/composables/useCopyText'
 
 const leftText = ref('')
