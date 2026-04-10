@@ -64,6 +64,19 @@ export const toolCategories = [
         tag: 'Reference',
         tagType: 'info',
         tagTip: '编码速查类开发者参考工具'
+      },
+      {
+        id: 'ascii-banner',
+        name: 'ASCII 艺术字生成',
+        menuTitle: 'ASCII 艺术字',
+        desc: '生成 Spring Boot 风格的 ASCII 艺术字 Banner，支持多种字体设置。',
+        keywords: ['ascii art', 'ascii banner', 'spring boot banner', '艺术字', 'banner生成'],
+        route: '/ascii-banner',
+        icon: 'EditPen',
+        color: '#FF6B6B',
+        tag: 'New',
+        tagType: 'danger',
+        tagTip: '个性化启动 Banner 生成工具'
       }
     ]
   },

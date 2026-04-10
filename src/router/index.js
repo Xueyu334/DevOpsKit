@@ -38,6 +38,12 @@ const routes = [
         meta: { title: 'ASCII码对照表' }
       },
       {
+        path: '/ascii-banner',
+        name: 'asciiBanner',
+        component: () => import('@/views/ascii-banner/index.vue'),
+        meta: { title: 'ASCII 艺术字生成' }
+      },
+      {
         path: '/base64',
         name: 'base64',
         component: () => import('@/views/base64/index.vue'),
