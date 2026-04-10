@@ -195,13 +195,6 @@ const currentSeconds = ref(0)
 const currentMillis = ref(0)
 const currentTimeStr = ref('')
 
-/**
- * 格式化时间，支持指定时区
- */
-const formatDate = (date, tz = selectedTz.value) => {
-  return dayjs(date).tz(tz).format('YYYY-MM-DD HH:mm:ss')
-}
-
 const updateTime = () => {
   const now = dayjs()
   currentMillis.value = now.valueOf()
@@ -285,7 +278,7 @@ const doTimeToTs = () => {
 
     const ms = d.valueOf()
     timeToTs.output = timeToTs.unit === 's' ? Math.floor(ms / 1000).toString() : ms.toString()
-  } catch (e) {
+  } catch {
     ElMessage.error('时间格式无效或时区转换失败')
   }
 }
@@ -301,7 +294,7 @@ const copy = async text => {
   try {
     await toClipboard(text.toString())
     ElMessage.success('复制到剪贴板')
-  } catch (err) {
+  } catch {
     ElMessage.error('复制失败')
   }
 }

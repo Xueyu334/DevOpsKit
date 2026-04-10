@@ -13,7 +13,7 @@ import { normalizeText, createHighlightHtml } from '@/utils/text'
  * @returns {Object} 包含搜索状态和结果的对象。
  */
 export const useUniversalSearch = (dataSource, options = {}) => {
-  const { fuseOptions = {}, highlightClass = 'text-highlight', filterPredicate } = options
+  const { fuseOptions = {}, highlightClass = 'text-highlight' } = options
 
   const keyword = shallowRef('')
   const normalizedKeyword = computed(() => normalizeText(keyword.value))

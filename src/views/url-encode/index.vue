@@ -132,7 +132,7 @@ const processAction = action => {
           if (!line.trim()) return ''
           try {
             return action === 'encode' ? encodeUrl(line) : decodeUrl(line)
-          } catch (e) {
+          } catch {
             hasError = true
             return line
           }

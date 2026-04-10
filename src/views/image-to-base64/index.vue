@@ -162,7 +162,7 @@ const copyResult = async () => {
   try {
     await toClipboard(formattedResult.value)
     ElMessage.success('已复制到剪贴板')
-  } catch (err) {
+  } catch {
     ElMessage.error('复制失败')
   }
 }

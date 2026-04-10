@@ -136,7 +136,7 @@ const copyToClipboard = async () => {
   try {
     await navigator.clipboard.writeText(resultText.value)
     ElMessage.success('已复制到剪贴板')
-  } catch (err) {
+  } catch {
     ElMessage.error('复制失败')
   }
 }
@@ -222,8 +222,12 @@ const downloadAscii = () => {
                       </el-tooltip>
                     </template>
                     <el-select v-model="horizontalLayout" placeholder="水平布局" style="width: 100%">
-                      <el-option v-for="item in layoutOptions" :key="item.value" :label="item.label"
-                        :value="item.value" />
+                      <el-option
+                        v-for="item in layoutOptions"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      />
                     </el-select>
                   </el-form-item>
                 </el-col>
@@ -236,8 +240,12 @@ const downloadAscii = () => {
                       </el-tooltip>
                     </template>
                     <el-select v-model="verticalLayout" placeholder="垂直布局" style="width: 100%">
-                      <el-option v-for="item in layoutOptions" :key="item.value" :label="item.label"
-                        :value="item.value" />
+                      <el-option
+                        v-for="item in layoutOptions"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      />
                     </el-select>
                   </el-form-item>
                 </el-col>

@@ -1,7 +1,7 @@
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref } from 'vue'
 import Big from 'big.js'
-import { CopyDocument, Refresh, Delete } from '@element-plus/icons-vue'
+import { CopyDocument, Delete } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const bases = [
@@ -31,7 +31,7 @@ const formatNumber = (val, base) => {
       const parts = val.split('.')
       parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
       return parts.join('.')
-    } catch (e) {
+    } catch {
       return val
     }
   } else if (base === 2) {

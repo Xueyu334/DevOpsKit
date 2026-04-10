@@ -189,7 +189,7 @@ const copy = async text => {
   try {
     await toClipboard(text)
     ElMessage.success('复制成功')
-  } catch (err) {
+  } catch {
     ElMessage.error('复制失败，请手动选择复制')
   }
 }
@@ -199,7 +199,7 @@ const copyAll = async () => {
   try {
     await toClipboard(text)
     ElMessage.success('已全部复制到剪贴板')
-  } catch (err) {
+  } catch {
     ElMessage.error('复制失败，请手动选择复制')
   }
 }
