@@ -125,7 +125,8 @@ const formatPath = pathStr => {
     return parts
       .map((part, index) => {
         // 移除内部渲染用的零宽前缀
-        const displayPart = typeof part === 'string' && part.startsWith(JSON_ORDER_PREFIX) ? part.slice(JSON_ORDER_PREFIX.length) : part
+        const displayPart =
+          typeof part === 'string' && part.startsWith(JSON_ORDER_PREFIX) ? part.slice(JSON_ORDER_PREFIX.length) : part
 
         if (typeof part === 'number') {
           return `[${part}]`
@@ -452,8 +453,13 @@ onUnmounted(() => {
             </el-button>
           </template>
           <div class="settings-panel">
-            <el-checkbox v-for="item in renderOptionItems" :key="item.key" v-model="options[item.key]"
-              class="settings-checkbox" @change="debouncedUpdate">
+            <el-checkbox
+              v-for="item in renderOptionItems"
+              :key="item.key"
+              v-model="options[item.key]"
+              class="settings-checkbox"
+              @change="debouncedUpdate"
+            >
               {{ item.label }}
             </el-checkbox>
           </div>
@@ -477,9 +483,16 @@ onUnmounted(() => {
             </el-button>
           </div>
         </div>
-        <textarea v-model="rawInput" class="editor-area" placeholder="在此输入或粘贴您的 JSON 数据... (双击任意处自动格式化，支持拖拽 .json 文件)"
-          spellcheck="false" @dblclick="handleFormat" @drop="handleDrop" @dragover.prevent
-          @input="debouncedUpdate"></textarea>
+        <textarea
+          v-model="rawInput"
+          class="editor-area"
+          placeholder="在此输入或粘贴您的 JSON 数据... (双击任意处自动格式化，支持拖拽 .json 文件)"
+          spellcheck="false"
+          @dblclick="handleFormat"
+          @drop="handleDrop"
+          @dragover.prevent
+          @input="debouncedUpdate"
+        ></textarea>
       </div>
 
       <div class="gutter" @mousedown="startResizing"></div>
@@ -490,8 +503,12 @@ onUnmounted(() => {
           <div class="panel-header-cell panel-header-cell--offset">JS Eval (Relaxed)</div>
         </div>
         <div class="result-area">
-          <div class="result-col parse-col" @click="handleClick" @mouseover="handleHover" v-html="stringResultHtml">
-          </div>
+          <div
+            class="result-col parse-col"
+            @click="handleClick"
+            @mouseover="handleHover"
+            v-html="stringResultHtml"
+          ></div>
           <div class="result-col eval-col" @click="handleClick" @mouseover="handleHover" v-html="evalResultHtml"></div>
         </div>
         <div v-if="hasNonStandard" class="non-standard-warning">
@@ -506,9 +523,9 @@ onUnmounted(() => {
             <code class="path-text">{{
               currentPath
                 ? (function () {
-                  const formatted = formatPath(currentPath)
-                  return `$${formatted.startsWith('[') ? '' : formatted ? '.' : ''}${formatted}`
-                })()
+                    const formatted = formatPath(currentPath)
+                    return `$${formatted.startsWith('[') ? '' : formatted ? '.' : ''}${formatted}`
+                  })()
                 : '$'
             }}</code>
           </div>
