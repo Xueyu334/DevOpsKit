@@ -19,11 +19,44 @@ const config = reactive({
   gradientEndColor: '#38bdf8',
   imageSettings: {
     src: '',
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
     excavate: true,
-    borderRadius: 0
+    borderRadius: 8
   }
+})
+
+// 自动调整 Logo 尺寸上限和纠错等级
+watch(() => config.size, (newSize) => {
+  const maxSafe = Math.floor(newSize * 0.3)
+  if (config.imageSettings.width > maxSafe) config.imageSettings.width = maxSafe
+  if (config.imageSettings.height > maxSafe) config.imageSettings.height = maxSafe
+})
+
+const revokeOldUrl = (url) => {
+  if (url && typeof url === 'string' && url.startsWith('blob:')) {
+    URL.revokeObjectURL(url)
+  }
+}
+
+watch(() => config.imageSettings.src, (newVal, oldVal) => {
+  // 释放之前的 Blob URL 资源
+  if (oldVal && newVal !== oldVal) {
+    revokeOldUrl(oldVal)
+  }
+
+  if (newVal && config.level !== 'H') {
+    config.level = 'H'
+    ElMessage({
+      message: '检测到已开启 Logo，已自动将纠错等级提升至 H (30%) 以保证识别率',
+      type: 'success',
+      duration: 3000
+    })
+  }
+})
+
+onUnmounted(() => {
+  revokeOldUrl(config.imageSettings.src)
 })
 
 const levelOptions = [
@@ -93,24 +126,79 @@ const resetConfig = () => {
 }
 
 // 处理 Logo 上传
-const handleLogoUpload = file => {
+const handleLogoUpload = async (file) => {
   const isImage = file.raw.type.startsWith('image/')
-  const isLt2M = file.raw.size / 1024 / 1024 < 2
+  const isLt2M = file.raw.size / 1024 / 1024 < 10 // 放宽到 10MB，因为我们会做预处理
 
   if (!isImage) {
     ElMessage.error('只能上传图片文件！')
     return false
   }
-  if (!isLt2M) {
-    ElMessage.error('Logo 图片大小不能超过 2MB！')
-    return false
+
+  try {
+    // 预处理图片：1:1 裁剪 + 尺寸标准化
+    const processImage = (rawFile) => {
+      return new Promise((resolve, reject) => {
+        const tempUrl = URL.createObjectURL(rawFile)
+        const img = new Image()
+        img.crossOrigin = 'anonymous'
+
+        img.onload = () => {
+          // 智能分辨率策略：在 [128, 512] 范围内自适应
+          const minRes = 128
+          const maxRes = 512
+          const { width, height } = img
+          const originalMinSide = Math.min(width, height)
+          const targetSize = Math.max(minRes, Math.min(maxRes, originalMinSide))
+
+          const canvas = document.createElement('canvas')
+          canvas.width = targetSize
+          canvas.height = targetSize
+          const ctx = canvas.getContext('2d', { alpha: true })
+
+          // 计算居中裁剪比例
+          const sx = (width - originalMinSide) / 2
+          const sy = (height - originalMinSide) / 2
+
+          // 绘制到 Canvas
+          ctx.imageSmoothingEnabled = true
+          ctx.imageSmoothingQuality = 'high'
+          ctx.clearRect(0, 0, targetSize, targetSize)
+          ctx.drawImage(img, sx, sy, originalMinSide, originalMinSide, 0, 0, targetSize, targetSize)
+
+          canvas.toBlob((blob) => {
+            URL.revokeObjectURL(tempUrl) // 立即释放原始大图内存
+            if (blob) {
+              resolve(URL.createObjectURL(blob))
+            } else {
+              reject(new Error('图片处理失败'))
+            }
+          }, 'image/png', 0.9)
+        }
+
+        img.onerror = () => {
+          URL.revokeObjectURL(tempUrl)
+          reject(new Error('图片加载失败，请检查文件是否损坏'))
+        }
+
+        img.src = tempUrl
+      })
+    }
+
+    const processedUrl = await processImage(file.raw)
+    config.imageSettings.src = processedUrl
+
+    // 设置初始建议尺寸 (20%)
+    const recommendedSize = Math.floor(config.size * 0.2)
+    config.imageSettings.width = recommendedSize
+    config.imageSettings.height = recommendedSize
+
+    ElMessage.success('Logo 已自动处理为 1:1 高清比例')
+  } catch (error) {
+    console.error('Logo 处理错误:', error)
+    ElMessage.error(error.message || '图片处理失败')
   }
 
-  const reader = new FileReader()
-  reader.onload = e => {
-    config.imageSettings.src = e.target.result
-  }
-  reader.readAsDataURL(file.raw)
   return false // 阻止自动上传
 }
 </script>
@@ -139,14 +227,8 @@ const handleLogoUpload = file => {
 
           <el-form :model="config" label-position="top">
             <el-form-item label="内容文本 / URL">
-              <el-input
-                v-model="config.value"
-                :clearable="true"
-                :rows="4"
-                placeholder="请输入要生成二维码的内容..."
-                resize="none"
-                type="textarea"
-              />
+              <el-input v-model="config.value" :clearable="true" :rows="4" placeholder="请输入要生成二维码的内容..." resize="none"
+                type="textarea" />
             </el-form-item>
 
             <el-row :gutter="20">
@@ -173,12 +255,8 @@ const handleLogoUpload = file => {
               <el-col :span="12">
                 <el-form-item label="渲染方式">
                   <el-select v-model="config.renderAs" style="width: 100%">
-                    <el-option
-                      v-for="item in renderOptions"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
+                    <el-option v-for="item in renderOptions" :key="item.value" :label="item.label"
+                      :value="item.value" />
                   </el-select>
                 </el-form-item>
               </el-col>
@@ -220,18 +298,13 @@ const handleLogoUpload = file => {
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="Logo 地址">
-                  <el-input v-model="config.imageSettings.src" clearable placeholder="输入图片 URL 或从下方上传" />
+                  <el-input v-model="config.imageSettings.src" readonly clearable placeholder="输入图片 URL 或从下方上传" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="本地上传 Logo">
-                  <el-upload
-                    :auto-upload="false"
-                    :on-change="handleLogoUpload"
-                    :show-file-list="false"
-                    accept="image/*"
-                    action="#"
-                  >
+                  <el-upload :auto-upload="false" :on-change="handleLogoUpload" :show-file-list="false" accept="image/*"
+                    action="#">
                     <el-button plain size="small" type="primary">点击上传</el-button>
                   </el-upload>
                 </el-form-item>
@@ -242,12 +315,14 @@ const handleLogoUpload = file => {
               <el-row :gutter="20">
                 <el-col :span="8">
                   <el-form-item label="Logo 宽度">
-                    <el-input-number v-model="config.imageSettings.width" :max="config.size / 2" :min="10" />
+                    <el-input-number v-model="config.imageSettings.width" :max="Math.floor(config.size * 0.35)"
+                      :min="10" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label="Logo 高度">
-                    <el-input-number v-model="config.imageSettings.height" :max="config.size / 2" :min="10" />
+                    <el-input-number v-model="config.imageSettings.height" :max="Math.floor(config.size * 0.35)"
+                      :min="10" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
@@ -256,6 +331,8 @@ const handleLogoUpload = file => {
                   </el-form-item>
                 </el-col>
               </el-row>
+              <el-alert v-if="config.imageSettings.width > config.size * 0.25" class="mt-2" show-icon
+                title="Logo 尺寸较大，可能会影响部分扫描器的识别率，建议保持在 25% 以内。" type="warning" />
             </div>
           </el-form>
         </el-card>
@@ -280,20 +357,11 @@ const handleLogoUpload = file => {
 
             <div class="qrcode-container">
               <div :style="{ backgroundColor: config.background }" class="qrcode-wrapper">
-                <qrcode-vue
-                  :background="config.background"
-                  :foreground="config.foreground"
-                  :gradient="config.gradient"
-                  :gradient-end-color="config.gradientEndColor"
-                  :gradient-start-color="config.gradientStartColor"
-                  :gradient-type="config.gradientType"
-                  :image-settings="computedImageSettings"
-                  :level="config.level"
-                  :margin="config.margin"
-                  :render-as="config.renderAs"
-                  :size="config.size"
-                  :value="config.value || ' '"
-                />
+                <qrcode-vue :background="config.background" :foreground="config.foreground" :gradient="config.gradient"
+                  :gradient-end-color="config.gradientEndColor" :gradient-start-color="config.gradientStartColor"
+                  :gradient-type="config.gradientType" :image-settings="computedImageSettings" :level="config.level"
+                  :margin="config.margin" :render-as="config.renderAs" :size="config.size"
+                  :value="config.value || ' '" />
               </div>
               <div class="qrcode-info">
                 <p>内容长度: {{ config.value?.length || 0 }} 字符</p>
