@@ -168,9 +168,8 @@ const downloadQR = () => {
     ctx.textBaseline = 'middle'
 
     const textX = canvas.width / 2
-    const textY = config.text.position === 'top'
-      ? padding + textHeight / 2
-      : qrY + sourceHeight + margin + textHeight / 2
+    const textY =
+      config.text.position === 'top' ? padding + textHeight / 2 : qrY + sourceHeight + margin + textHeight / 2
 
     ctx.fillText(config.text.content, textX, textY)
 
@@ -219,9 +218,8 @@ const downloadQR = () => {
 
     // 文本元素
     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-    const textY = config.text.position === 'top'
-      ? padding + textHeight / 2
-      : qrY + config.size + margin + textHeight / 2
+    const textY =
+      config.text.position === 'top' ? padding + textHeight / 2 : qrY + config.size + margin + textHeight / 2
 
     text.setAttribute('x', (totalWidth / 2).toString())
     text.setAttribute('y', textY.toString())
@@ -367,8 +365,14 @@ const handleLogoUpload = async file => {
 
           <el-form :model="config" label-position="top">
             <el-form-item label="内容文本 / URL">
-              <el-input v-model="config.value" :clearable="true" :rows="4" placeholder="请输入要生成二维码的内容..." resize="none"
-                type="textarea" />
+              <el-input
+                v-model="config.value"
+                :clearable="true"
+                :rows="4"
+                placeholder="请输入要生成二维码的内容..."
+                resize="none"
+                type="textarea"
+              />
             </el-form-item>
 
             <el-row :gutter="20">
@@ -395,8 +399,12 @@ const handleLogoUpload = async file => {
               <el-col :span="12">
                 <el-form-item label="渲染方式">
                   <el-select v-model="config.renderAs" style="width: 100%">
-                    <el-option v-for="item in renderOptions" :key="item.value" :label="item.label"
-                      :value="item.value" />
+                    <el-option
+                      v-for="item in renderOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
                   </el-select>
                 </el-form-item>
               </el-col>
@@ -443,8 +451,13 @@ const handleLogoUpload = async file => {
               </el-col>
               <el-col :span="12">
                 <el-form-item label="本地上传 Logo">
-                  <el-upload :auto-upload="false" :on-change="handleLogoUpload" :show-file-list="false" accept="image/*"
-                    action="#">
+                  <el-upload
+                    :auto-upload="false"
+                    :on-change="handleLogoUpload"
+                    :show-file-list="false"
+                    accept="image/*"
+                    action="#"
+                  >
                     <el-button plain size="small" type="primary">点击上传</el-button>
                   </el-upload>
                 </el-form-item>
@@ -455,14 +468,20 @@ const handleLogoUpload = async file => {
               <el-row :gutter="20">
                 <el-col :span="8">
                   <el-form-item label="Logo 宽度">
-                    <el-input-number v-model="config.imageSettings.width" :max="Math.floor(config.size * 0.35)"
-                      :min="10" />
+                    <el-input-number
+                      v-model="config.imageSettings.width"
+                      :max="Math.floor(config.size * 0.35)"
+                      :min="10"
+                    />
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label="Logo 高度">
-                    <el-input-number v-model="config.imageSettings.height" :max="Math.floor(config.size * 0.35)"
-                      :min="10" />
+                    <el-input-number
+                      v-model="config.imageSettings.height"
+                      :max="Math.floor(config.size * 0.35)"
+                      :min="10"
+                    />
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
@@ -471,8 +490,13 @@ const handleLogoUpload = async file => {
                   </el-form-item>
                 </el-col>
               </el-row>
-              <el-alert v-if="config.imageSettings.width > config.size * 0.25" class="mt-2" show-icon
-                title="Logo 尺寸较大，可能会影响部分扫描器的识别率，建议保持在 25% 以内。" type="warning" />
+              <el-alert
+                v-if="config.imageSettings.width > config.size * 0.25"
+                class="mt-2"
+                show-icon
+                title="Logo 尺寸较大，可能会影响部分扫描器的识别率，建议保持在 25% 以内。"
+                type="warning"
+              />
             </div>
 
             <el-divider content-position="left">文本备注 (可选)</el-divider>
@@ -531,18 +555,33 @@ const handleLogoUpload = async file => {
 
             <div class="qrcode-container">
               <div v-if="config.value" :style="{ backgroundColor: config.background }" class="qrcode-wrapper">
-                <div class="qrcode-inner-container"
-                  :style="{ flexDirection: config.text.position === 'top' ? 'column-reverse' : 'column' }">
-                  <qrcode-vue :background="config.background" :foreground="config.foreground"
-                    :gradient="config.gradient" :gradient-end-color="config.gradientEndColor"
-                    :gradient-start-color="config.gradientStartColor" :gradient-type="config.gradientType"
-                    :image-settings="computedImageSettings" :level="config.level" :margin="config.margin"
-                    :render-as="config.renderAs" :size="config.size" :value="config.value" />
-                  <div v-if="config.text.content" class="qrcode-text-preview" :style="{
-                    color: config.text.color,
-                    fontSize: config.text.fontSize + 'px',
-                    [config.text.position === 'top' ? 'marginBottom' : 'marginTop']: '10px'
-                  }">
+                <div
+                  class="qrcode-inner-container"
+                  :style="{ flexDirection: config.text.position === 'top' ? 'column-reverse' : 'column' }"
+                >
+                  <qrcode-vue
+                    :background="config.background"
+                    :foreground="config.foreground"
+                    :gradient="config.gradient"
+                    :gradient-end-color="config.gradientEndColor"
+                    :gradient-start-color="config.gradientStartColor"
+                    :gradient-type="config.gradientType"
+                    :image-settings="computedImageSettings"
+                    :level="config.level"
+                    :margin="config.margin"
+                    :render-as="config.renderAs"
+                    :size="config.size"
+                    :value="config.value"
+                  />
+                  <div
+                    v-if="config.text.content"
+                    class="qrcode-text-preview"
+                    :style="{
+                      color: config.text.color,
+                      fontSize: config.text.fontSize + 'px',
+                      [config.text.position === 'top' ? 'marginBottom' : 'marginTop']: '10px'
+                    }"
+                  >
                     {{ config.text.content }}
                   </div>
                 </div>
