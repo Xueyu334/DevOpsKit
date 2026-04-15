@@ -1,11 +1,10 @@
 import JSON5 from 'json5'
+import { addNumericKeyOrderPrefix, decodeNumericKey } from '@/utils/json-order'
 
 export default function JsonWorker() {}
 
-let lastParsedObj = null
-let lastOptions = {}
+const renderState = new Map()
 const MAX_CHILDREN = 100
-const JSON_ORDER_PREFIX = '\u200B'
 
 /**
  * Web Worker 消息监听入口
@@ -13,27 +12,33 @@ const JSON_ORDER_PREFIX = '\u200B'
  * @param {MessageEvent} e - 包含请求数据的事件对象
  */
 self.onmessage = function (e) {
-  const { id, type, content, options, path: partialPath, offset = 0 } = e.data
+  const { id, type, content, options, path: partialPath, offset = 0, sourceId } = e.data
 
   // 处理局部加载请求：支持分段增量加载
   if (type === 'partial') {
-    if (!lastParsedObj) return
-    const target = getValueByPath(lastParsedObj, partialPath)
+    const currentState = renderState.get(sourceId)
+    if (!currentState) {
+      self.postMessage({ id, success: false, type: 'partial', error: 'Render state not found', sourceId })
+      return
+    }
+
+    const target = getValueByPath(currentState.obj, partialPath)
     if (target === undefined) {
-      self.postMessage({ id, success: false, error: 'Path not found: ' + partialPath })
+      self.postMessage({ id, success: false, type: 'partial', error: 'Path not found: ' + partialPath, sourceId })
       return
     }
 
     const htmlBuffer = []
     // 强制执行分页：每次只返回下一段 MAX_CHILDREN 条数据
-    renderPartial(target, partialPath, offset, options || lastOptions, htmlBuffer)
+    renderPartial(target, partialPath, offset, options || currentState.options, htmlBuffer)
     self.postMessage({
       id,
       success: true,
       type: 'partial',
       html: htmlBuffer.join(''),
       path: partialPath,
-      nextOffset: offset + MAX_CHILDREN
+      nextOffset: offset + MAX_CHILDREN,
+      sourceId
     })
     return
   }
@@ -45,11 +50,8 @@ self.onmessage = function (e) {
 
   try {
     let obj
-    const patchRegex = /(^|[{,]\s*)(["']?)(\d+)\2(\s*:)/g
     const patchedContent =
-      content && (type === 'strict' || type === 'relaxed')
-        ? content.replace(patchRegex, `$1"${JSON_ORDER_PREFIX}$3"$4`)
-        : content
+      content && (type === 'strict' || type === 'relaxed') ? addNumericKeyOrderPrefix(content) : content
 
     if (type === 'strict') {
       obj = JSON.parse(patchedContent)
@@ -61,13 +63,16 @@ self.onmessage = function (e) {
       }
     }
 
-    lastParsedObj = obj
-    lastOptions = options
+    renderState.set(id, {
+      obj,
+      options
+    })
     const hasNonStandard = checkNonStandard(obj)
     const htmlBuffer = []
     renderJSON(obj, 0, options, htmlBuffer, '[]')
     self.postMessage({ id, success: true, html: htmlBuffer.join(''), hasNonStandard })
   } catch (err) {
+    renderState.delete(id)
     self.postMessage({ id, success: false, error: err.message })
   }
 }
@@ -82,10 +87,10 @@ function getValueByPath(obj, path) {
   if (!path || path === '$' || path === 'root' || path === '[]') return obj
   const parts = parsePath(path)
   let current = obj
-  for (let part of parts) {
+  for (const part of parts) {
     if (current == null) return undefined
     // 再补前缀：仅在内存查找一瞬间为数字键名补齐外壳
-    const realKey = typeof part === 'string' && /^\d+$/.test(part) ? JSON_ORDER_PREFIX + part : part
+    const realKey = typeof part === 'string' && /^\d+$/.test(part) ? encodeNumericKey(part) : part
     current = current[realKey]
   }
   return current
@@ -177,19 +182,7 @@ function renderJSON(obj, depth = 0, options, buffer, path = '[]') {
   if (compress) {
     let str
     try {
-      // 尝试使用更宽松的序列化，如果包含非标值（如 NaN），标准 JSON.stringify 会丢失信息转为 null
-      str = JSON.stringify(obj, (k, v) => {
-        if (v === undefined) return '___undefined___'
-        if (typeof v === 'number' && isNaN(v)) return '___NaN___'
-        if (typeof v === 'number' && !isFinite(v)) return v > 0 ? '___Infinity___' : '___-Infinity___'
-        return v
-      })
-      // 还原非标值占位符，使其在界面上可见
-      str = str
-        .replace(/"___undefined___"/g, 'undefined')
-        .replace(/"___NaN___"/g, 'NaN')
-        .replace(/"___Infinity___"/g, 'Infinity')
-        .replace(/"___-Infinity___"/g, '-Infinity')
+      str = stringifyCompactValue(obj)
     } catch {
       str = '[Circular or Large Data]'
     }
@@ -372,7 +365,7 @@ function renderObjectKeys(obj, keys, offset, end, depth, options, buffer, path) 
   for (let i = offset; i < end; i++) {
     const key = keys[i]
     const colorIdx = (i + depth) % 9
-    const cleanKey = key.startsWith(JSON_ORDER_PREFIX) ? key.slice(JSON_ORDER_PREFIX.length) : key
+    const cleanKey = decodeNumericKey(key)
 
     // 生成子节点 path 时，一律使用干净的 cleanKey，不污染外部 path 存储
     const currentPath = JSON.stringify([...pathArr, cleanKey])
@@ -406,6 +399,36 @@ function renderObjectKeys(obj, keys, offset, end, depth, options, buffer, path) 
         ' 对，点击继续加载</li>'
     )
   }
+}
+
+function encodeNumericKey(key) {
+  return decodeNumericKey(key) === key ? '\u200B' + key : key
+}
+
+function stringifyCompactValue(value) {
+  if (value === null) return 'null'
+  if (value === undefined) return 'undefined'
+
+  const valueType = typeof value
+  if (valueType === 'string') return JSON.stringify(value)
+  if (valueType === 'number') {
+    if (isNaN(value)) return 'NaN'
+    if (!isFinite(value)) return value > 0 ? 'Infinity' : '-Infinity'
+    return String(value)
+  }
+  if (valueType === 'boolean') return String(value)
+
+  if (Array.isArray(value)) {
+    return `[${value.map(item => stringifyCompactValue(item)).join(',')}]`
+  }
+
+  if (valueType === 'object') {
+    return `{${Object.keys(value)
+      .map(key => `${JSON.stringify(decodeNumericKey(key))}:${stringifyCompactValue(value[key])}`)
+      .join(',')}}`
+  }
+
+  return String(value)
 }
 
 /**

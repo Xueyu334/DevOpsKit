@@ -1,6 +1,7 @@
 <script setup>
 import JSON5 from 'json5'
 import JsonWorker from './json.worker.js?worker'
+import { addNumericKeyOrderPrefix, JSON_ORDER_PREFIX, stringifyJsonPreservingOrder } from '@/utils/json-order'
 
 const STORAGE_KEY = 'devopskit_json_input'
 const OPTIONS_KEY = 'devopskit_json_options'
@@ -31,6 +32,9 @@ const leftWidth = ref(400)
 const containerRef = ref(null)
 let isResizing = false
 let worker = null
+let partialRequestSeed = 0
+let strictHasNonStandard = false
+let relaxedHasNonStandard = false
 
 const { copy } = useClipboard()
 
@@ -40,17 +44,30 @@ const setIdleState = () => {
   hasError.value = false
   hasNonStandard.value = false
   currentPath.value = ''
+  strictHasNonStandard = false
+  relaxedHasNonStandard = false
 }
 
 const buildErrorHtml = (message, modifierClass = '') =>
   `<div class="error-box${modifierClass ? ` ${modifierClass}` : ''}">${message}</div>`
 
+/**
+ * 一个用于解析近似 JSON 格式字符串的函数。
+ * 此函数先对输入值进行处理以确保格式规范化，然后尝试使用 `JSON.parse` 对其进行解析。
+ * 如果标准的 JSON 解析失败，则降级使用 `JSON5.parse` 进行解析。
+ * 适用于处理带注释、单引号及未加引号键的非标准 JSON 格式字符串。
+ *
+ * @param {string} value - 要解析的近似 JSON 格式字符串。
+ * @returns {*} 返回解析后的 JavaScript 对象。
+ * @throws {Error} 当输入不符合 JSON 或 JSON5 格式时抛出解析异常。
+ */
 const parseJsonLike = value => {
+  const normalizedValue = addNumericKeyOrderPrefix(value)
   try {
-    return JSON.parse(value)
+    return JSON.parse(normalizedValue)
   } catch {
     // 降级使用 JSON5 解析，支持注释、单引号、未加引号键等，且绝对安全
-    return JSON5.parse(value)
+    return JSON5.parse(normalizedValue)
   }
 }
 
@@ -114,8 +131,6 @@ const handleHover = e => {
  * @param {String} pathStr - JSON 序列化的路径数组字符串
  * @returns {String} 人类可读路径
  */
-const JSON_ORDER_PREFIX = '\u200B'
-
 const formatPath = pathStr => {
   if (!pathStr || pathStr === '$' || pathStr === 'root' || pathStr === '[]') return ''
   try {
@@ -173,9 +188,15 @@ const handleClick = e => {
   if (isLoadMore) {
     const path = target.getAttribute('data-path')
     const offset = parseInt(target.getAttribute('data-offset') || '0', 10)
+    const sourceId = target.closest('[data-worker-source]')?.getAttribute('data-worker-source')
+    const requestId = `partial-${++partialRequestSeed}`
+
+    if (!sourceId) return
+
+    target.setAttribute('data-request-id', requestId)
     target.innerText = '正在加载更多内容...'
     target.style.pointerEvents = 'none'
-    worker.postMessage({ type: 'partial', path, offset, options: { ...options } })
+    worker.postMessage({ id: requestId, type: 'partial', sourceId, path, offset, options: { ...options } })
     return
   }
 
@@ -252,16 +273,8 @@ const transformParsedInput = (formatter, successMessage, errorPrefix) => {
   if (!val) return
 
   try {
-    // 采用更安全的正则：支持单引号、无引号（JSON5），且限定前缀为 { 或 , 确保只匹配 Key 位置
-    const patchRegex = /(^|[{,]\s*)(["']?)(\d+)\2(\s*:)/g
-    const patched = val.replace(patchRegex, `$1"${JSON_ORDER_PREFIX}$3"$4`)
-    const obj = parseJsonLike(patched)
-
-    let result = formatter(obj)
-
-    // 格式化输出时移除补丁（仅还原键名位置）
-    const restoreRegex = new RegExp(`(^|[{, \\n])"${JSON_ORDER_PREFIX}(\\d+)"(\\s*:)`, 'g')
-    rawInput.value = result.replace(restoreRegex, '$1"$2"$3')
+    const obj = parseJsonLike(val)
+    rawInput.value = formatter(obj) ?? val
 
     update()
     ElMessage.success(successMessage)
@@ -277,11 +290,11 @@ const handleClear = () => {
 }
 
 const handleFormat = () => {
-  transformParsedInput(obj => JSON.stringify(obj, null, 2), '格式化完成', '格式化失败')
+  transformParsedInput(obj => stringifyJsonPreservingOrder(obj, 2), '格式化完成', '格式化失败')
 }
 
 const handleCompress = () => {
-  transformParsedInput(obj => JSON.stringify(obj), '压缩完成', '压缩失败')
+  transformParsedInput(obj => stringifyJsonPreservingOrder(obj), '压缩完成', '压缩失败')
 }
 
 const handleUnescape = () => {
@@ -328,7 +341,7 @@ const handleEscape = () => {
   if (!val) return
 
   try {
-    val = JSON.stringify(parseJsonLike(val))
+    val = stringifyJsonPreservingOrder(parseJsonLike(val)) ?? val
   } catch {
     // ignore
   }
@@ -379,17 +392,23 @@ onMounted(() => {
   }
 
   worker.onmessage = e => {
-    const { id, success, html, error, hasNonStandard: nonStandard, type, path } = e.data
+    const { id, success, html, error, hasNonStandard: nonStandard, type } = e.data
 
     if (type === 'partial') {
-      // 处理分段加载返回
-      const selector = `.json-load-more[data-path="${path.replace(/"/g, '\\"')}"]`
+      const selector = `.json-load-more[data-request-id="${id}"]`
       const el = document.querySelector(selector)
       if (el) {
-        // 使用 beforebegin 在占位符前插入新得到的 100 条数据
-        el.insertAdjacentHTML('beforebegin', html)
-        // 移除旧的占位符（Worker 返回的新 HTML 中如果还有剩余，会包含一个新的占位符）
-        el.remove()
+        if (success) {
+          // 使用 beforebegin 在占位符前插入新得到的 100 条数据
+          el.insertAdjacentHTML('beforebegin', html)
+          // 移除旧的占位符（Worker 返回的新 HTML 中如果还有剩余，会包含一个新的占位符）
+          el.remove()
+        } else {
+          el.removeAttribute('data-request-id')
+          el.innerText = '加载失败，点击重试'
+          el.style.pointerEvents = ''
+          ElMessage.error(error || '加载更多失败')
+        }
       }
       return
     }
@@ -398,13 +417,19 @@ onMounted(() => {
       if (success) {
         stringResultHtml.value = html
         hasError.value = false
-        hasNonStandard.value = nonStandard
+        strictHasNonStandard = !!nonStandard
       } else {
         stringResultHtml.value = buildErrorHtml(`Error: ${error}`)
         hasError.value = true
-        hasNonStandard.value = false
+        strictHasNonStandard = false
       }
+      hasNonStandard.value = strictHasNonStandard || relaxedHasNonStandard
       return
+    }
+
+    if (id === 'relaxed') {
+      relaxedHasNonStandard = success ? !!nonStandard : false
+      hasNonStandard.value = strictHasNonStandard || relaxedHasNonStandard
     }
 
     evalResultHtml.value = success ? html : buildErrorHtml(`Eval error: ${error}`, 'error-box--italic')
@@ -490,8 +515,8 @@ onUnmounted(() => {
           spellcheck="false"
           @dblclick="handleFormat"
           @drop="handleDrop"
-          @dragover.prevent
           @input="debouncedUpdate"
+          @dragover.prevent
         ></textarea>
       </div>
 
@@ -505,11 +530,18 @@ onUnmounted(() => {
         <div class="result-area">
           <div
             class="result-col parse-col"
+            data-worker-source="strict"
             @click="handleClick"
             @mouseover="handleHover"
             v-html="stringResultHtml"
           ></div>
-          <div class="result-col eval-col" @click="handleClick" @mouseover="handleHover" v-html="evalResultHtml"></div>
+          <div
+            class="result-col eval-col"
+            data-worker-source="relaxed"
+            @click="handleClick"
+            @mouseover="handleHover"
+            v-html="evalResultHtml"
+          ></div>
         </div>
         <div v-if="hasNonStandard" class="non-standard-warning">
           <el-icon>
