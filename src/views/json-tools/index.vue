@@ -433,7 +433,7 @@ onUnmounted(() => {
       <div class="tool-title">
         <span class="icon-bracket">{ }</span>
         JSON在线解析
-        <span class="subtitle">(支持文件拖拽)</span>
+        <span class="subtitle">(双击任意处自动格式化,支持文件拖拽)</span>
       </div>
       <div class="header-actions">
         <el-button-group class="mr-2">
