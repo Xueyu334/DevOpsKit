@@ -35,10 +35,10 @@ const handleLogoClick = () => {
     <!-- 全局头部 -->
     <el-header class="app-header">
       <el-row align="middle" class="header-row">
-        <el-col :lg="2" :md="0" :sm="0" :xl="2" :xs="0">
+        <el-col :xl="2" :lg="3" :md="4" :sm="0" :xs="0">
           <div class="logo" @click="handleLogoClick">DevOpsKit</div>
         </el-col>
-        <el-col :lg="18" :md="22" :sm="22" :xl="18" :xs="22">
+        <el-col :xl="18" :lg="17" :md="16" :sm="20" :xs="20">
           <el-menu
             :default-active="route.path"
             :ellipsis="true"
@@ -55,7 +55,7 @@ const handleLogoClick = () => {
             </el-sub-menu>
           </el-menu>
         </el-col>
-        <el-col :lg="4" :md="2" :sm="2" :xl="4" :xs="2" class="header-actions">
+        <el-col :xl="4" :lg="4" :md="4" :sm="4" :xs="4" class="header-actions">
           <el-tooltip :content="themeTooltip" placement="bottom">
             <el-switch v-model="isDark" class="theme-switch" inline-prompt>
               <template #active-action>
@@ -125,6 +125,8 @@ const handleLogoClick = () => {
   color: var(--el-color-primary);
   letter-spacing: 1px;
   cursor: pointer;
+  white-space: nowrap;
+  padding-right: 4px;
 }
 
 .header-menu {
