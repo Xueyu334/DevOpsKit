@@ -5,8 +5,8 @@ import { loadLame } from './utils/load-lame'
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024
 const DEFAULT_BITRATE = 192
-const MIN_CLIP_DURATION = 0.1
-const SLIDER_STEP = 0.05
+const MIN_CLIP_DURATION = 0.01
+const SLIDER_STEP = 0.001
 
 const audioRef = ref(null)
 const waveformContainer = ref(null)
@@ -58,7 +58,8 @@ const initWaveSurfer = () => {
     cursorWidth: 2,
     height: 180,
     media: audioRef.value,
-    url: fileInfo.url
+    url: fileInfo.url,
+    autoScroll: true
   })
 
   wsRegions = wavesurfer.registerPlugin(RegionsPlugin.create())
@@ -84,7 +85,7 @@ const initWaveSurfer = () => {
       const nextStart = snapTime(region.start)
       const nextEnd = snapTime(region.end)
 
-      const isSame = Math.abs(range.value[0] - nextStart) < 0.01 && Math.abs(range.value[1] - nextEnd) < 0.01
+      const isSame = Math.abs(range.value[0] - nextStart) < 0.001 && Math.abs(range.value[1] - nextEnd) < 0.001
       if (!isSame) {
         range.value = [nextStart, nextEnd]
       }
@@ -99,7 +100,7 @@ watch(
     if (!wsRegions) return
     const region = wsRegions.getRegions().find(r => r.id === 'clip-region')
     if (region) {
-      const isSame = Math.abs(region.start - newRange[0]) < 0.01 && Math.abs(region.end - newRange[1]) < 0.01
+      const isSame = Math.abs(region.start - newRange[0]) < 0.001 && Math.abs(region.end - newRange[1]) < 0.001
       if (!isSame) {
         region.setOptions({
           start: newRange[0],
@@ -125,7 +126,7 @@ const handleFileChange = async uploadFile => {
     return
   }
 
-  clearAudio()
+  await clearAudio()
   fileInfo.name = file.name
   fileInfo.size = file.size
   fileInfo.arrayBuffer = await file.arrayBuffer()
@@ -143,12 +144,50 @@ const handleLoadedMetadata = () => {
   })
 }
 
+let monitorId = null
+
+const startProgressMonitor = () => {
+  if (monitorId) cancelAnimationFrame(monitorId)
+
+  const check = () => {
+    if (!audioRef.value || !isPreviewing.value) {
+      monitorId = null
+      return
+    }
+
+    const curr = audioRef.value.currentTime
+    if (curr >= range.value[1]) {
+      stopPreview()
+      // 试听结束自动复位到片段起点，不仅彻底解决终点视觉探头问题，还方便快速重新试听
+      const safeTime = range.value[0]
+      audioRef.value.currentTime = safeTime
+      currentTime.value = safeTime
+      if (wavesurfer) wavesurfer.setTime(safeTime)
+    } else {
+      currentTime.value = curr
+      monitorId = requestAnimationFrame(check)
+    }
+  }
+  monitorId = requestAnimationFrame(check)
+}
+
+const stopProgressMonitor = () => {
+  if (monitorId) {
+    cancelAnimationFrame(monitorId)
+    monitorId = null
+  }
+}
+
 const handleTimeUpdate = () => {
   currentTime.value = audioRef.value?.currentTime || 0
   if (!isPreviewing.value || !audioRef.value) return
 
   if (audioRef.value.currentTime >= range.value[1]) {
     stopPreview()
+    const safeTime = range.value[0]
+    audioRef.value.currentTime = safeTime
+    currentTime.value = safeTime
+    if (wavesurfer) wavesurfer.setTime(safeTime)
   }
 }
 
@@ -159,6 +198,7 @@ const previewClip = async () => {
   isPreviewing.value = true
   try {
     await audioRef.value.play()
+    startProgressMonitor()
   } catch {
     isPreviewing.value = false
     ElMessage.error('试听播放失败')
@@ -170,6 +210,7 @@ const stopPreview = () => {
     audioRef.value.pause()
   }
   isPreviewing.value = false
+  stopProgressMonitor()
 }
 
 const handleRangeInput = value => {
@@ -292,7 +333,7 @@ const floatToInt16 = samples => {
   return output
 }
 
-const clearAudio = () => {
+const clearAudio = async () => {
   stopPreview()
   if (wavesurfer) {
     wavesurfer.destroy()
@@ -310,6 +351,15 @@ const clearAudio = () => {
   exportProgress.value = 0
   waveformReady.value = false
   decodedAudioBuffer = null
+
+  if (audioContext) {
+    try {
+      await audioContext.close()
+    } catch (error) {
+      console.warn('释放 AudioContext 失败:', error)
+    }
+    audioContext = null
+  }
 }
 
 const downloadBlob = (blob, fileName) => {
@@ -345,9 +395,96 @@ const sanitizeFileName = value =>
     .replace(/\.mp3$/i, '')
     .replace(/[\\/:*?"<>|]/g, '_')
 
-onUnmounted(() => {
-  clearAudio()
-  audioContext?.close()
+const handleKeyDown = e => {
+  if (!hasAudio.value) return
+
+  // 避免在输入框输入时触发快捷键
+  const activeEl = document.activeElement
+  if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable)) {
+    return
+  }
+
+  const key = e.key
+
+  // 1. 空格键播放/暂停
+  if (key === ' ') {
+    e.preventDefault()
+    if (isPreviewing.value) {
+      stopPreview()
+    } else {
+      previewClip()
+    }
+    return
+  }
+
+  // 2. 左右方向键快进/快退进度 (无修饰键快退/快进 1s，配合 Shift 快退/快进 0.1s)
+  if (key === 'ArrowLeft' || key === 'ArrowRight') {
+    if (audioRef.value) {
+      e.preventDefault()
+      const isRight = key === 'ArrowRight'
+      const step = e.shiftKey ? 0.1 : 1.0
+      let targetTime = audioRef.value.currentTime + (isRight ? step : -step)
+      targetTime = Math.max(0, Math.min(fileInfo.duration, targetTime))
+      audioRef.value.currentTime = targetTime
+      currentTime.value = targetTime
+    }
+    return
+  }
+
+  // 3. A / D 微调开始时间 (默认微调 0.01s，配合 Shift 微调 0.1s)
+  if (key === 'a' || key === 'A' || key === 'd' || key === 'D') {
+    e.preventDefault()
+    const step = e.shiftKey ? 0.1 : 0.01
+    const delta = key === 'd' || key === 'D' ? step : -step
+    handleRangeInput([range.value[0] + delta, range.value[1]])
+    return
+  }
+
+  // 4. Q / E 微调结束时间 (默认微调 0.01s，配合 Shift 微调 0.1s)
+  if (key === 'q' || key === 'Q' || key === 'e' || key === 'E') {
+    e.preventDefault()
+    const step = e.shiftKey ? 0.1 : 0.01
+    const delta = key === 'e' || key === 'E' ? step : -step
+    handleRangeInput([range.value[0], range.value[1] + delta])
+    return
+  }
+
+  // 5. Mark In / Mark Out 设为开始/结束时间
+  if (key === '[' || key === 'i' || key === 'I') {
+    e.preventDefault()
+    const current = audioRef.value ? audioRef.value.currentTime : 0
+    handleRangeInput([current, range.value[1]])
+    ElMessage({
+      message: '已标记开始时间',
+      type: 'success',
+      duration: 1000,
+      grouping: true
+    })
+    return
+  }
+
+  if (key === ']' || key === 'o' || key === 'O') {
+    e.preventDefault()
+    const current = audioRef.value ? audioRef.value.currentTime : 0
+    handleRangeInput([range.value[0], current])
+    ElMessage({
+      message: '已标记结束时间',
+      type: 'success',
+      duration: 1000,
+      grouping: true
+    })
+    return
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown)
+})
+
+onUnmounted(async () => {
+  window.removeEventListener('keydown', handleKeyDown)
+  stopProgressMonitor()
+  await clearAudio()
 })
 </script>
 
@@ -365,24 +502,16 @@ onUnmounted(() => {
       <div class="studio-topbar">
         <div class="file-title">
           <span class="file-name">{{ hasAudio ? fileInfo.name : '等待上传 MP3 文件' }}</span>
-          <span v-if="hasAudio" class="file-meta"
-            >{{ formatSize(fileInfo.size) }} / {{ formatTime(fileInfo.duration) }}</span
-          >
+          <span v-if="hasAudio" class="file-meta">{{ formatSize(fileInfo.size) }} / {{ formatTime(fileInfo.duration)
+            }}</span>
         </div>
         <el-select v-model="bitrate" :disabled="!hasAudio || isExporting" class="bitrate-select" size="small">
           <el-option v-for="item in bitrateOptions" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </div>
 
-      <el-upload
-        v-if="!hasAudio"
-        :auto-upload="false"
-        :show-file-list="false"
-        accept=".mp3,audio/mpeg"
-        action="#"
-        drag
-        @change="handleFileChange"
-      >
+      <el-upload v-if="!hasAudio" :auto-upload="false" :show-file-list="false" accept=".mp3,audio/mpeg" action="#" drag
+        @change="handleFileChange">
         <el-icon class="el-icon--upload">
           <IconEpUploadFilled />
         </el-icon>
@@ -393,15 +522,8 @@ onUnmounted(() => {
       </el-upload>
 
       <div v-else class="studio-editor">
-        <audio
-          ref="audioRef"
-          :src="fileInfo.url"
-          class="audio-player"
-          controls
-          @loadedmetadata="handleLoadedMetadata"
-          @pause="isPreviewing = false"
-          @timeupdate="handleTimeUpdate"
-        ></audio>
+        <audio ref="audioRef" :src="fileInfo.url" class="audio-player" controls @loadedmetadata="handleLoadedMetadata"
+          @pause="isPreviewing = false" @timeupdate="handleTimeUpdate"></audio>
 
         <div ref="waveShellRef" class="wave-shell">
           <div ref="waveformContainer" class="wave-canvas"></div>
@@ -416,29 +538,11 @@ onUnmounted(() => {
 
         <div class="studio-footer">
           <div class="time-controls">
-            <el-input-number
-              v-model="range[0]"
-              :disabled="isExporting"
-              :max="range[1]"
-              :min="0"
-              :precision="2"
-              :step="0.1"
-              controls-position="right"
-              size="small"
-              @change="normalizeRange"
-            />
+            <el-input-number v-model="range[0]" :disabled="isExporting" :max="range[1]" :min="0" :precision="3"
+              :step="0.01" controls-position="right" size="small" @change="normalizeRange" />
             <span class="time-divider">至</span>
-            <el-input-number
-              v-model="range[1]"
-              :disabled="isExporting"
-              :max="fileInfo.duration"
-              :min="range[0]"
-              :precision="2"
-              :step="0.1"
-              controls-position="right"
-              size="small"
-              @change="normalizeRange"
-            />
+            <el-input-number v-model="range[1]" :disabled="isExporting" :max="fileInfo.duration" :min="range[0]"
+              :precision="3" :step="0.01" controls-position="right" size="small" @change="normalizeRange" />
           </div>
 
           <div class="action-row">
@@ -475,11 +579,36 @@ onUnmounted(() => {
       </el-col>
       <el-col :lg="16" :xs="24">
         <el-card class="info-card">
-          <div class="range-summary">
-            <el-tag type="primary">开始 {{ formatTime(range[0]) }}</el-tag>
-            <el-tag type="success">结束 {{ formatTime(range[1]) }}</el-tag>
-            <el-tag type="warning">片段 {{ formatTime(clipDuration) }}</el-tag>
-            <el-tag type="info">码率 {{ bitrate }} kbps</el-tag>
+          <template #header>
+            <div class="card-header">
+              <span>快捷操作指南</span>
+              <div class="range-summary">
+                <el-tag type="primary" size="small">开始 {{ formatTime(range[0]) }}</el-tag>
+                <el-tag type="success" size="small">结束 {{ formatTime(range[1]) }}</el-tag>
+                <el-tag type="warning" size="small">片段 {{ formatTime(clipDuration) }}</el-tag>
+                <el-tag type="info" size="small">码率 {{ bitrate }} kbps</el-tag>
+              </div>
+            </div>
+          </template>
+          <div class="shortcut-container">
+            <el-row :gutter="12">
+              <el-col :sm="12" :xs="24">
+                <div class="shortcut-item"><kbd>Space</kbd> <span>播放 / 暂停试听</span></div>
+                <div class="shortcut-item">
+                  <kbd>←</kbd> / <kbd>→</kbd> <span>快进 / 快退 1s (加 Shift 微调 0.1s)</span>
+                </div>
+                <div class="shortcut-item"><kbd>[</kbd> 或 <kbd>I</kbd> <span>设当前位置为【开始时间】</span></div>
+              </el-col>
+              <el-col :sm="12" :xs="24">
+                <div class="shortcut-item"><kbd>]</kbd> 或 <kbd>O</kbd> <span>设当前位置为【结束时间】</span></div>
+                <div class="shortcut-item">
+                  <kbd>A</kbd> / <kbd>D</kbd> <span>微调开始时间 (0.01s，按 Shift 为 0.1s)</span>
+                </div>
+                <div class="shortcut-item">
+                  <kbd>Q</kbd> / <kbd>E</kbd> <span>微调结束时间 (0.01s，按 Shift 为 0.1s)</span>
+                </div>
+              </el-col>
+            </el-row>
           </div>
         </el-card>
       </el-col>
@@ -669,10 +798,43 @@ onUnmounted(() => {
 }
 
 .info-card {
-  min-height: 96px;
+  min-height: 156px;
+}
+
+.shortcut-container {
+  font-size: 13px;
+  color: var(--el-text-color-regular);
+}
+
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.shortcut-item:last-child {
+  margin-bottom: 0;
+}
+
+.shortcut-item kbd {
+  background-color: var(--el-fill-color-dark);
+  border: 1px solid var(--el-border-color-light);
+  border-radius: 4px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+  color: var(--el-text-color-primary);
+  display: inline-block;
+  font-family: var(--el-font-family-monospace);
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1.2;
+  padding: 3px 6px;
+  margin-right: 8px;
+  white-space: nowrap;
 }
 
 @media (max-width: 992px) {
+
   .page-header,
   .page-heading,
   .card-header {
