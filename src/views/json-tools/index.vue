@@ -48,8 +48,16 @@ const setIdleState = () => {
   relaxedHasNonStandard = false
 }
 
+const escapeHtml = value =>
+  String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+
 const buildErrorHtml = (message, modifierClass = '') =>
-  `<div class="error-box${modifierClass ? ` ${modifierClass}` : ''}">${message}</div>`
+  `<div class="error-box${modifierClass ? ` ${modifierClass}` : ''}">${escapeHtml(message)}</div>`
 
 /**
  * 一个用于解析近似 JSON 格式字符串的函数。
