@@ -208,6 +208,19 @@ export const toolCategories = [
         tagTip: '多行业通用二维码生成'
       },
       {
+        id: 'mp3-cutter',
+        name: 'MP3 音频截取',
+        menuTitle: 'MP3 截取',
+        desc: '上传 MP3 后选择时间段，支持片段实时试听并导出为 MP3。',
+        keywords: ['mp3', '音频截取', '音频剪切', '音频裁剪', 'audio cutter', '音乐剪辑'],
+        route: '/mp3-cutter',
+        icon: 'Finished',
+        color: '#22C55E',
+        tag: 'Audio',
+        tagType: 'success',
+        tagTip: '浏览器本地音频截取工具'
+      },
+      {
         id: 'id-card-generator',
         name: '身份证号码生成器',
         menuTitle: '身份证号码生成器',

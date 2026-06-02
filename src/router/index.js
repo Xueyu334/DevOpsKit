@@ -75,6 +75,12 @@ const routes = [
         meta: { title: 'Base64 转图片' }
       },
       {
+        path: '/mp3-cutter',
+        name: 'mp3Cutter',
+        component: () => import('@/views/mp3-cutter/index.vue'),
+        meta: { title: 'MP3 音频截取' }
+      },
+      {
         path: '/url-encode',
         name: 'urlEncode',
         component: () => import('@/views/url-encode/index.vue'),
