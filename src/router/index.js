@@ -33,6 +33,12 @@ const routes = [
         meta: { title: 'JSON 工具' }
       },
       {
+        path: '/pdm-parser',
+        name: 'pdmParser',
+        component: () => import('@/views/pdm-parser/index.vue'),
+        meta: { title: 'PDM 在线解析' }
+      },
+      {
         path: '/ascii-table',
         name: 'asciiTable',
         component: () => import('@/views/ascii-table/index.vue'),

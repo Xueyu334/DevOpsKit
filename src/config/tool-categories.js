@@ -40,6 +40,19 @@ export const toolCategories = [
         tagTip: '前端与 API 开发必备工具'
       },
       {
+        id: 'pdm-parser',
+        name: 'PDM 在线解析',
+        menuTitle: 'PDM 解析',
+        desc: '本地解析 PowerDesigner .pdm 文件，提取表结构、字段、主键与备注并导出文档。',
+        keywords: ['pdm', 'powerdesigner', '表结构', '数据库设计', '数据模型', '字段文档'],
+        route: '/pdm-parser',
+        icon: 'DataAnalysis',
+        color: '#0EA5E9',
+        tag: 'New',
+        tagType: 'success',
+        tagTip: 'PowerDesigner 表结构文档解析'
+      },
+      {
         id: 'mermaid-editor',
         name: 'Mermaid 图表渲染',
         menuTitle: 'Mermaid 渲染',
