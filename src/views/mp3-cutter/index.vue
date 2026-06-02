@@ -23,6 +23,7 @@ const isExporting = ref(false)
 const exportProgress = ref(0)
 const currentTime = ref(0)
 const isDraggingPlayhead = ref(false)
+const activeRangeHandle = ref('')
 const waveformReady = ref(false)
 let audioContext = null
 let decodedAudioBuffer = null
@@ -44,6 +45,8 @@ const playheadStyle = computed(() => {
   const left = Math.min(100, Math.max(0, (currentTime.value / fileInfo.duration) * 100))
   return { left: `${left}%` }
 })
+const startHandleStyle = computed(() => ({ left: getTimePercent(range.value[0]) }))
+const endHandleStyle = computed(() => ({ left: getTimePercent(range.value[1]) }))
 
 const bitrateOptions = [
   { label: '128 kbps', value: 128 },
@@ -92,10 +95,7 @@ const handleTimeUpdate = () => {
 const seekToWavePosition = event => {
   if (!fileInfo.duration || !waveShellRef.value || !audioRef.value) return
 
-  const clientX = event.touches?.[0]?.clientX ?? event.clientX
-  const rect = waveShellRef.value.getBoundingClientRect()
-  const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
-  const nextTime = ratio * fileInfo.duration
+  const nextTime = getTimeFromPointer(event)
 
   currentTime.value = nextTime
   audioRef.value.currentTime = nextTime
@@ -126,6 +126,32 @@ const stopPlayheadDrag = () => {
   window.removeEventListener('touchend', stopPlayheadDrag)
 }
 
+const startRangeDrag = (handle, event) => {
+  if (!hasAudio.value || isExporting.value) return
+
+  stopPreview()
+  activeRangeHandle.value = handle
+  updateRangeFromPointer(event)
+  window.addEventListener('mousemove', handleRangeDrag)
+  window.addEventListener('mouseup', stopRangeDrag)
+  window.addEventListener('touchmove', handleRangeDrag, { passive: false })
+  window.addEventListener('touchend', stopRangeDrag)
+}
+
+const handleRangeDrag = event => {
+  if (!activeRangeHandle.value) return
+  event.preventDefault?.()
+  updateRangeFromPointer(event)
+}
+
+const stopRangeDrag = () => {
+  activeRangeHandle.value = ''
+  window.removeEventListener('mousemove', handleRangeDrag)
+  window.removeEventListener('mouseup', stopRangeDrag)
+  window.removeEventListener('touchmove', handleRangeDrag)
+  window.removeEventListener('touchend', stopRangeDrag)
+}
+
 const previewClip = async () => {
   if (!audioRef.value || clipDuration.value <= 0) return
 
@@ -149,10 +175,54 @@ const stopPreview = () => {
 const handleRangeInput = value => {
   if (isPreviewing.value) stopPreview()
   const [start, end] = value
-  if (end - start < MIN_CLIP_DURATION) {
-    range.value = [start, Math.min(fileInfo.duration, start + MIN_CLIP_DURATION)]
+  let nextStart = Math.min(fileInfo.duration, Math.max(0, start))
+  let nextEnd = Math.min(fileInfo.duration, Math.max(0, end))
+
+  if (nextEnd - nextStart < MIN_CLIP_DURATION) {
+    if (nextStart + MIN_CLIP_DURATION <= fileInfo.duration) {
+      nextEnd = nextStart + MIN_CLIP_DURATION
+    } else {
+      nextStart = Math.max(0, nextEnd - MIN_CLIP_DURATION)
+    }
+  }
+
+  range.value = [nextStart, nextEnd]
+}
+
+const normalizeRange = () => {
+  handleRangeInput(range.value)
+}
+
+const updateRangeFromPointer = event => {
+  const nextTime = snapTime(getTimeFromPointer(event))
+  const [start, end] = range.value
+
+  if (activeRangeHandle.value === 'start') {
+    range.value = [Math.max(0, Math.min(nextTime, end - MIN_CLIP_DURATION)), end]
+    return
+  }
+
+  if (activeRangeHandle.value === 'end') {
+    range.value = [start, Math.min(fileInfo.duration, Math.max(nextTime, start + MIN_CLIP_DURATION))]
   }
 }
+
+const getTimeFromPointer = event => {
+  if (!fileInfo.duration || !waveShellRef.value) return 0
+
+  const clientX = event.touches?.[0]?.clientX ?? event.clientX
+  const rect = waveShellRef.value.getBoundingClientRect()
+  const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
+  return ratio * fileInfo.duration
+}
+
+const getTimePercent = time => {
+  if (!fileInfo.duration) return '0%'
+  const percent = Math.min(100, Math.max(0, (time / fileInfo.duration) * 100))
+  return `${percent}%`
+}
+
+const snapTime = time => Math.min(fileInfo.duration, Math.max(0, Math.round(time / SLIDER_STEP) * SLIDER_STEP))
 
 const prepareWaveform = async () => {
   waveformReady.value = false
@@ -257,6 +327,7 @@ const floatToInt16 = samples => {
 }
 
 const clearAudio = () => {
+  stopRangeDrag()
   stopPreview()
   if (fileInfo.url) URL.revokeObjectURL(fileInfo.url)
   fileInfo.name = ''
@@ -340,6 +411,7 @@ const sanitizeFileName = value =>
     .replace(/[\\/:*?"<>|]/g, '_')
 
 onUnmounted(() => {
+  stopRangeDrag()
   stopPlayheadDrag()
   clearAudio()
   audioContext?.close()
@@ -406,6 +478,26 @@ onUnmounted(() => {
         >
           <canvas ref="waveCanvasRef" class="wave-canvas"></canvas>
           <div :style="selectionStyle" class="wave-selection"></div>
+          <button
+            :class="{ 'is-active': activeRangeHandle === 'start' }"
+            :data-time="formatTime(range[0])"
+            :style="startHandleStyle"
+            aria-label="拖动设置截取开始时间"
+            class="wave-range-handle wave-range-handle--start"
+            type="button"
+            @mousedown.stop.prevent="startRangeDrag('start', $event)"
+            @touchstart.stop.prevent="startRangeDrag('start', $event)"
+          ></button>
+          <button
+            :class="{ 'is-active': activeRangeHandle === 'end' }"
+            :data-time="formatTime(range[1])"
+            :style="endHandleStyle"
+            aria-label="拖动设置截取结束时间"
+            class="wave-range-handle wave-range-handle--end"
+            type="button"
+            @mousedown.stop.prevent="startRangeDrag('end', $event)"
+            @touchstart.stop.prevent="startRangeDrag('end', $event)"
+          ></button>
           <div :data-time="formatTime(currentTime)" :style="playheadStyle" class="wave-playhead"></div>
           <div class="selection-label">{{ formatTime(clipDuration) }}</div>
           <el-empty v-if="!waveformReady" class="wave-empty" description="正在生成波形..." />
@@ -415,18 +507,6 @@ onUnmounted(() => {
           <span>{{ formatTime(0) }}</span>
           <span>{{ formatTime(fileInfo.duration) }}</span>
         </div>
-
-        <el-slider
-          v-model="range"
-          :disabled="!fileInfo.duration || isExporting"
-          :format-tooltip="formatTime"
-          :max="fileInfo.duration"
-          :min="0"
-          :show-tooltip="false"
-          :step="SLIDER_STEP"
-          range
-          @input="handleRangeInput"
-        />
 
         <div class="studio-footer">
           <div class="time-controls">
@@ -439,6 +519,7 @@ onUnmounted(() => {
               :step="0.1"
               controls-position="right"
               size="small"
+              @change="normalizeRange"
             />
             <span class="time-divider">至</span>
             <el-input-number
@@ -450,6 +531,7 @@ onUnmounted(() => {
               :step="0.1"
               controls-position="right"
               size="small"
+              @change="normalizeRange"
             />
           </div>
 
@@ -633,6 +715,58 @@ onUnmounted(() => {
   border-left: 2px solid #87e5d1;
   border-right: 2px solid #87e5d1;
   pointer-events: none;
+}
+
+.wave-range-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 4;
+  width: 18px;
+  padding: 0;
+  border: 0;
+  outline: none;
+  transform: translateX(-50%);
+  background: transparent;
+  cursor: ew-resize;
+}
+
+.wave-range-handle::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 50%;
+  width: 4px;
+  border-radius: 999px;
+  transform: translateX(-50%);
+  background: #0fbf93;
+  box-shadow: 0 0 0 4px rgba(15, 191, 147, 0.14);
+}
+
+.wave-range-handle::before {
+  content: attr(data-time);
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  display: none;
+  padding: 3px 8px;
+  border-radius: 999px;
+  transform: translateX(-50%);
+  background: #0f8f70;
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.wave-range-handle:hover::before,
+.wave-range-handle.is-active::before {
+  display: block;
+}
+
+.wave-range-handle:hover::after,
+.wave-range-handle.is-active::after {
+  background: #0f8f70;
 }
 
 .wave-playhead {
