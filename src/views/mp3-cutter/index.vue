@@ -1,4 +1,6 @@
 <script setup>
+import WaveSurfer from 'wavesurfer.js'
+import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.js'
 import { loadLame } from './utils/load-lame'
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024
@@ -7,7 +9,7 @@ const MIN_CLIP_DURATION = 0.1
 const SLIDER_STEP = 0.05
 
 const audioRef = ref(null)
-const waveCanvasRef = ref(null)
+const waveformContainer = ref(null)
 const waveShellRef = ref(null)
 const fileInfo = reactive({
   name: '',
@@ -22,37 +24,92 @@ const isPreviewing = ref(false)
 const isExporting = ref(false)
 const exportProgress = ref(0)
 const currentTime = ref(0)
-const isDraggingPlayhead = ref(false)
-const activeRangeHandle = ref('')
 const waveformReady = ref(false)
+
 let audioContext = null
 let decodedAudioBuffer = null
+let wavesurfer = null
+let wsRegions = null
 
 const hasAudio = computed(() => !!fileInfo.url)
 const clipDuration = computed(() => Math.max(0, range.value[1] - range.value[0]))
 const canExport = computed(() => hasAudio.value && clipDuration.value > 0 && !isExporting.value)
-const selectionStyle = computed(() => {
-  if (!fileInfo.duration) return { left: '0%', width: '0%' }
-  const left = (range.value[0] / fileInfo.duration) * 100
-  const width = (clipDuration.value / fileInfo.duration) * 100
-  return {
-    left: `${left}%`,
-    width: `${width}%`
-  }
-})
-const playheadStyle = computed(() => {
-  if (!fileInfo.duration) return { left: '0%' }
-  const left = Math.min(100, Math.max(0, (currentTime.value / fileInfo.duration) * 100))
-  return { left: `${left}%` }
-})
-const startHandleStyle = computed(() => ({ left: getTimePercent(range.value[0]) }))
-const endHandleStyle = computed(() => ({ left: getTimePercent(range.value[1]) }))
 
 const bitrateOptions = [
   { label: '128 kbps', value: 128 },
   { label: '192 kbps', value: 192 },
   { label: '320 kbps', value: 320 }
 ]
+
+const snapTime = time => Math.min(fileInfo.duration, Math.max(0, Math.round(time / SLIDER_STEP) * SLIDER_STEP))
+
+const initWaveSurfer = () => {
+  if (wavesurfer) {
+    wavesurfer.destroy()
+    wavesurfer = null
+    wsRegions = null
+  }
+
+  wavesurfer = WaveSurfer.create({
+    container: waveformContainer.value,
+    waveColor: '#a1eafb',
+    progressColor: '#0fbf93',
+    cursorColor: '#f56c6c',
+    cursorWidth: 2,
+    height: 180,
+    media: audioRef.value,
+    url: fileInfo.url
+  })
+
+  wsRegions = wavesurfer.registerPlugin(RegionsPlugin.create())
+
+  wavesurfer.on('ready', () => {
+    waveformReady.value = true
+
+    // Add region representing selection
+    wsRegions.clearRegions()
+    wsRegions.addRegion({
+      id: 'clip-region',
+      start: range.value[0],
+      end: range.value[1],
+      color: 'rgba(135, 229, 209, 0.18)',
+      drag: true,
+      resize: true
+    })
+  })
+
+  // Synchronize region changes back to Vue state
+  wsRegions.on('region-updated', region => {
+    if (region.id === 'clip-region') {
+      const nextStart = snapTime(region.start)
+      const nextEnd = snapTime(region.end)
+
+      const isSame = Math.abs(range.value[0] - nextStart) < 0.01 && Math.abs(range.value[1] - nextEnd) < 0.01
+      if (!isSame) {
+        range.value = [nextStart, nextEnd]
+      }
+    }
+  })
+}
+
+// Watch range changes from input fields and update wavesurfer region
+watch(
+  () => range.value,
+  newRange => {
+    if (!wsRegions) return
+    const region = wsRegions.getRegions().find(r => r.id === 'clip-region')
+    if (region) {
+      const isSame = Math.abs(region.start - newRange[0]) < 0.01 && Math.abs(region.end - newRange[1]) < 0.01
+      if (!isSame) {
+        region.setOptions({
+          start: newRange[0],
+          end: newRange[1]
+        })
+      }
+    }
+  },
+  { deep: true }
+)
 
 const handleFileChange = async uploadFile => {
   const file = uploadFile.raw
@@ -80,76 +137,19 @@ const handleLoadedMetadata = () => {
   const duration = audioRef.value?.duration || 0
   fileInfo.duration = Number.isFinite(duration) ? duration : 0
   range.value = [0, Math.min(fileInfo.duration, 30)]
+
+  nextTick(() => {
+    initWaveSurfer()
+  })
 }
 
 const handleTimeUpdate = () => {
-  if (isDraggingPlayhead.value) return
   currentTime.value = audioRef.value?.currentTime || 0
   if (!isPreviewing.value || !audioRef.value) return
 
   if (audioRef.value.currentTime >= range.value[1]) {
     stopPreview()
   }
-}
-
-const seekToWavePosition = event => {
-  if (!fileInfo.duration || !waveShellRef.value || !audioRef.value) return
-
-  const nextTime = getTimeFromPointer(event)
-
-  currentTime.value = nextTime
-  audioRef.value.currentTime = nextTime
-}
-
-const startPlayheadDrag = event => {
-  if (!hasAudio.value) return
-
-  isDraggingPlayhead.value = true
-  seekToWavePosition(event)
-  window.addEventListener('mousemove', handlePlayheadDrag)
-  window.addEventListener('mouseup', stopPlayheadDrag)
-  window.addEventListener('touchmove', handlePlayheadDrag, { passive: false })
-  window.addEventListener('touchend', stopPlayheadDrag)
-}
-
-const handlePlayheadDrag = event => {
-  if (!isDraggingPlayhead.value) return
-  event.preventDefault?.()
-  seekToWavePosition(event)
-}
-
-const stopPlayheadDrag = () => {
-  isDraggingPlayhead.value = false
-  window.removeEventListener('mousemove', handlePlayheadDrag)
-  window.removeEventListener('mouseup', stopPlayheadDrag)
-  window.removeEventListener('touchmove', handlePlayheadDrag)
-  window.removeEventListener('touchend', stopPlayheadDrag)
-}
-
-const startRangeDrag = (handle, event) => {
-  if (!hasAudio.value || isExporting.value) return
-
-  stopPreview()
-  activeRangeHandle.value = handle
-  updateRangeFromPointer(event)
-  window.addEventListener('mousemove', handleRangeDrag)
-  window.addEventListener('mouseup', stopRangeDrag)
-  window.addEventListener('touchmove', handleRangeDrag, { passive: false })
-  window.addEventListener('touchend', stopRangeDrag)
-}
-
-const handleRangeDrag = event => {
-  if (!activeRangeHandle.value) return
-  event.preventDefault?.()
-  updateRangeFromPointer(event)
-}
-
-const stopRangeDrag = () => {
-  activeRangeHandle.value = ''
-  window.removeEventListener('mousemove', handleRangeDrag)
-  window.removeEventListener('mouseup', stopRangeDrag)
-  window.removeEventListener('touchmove', handleRangeDrag)
-  window.removeEventListener('touchend', stopRangeDrag)
 }
 
 const previewClip = async () => {
@@ -193,46 +193,12 @@ const normalizeRange = () => {
   handleRangeInput(range.value)
 }
 
-const updateRangeFromPointer = event => {
-  const nextTime = snapTime(getTimeFromPointer(event))
-  const [start, end] = range.value
-
-  if (activeRangeHandle.value === 'start') {
-    range.value = [Math.max(0, Math.min(nextTime, end - MIN_CLIP_DURATION)), end]
-    return
-  }
-
-  if (activeRangeHandle.value === 'end') {
-    range.value = [start, Math.min(fileInfo.duration, Math.max(nextTime, start + MIN_CLIP_DURATION))]
-  }
-}
-
-const getTimeFromPointer = event => {
-  if (!fileInfo.duration || !waveShellRef.value) return 0
-
-  const clientX = event.touches?.[0]?.clientX ?? event.clientX
-  const rect = waveShellRef.value.getBoundingClientRect()
-  const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
-  return ratio * fileInfo.duration
-}
-
-const getTimePercent = time => {
-  if (!fileInfo.duration) return '0%'
-  const percent = Math.min(100, Math.max(0, (time / fileInfo.duration) * 100))
-  return `${percent}%`
-}
-
-const snapTime = time => Math.min(fileInfo.duration, Math.max(0, Math.round(time / SLIDER_STEP) * SLIDER_STEP))
-
 const prepareWaveform = async () => {
-  waveformReady.value = false
   if (!fileInfo.arrayBuffer) return
 
   try {
     audioContext ||= new AudioContext()
     decodedAudioBuffer = await audioContext.decodeAudioData(fileInfo.arrayBuffer.slice(0))
-    waveformReady.value = true
-    nextTick(drawWaveform)
   } catch (error) {
     console.warn('波形解析失败:', error)
   }
@@ -327,8 +293,12 @@ const floatToInt16 = samples => {
 }
 
 const clearAudio = () => {
-  stopRangeDrag()
   stopPreview()
+  if (wavesurfer) {
+    wavesurfer.destroy()
+    wavesurfer = null
+    wsRegions = null
+  }
   if (fileInfo.url) URL.revokeObjectURL(fileInfo.url)
   fileInfo.name = ''
   fileInfo.size = 0
@@ -340,41 +310,6 @@ const clearAudio = () => {
   exportProgress.value = 0
   waveformReady.value = false
   decodedAudioBuffer = null
-}
-
-const drawWaveform = () => {
-  const canvas = waveCanvasRef.value
-  if (!canvas || !decodedAudioBuffer) return
-
-  const width = canvas.clientWidth
-  const height = canvas.clientHeight
-  const ratio = window.devicePixelRatio || 1
-  canvas.width = width * ratio
-  canvas.height = height * ratio
-
-  const ctx = canvas.getContext('2d')
-  ctx.scale(ratio, ratio)
-  ctx.clearRect(0, 0, width, height)
-
-  const samples = decodedAudioBuffer.getChannelData(0)
-  const step = Math.ceil(samples.length / width)
-  const center = height / 2
-
-  ctx.fillStyle = '#68f39b'
-  for (let x = 0; x < width; x++) {
-    let min = 1
-    let max = -1
-    const start = x * step
-    const end = Math.min(start + step, samples.length)
-    for (let i = start; i < end; i++) {
-      const sample = samples[i]
-      if (sample < min) min = sample
-      if (sample > max) max = sample
-    }
-    const top = center + min * center * 0.86
-    const bottom = center + max * center * 0.86
-    ctx.fillRect(x, top, 1, Math.max(1, bottom - top))
-  }
 }
 
 const downloadBlob = (blob, fileName) => {
@@ -411,8 +346,6 @@ const sanitizeFileName = value =>
     .replace(/[\\/:*?"<>|]/g, '_')
 
 onUnmounted(() => {
-  stopRangeDrag()
-  stopPlayheadDrag()
   clearAudio()
   audioContext?.close()
 })
@@ -470,35 +403,8 @@ onUnmounted(() => {
           @timeupdate="handleTimeUpdate"
         ></audio>
 
-        <div
-          ref="waveShellRef"
-          class="wave-shell"
-          @mousedown="startPlayheadDrag"
-          @touchstart.prevent="startPlayheadDrag"
-        >
-          <canvas ref="waveCanvasRef" class="wave-canvas"></canvas>
-          <div :style="selectionStyle" class="wave-selection"></div>
-          <button
-            :class="{ 'is-active': activeRangeHandle === 'start' }"
-            :data-time="formatTime(range[0])"
-            :style="startHandleStyle"
-            aria-label="拖动设置截取开始时间"
-            class="wave-range-handle wave-range-handle--start"
-            type="button"
-            @mousedown.stop.prevent="startRangeDrag('start', $event)"
-            @touchstart.stop.prevent="startRangeDrag('start', $event)"
-          ></button>
-          <button
-            :class="{ 'is-active': activeRangeHandle === 'end' }"
-            :data-time="formatTime(range[1])"
-            :style="endHandleStyle"
-            aria-label="拖动设置截取结束时间"
-            class="wave-range-handle wave-range-handle--end"
-            type="button"
-            @mousedown.stop.prevent="startRangeDrag('end', $event)"
-            @touchstart.stop.prevent="startRangeDrag('end', $event)"
-          ></button>
-          <div :data-time="formatTime(currentTime)" :style="playheadStyle" class="wave-playhead"></div>
+        <div ref="waveShellRef" class="wave-shell">
+          <div ref="waveformContainer" class="wave-canvas"></div>
           <div class="selection-label">{{ formatTime(clipDuration) }}</div>
           <el-empty v-if="!waveformReady" class="wave-empty" description="正在生成波形..." />
         </div>
@@ -696,7 +602,6 @@ onUnmounted(() => {
   border-radius: 10px;
   background: linear-gradient(180deg, var(--el-fill-color-light), var(--el-fill-color-blank));
   border: 1px solid var(--el-border-color-light);
-  cursor: pointer;
   user-select: none;
 }
 
@@ -706,110 +611,9 @@ onUnmounted(() => {
   height: 180px;
 }
 
-.wave-selection {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  z-index: 1;
-  background: rgba(135, 229, 209, 0.12);
+.wave-canvas ::part(region) {
   border-left: 2px solid #87e5d1;
   border-right: 2px solid #87e5d1;
-  pointer-events: none;
-}
-
-.wave-range-handle {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  z-index: 4;
-  width: 18px;
-  padding: 0;
-  border: 0;
-  outline: none;
-  transform: translateX(-50%);
-  background: transparent;
-  cursor: ew-resize;
-}
-
-.wave-range-handle::after {
-  content: '';
-  position: absolute;
-  top: 12px;
-  bottom: 12px;
-  left: 50%;
-  width: 4px;
-  border-radius: 999px;
-  transform: translateX(-50%);
-  background: #0fbf93;
-  box-shadow: 0 0 0 4px rgba(15, 191, 147, 0.14);
-}
-
-.wave-range-handle::before {
-  content: attr(data-time);
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  display: none;
-  padding: 3px 8px;
-  border-radius: 999px;
-  transform: translateX(-50%);
-  background: #0f8f70;
-  color: #fff;
-  font-size: 11px;
-  white-space: nowrap;
-}
-
-.wave-range-handle:hover::before,
-.wave-range-handle.is-active::before {
-  display: block;
-}
-
-.wave-range-handle:hover::after,
-.wave-range-handle.is-active::after {
-  background: #0f8f70;
-}
-
-.wave-playhead {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  z-index: 3;
-  width: 2px;
-  background: var(--el-color-danger);
-  box-shadow: 0 0 0 1px rgba(245, 108, 108, 0.16);
-  cursor: ew-resize;
-  pointer-events: none;
-}
-
-.wave-playhead::after {
-  content: '';
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  transform: translateX(-50%);
-  background: var(--el-color-danger);
-}
-
-.wave-playhead::before {
-  content: attr(data-time);
-  position: absolute;
-  top: -26px;
-  left: 50%;
-  display: none;
-  padding: 2px 8px;
-  border-radius: 999px;
-  transform: translateX(-50%);
-  background: var(--el-text-color-primary);
-  color: var(--el-bg-color);
-  font-size: 11px;
-  white-space: nowrap;
-}
-
-.wave-shell:hover .wave-playhead::before {
-  display: block;
 }
 
 .selection-label {
@@ -820,6 +624,7 @@ onUnmounted(() => {
   font-family: Georgia, serif;
   font-size: 14px;
   transform: translateX(-50%);
+  z-index: 5;
 }
 
 .wave-empty {
