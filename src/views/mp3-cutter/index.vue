@@ -502,16 +502,24 @@ onUnmounted(async () => {
       <div class="studio-topbar">
         <div class="file-title">
           <span class="file-name">{{ hasAudio ? fileInfo.name : '等待上传 MP3 文件' }}</span>
-          <span v-if="hasAudio" class="file-meta">{{ formatSize(fileInfo.size) }} / {{ formatTime(fileInfo.duration)
-            }}</span>
+          <span v-if="hasAudio" class="file-meta"
+            >{{ formatSize(fileInfo.size) }} / {{ formatTime(fileInfo.duration) }}</span
+          >
         </div>
         <el-select v-model="bitrate" :disabled="!hasAudio || isExporting" class="bitrate-select" size="small">
           <el-option v-for="item in bitrateOptions" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </div>
 
-      <el-upload v-if="!hasAudio" :auto-upload="false" :show-file-list="false" accept=".mp3,audio/mpeg" action="#" drag
-        @change="handleFileChange">
+      <el-upload
+        v-if="!hasAudio"
+        :auto-upload="false"
+        :show-file-list="false"
+        accept=".mp3,audio/mpeg"
+        action="#"
+        drag
+        @change="handleFileChange"
+      >
         <el-icon class="el-icon--upload">
           <IconEpUploadFilled />
         </el-icon>
@@ -522,8 +530,15 @@ onUnmounted(async () => {
       </el-upload>
 
       <div v-else class="studio-editor">
-        <audio ref="audioRef" :src="fileInfo.url" class="audio-player" controls @loadedmetadata="handleLoadedMetadata"
-          @pause="isPreviewing = false" @timeupdate="handleTimeUpdate"></audio>
+        <audio
+          ref="audioRef"
+          :src="fileInfo.url"
+          class="audio-player"
+          controls
+          @loadedmetadata="handleLoadedMetadata"
+          @pause="isPreviewing = false"
+          @timeupdate="handleTimeUpdate"
+        ></audio>
 
         <div ref="waveShellRef" class="wave-shell">
           <div ref="waveformContainer" class="wave-canvas"></div>
@@ -538,11 +553,29 @@ onUnmounted(async () => {
 
         <div class="studio-footer">
           <div class="time-controls">
-            <el-input-number v-model="range[0]" :disabled="isExporting" :max="range[1]" :min="0" :precision="3"
-              :step="0.01" controls-position="right" size="small" @change="normalizeRange" />
+            <el-input-number
+              v-model="range[0]"
+              :disabled="isExporting"
+              :max="range[1]"
+              :min="0"
+              :precision="3"
+              :step="0.01"
+              controls-position="right"
+              size="small"
+              @change="normalizeRange"
+            />
             <span class="time-divider">至</span>
-            <el-input-number v-model="range[1]" :disabled="isExporting" :max="fileInfo.duration" :min="range[0]"
-              :precision="3" :step="0.01" controls-position="right" size="small" @change="normalizeRange" />
+            <el-input-number
+              v-model="range[1]"
+              :disabled="isExporting"
+              :max="fileInfo.duration"
+              :min="range[0]"
+              :precision="3"
+              :step="0.01"
+              controls-position="right"
+              size="small"
+              @change="normalizeRange"
+            />
           </div>
 
           <div class="action-row">
@@ -834,7 +867,6 @@ onUnmounted(async () => {
 }
 
 @media (max-width: 992px) {
-
   .page-header,
   .page-heading,
   .card-header {
