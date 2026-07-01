@@ -46,6 +46,7 @@ export default [
     rules: {
       'prettier/prettier': 'error',
       'vue/multi-word-component-names': 'off', // 工具类库通常组件名比较精简
+      'vue/attributes-order': 'off', // 关闭组件属性顺序检查
       'no-unused-vars': 'warn',
       'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
       'preserve-caught-error': 'off'
