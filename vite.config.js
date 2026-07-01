@@ -90,60 +90,71 @@ export default defineConfig(({ command, mode }) => {
       outDir: 'dist', // 打包输出的文件夹名
       sourcemap: false, // 生产环境是否生成 source map（建议为 false，减少体积、防源码泄露）
       chunkSizeWarningLimit: 1500, // 触发大文件体积警告的阈值 (单位 kb)
-      rollupOptions: {
+      rolldownOptions: {
         output: {
           // 静态资源分类打包，让所有的文件都有自己的独立目录
           chunkFileNames: 'assets/js/[name]-[hash].js',
           entryFileNames: 'assets/js/[name]-[hash].js',
           assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
           // 优化分包策略，将体积较大的库拆分出来
-          manualChunks(id) {
-            if (id.includes('node_modules')) {
-              // 核心 UI 库
-              if (id.includes('element-plus')) {
-                return 'element-plus'
+          codeSplitting: {
+            groups: [
+              {
+                name: 'element-plus',
+                test: /[\\/]node_modules[\\/].*element-plus/,
+                priority: 20 // 抽离 Element Plus 组件库
+              },
+              {
+                name: 'vue',
+                test: /[\\/]node_modules[\\/].*(\/vue\/|\/@vue\/|vue-router|@vueuse)/,
+                priority: 20 // 抽离 Vue 核心生态（Vue, Router, VueUse 等）
+              },
+              {
+                name: 'mermaid',
+                test: /[\\/]node_modules[\\/].*mermaid/,
+                priority: 20 // 抽离 Mermaid 图表库
+              },
+              {
+                name: 'd3',
+                test: /[\\/]node_modules[\\/].*d3/,
+                priority: 20 // 抽离 D3.js 数据可视化库 (通常作为 mermaid 等的依赖)
+              },
+              {
+                name: 'dagre',
+                test: /[\\/]node_modules[\\/].*dagre/,
+                priority: 20 // 抽离 Dagre 布局引擎 (通常作为图表库的依赖)
+              },
+              {
+                name: 'china-area-data',
+                test: /[\\/]node_modules[\\/].*china-area-data/,
+                priority: 20 // 抽离中国行政区划数据，体积较大
+              },
+              {
+                name: 'fuse',
+                test: /[\\/]node_modules[\\/].*fuse\.js/,
+                priority: 20 // 抽离 Fuse.js 模糊搜索库
+              },
+              {
+                name: 'hash-wasm',
+                test: /[\\/]node_modules[\\/].*hash-wasm/,
+                priority: 20 // 抽离 hash-wasm 快速哈希计算库 (基于 WebAssembly)
+              },
+              {
+                name: 'vue-diff',
+                test: /[\\/]node_modules[\\/].*vue-diff/,
+                priority: 20 // 抽离 Vue-diff 代码差异对比组件库
+              },
+              {
+                name: 'figlet',
+                test: /[\\/]node_modules[\\/].*figlet/,
+                priority: 20 // 抽离 Figlet 字符画 (ASCII Art) 生成库
+              },
+              {
+                name: 'vendor',
+                test: /[\\/]node_modules[\\/]/,
+                priority: 10 // 将其余未被上述规则匹配的 node_modules 依赖统一打包到 vendor chunk 中
               }
-              // 框架核心
-              if (
-                id.includes('/vue/') ||
-                id.includes('/@vue/') ||
-                id.includes('vue-router') ||
-                id.includes('@vueuse')
-              ) {
-                return 'vue'
-              }
-              // 巨型渲染库及其依赖，分别拆分以避免循环依赖
-              if (id.includes('mermaid')) {
-                return 'mermaid'
-              }
-              if (id.includes('d3')) {
-                return 'd3'
-              }
-              if (id.includes('dagre')) {
-                return 'dagre'
-              }
-              // 巨型数据文件
-              if (id.includes('china-area-data')) {
-                return 'china-area-data'
-              }
-              // 文本搜索处理库
-              if (id.includes('fuse.js')) {
-                return 'fuse'
-              }
-              // 其他稳定库
-              if (id.includes('hash-wasm')) {
-                return 'hash-wasm'
-              }
-              if (id.includes('vue-diff')) {
-                return 'vue-diff'
-              }
-              if (id.includes('figlet')) {
-                return 'figlet'
-              }
-
-              // 其他第三方库进入 vendor
-              return 'vendor'
-            }
+            ]
           }
         }
       }
