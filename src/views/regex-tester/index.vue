@@ -16,10 +16,23 @@
         <el-row :gutter="20">
           <el-col :span="24">
             <el-form-item label="正则表达式">
-              <el-input v-model="regexString" placeholder="请输入正则表达式，例如：\d+" clearable>
-                <template #prepend>/</template>
-                <template #append>/{{ flags.join('') }}</template>
-              </el-input>
+              <div style="display: flex; gap: 12px; width: 100%; align-items: flex-start">
+                <el-input v-model="regexString" placeholder="请输入正则表达式，例如：\d+" clearable style="flex: 1">
+                  <template #prepend>/</template>
+                  <template #append>/{{ flags.join('') }}</template>
+                </el-input>
+                <div style="flex-shrink: 0">
+                  <el-dropdown split-button @click="handleCopyRegex('raw')" @command="handleCopyRegex">
+                    复制正则
+                    <template #dropdown>
+                      <el-dropdown-menu>
+                        <el-dropdown-item command="raw">复制纯表达式 (例: \d+)</el-dropdown-item>
+                        <el-dropdown-item command="js">复制 JS 字面量 (例: /\d+/g)</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </template>
+                  </el-dropdown>
+                </div>
+              </div>
               <div class="common-regex-list" style="margin-top: 8px">
                 <span class="common-label">常用：</span>
                 <el-tag
@@ -116,6 +129,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useClipboard } from '@vueuse/core'
+
+const { copy, isSupported } = useClipboard()
 
 const regexString = ref('[\\u4e00-\\u9fa5]+')
 const flags = ref(['g'])
@@ -128,7 +144,7 @@ const commonRegexList = [
   { label: '中文', value: '[\\u4e00-\\u9fa5]+' },
   { label: '数字', value: '\\d+' },
   { label: '英文字母', value: '[a-zA-Z]+' },
-  { label: '手机号(中国)', value: '1[3-9]\\d{9}' },
+  { label: '手机号(中国)', value: '(?:(?:\\+|00)86)?1(?:3\\d|4[5-79]|5[0-35-9]|6[5-7]|7[0-8]|8\\d|9[0-35-9])\\d{8}' },
   { label: '邮箱', value: '\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*' },
   { label: '身份证号(18位)', value: '[1-9]\\d{5}(18|19|20)\\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])\\d{3}[\\dX]' },
   {
@@ -201,6 +217,29 @@ const handleClear = () => {
   matchResult.value = null
   matchCount.value = 0
   errorMsg.value = ''
+}
+
+const handleCopyRegex = async (format = 'raw') => {
+  if (!isSupported.value) {
+    ElMessage.error('当前浏览器环境不支持复制')
+    return
+  }
+  if (!regexString.value) {
+    ElMessage.warning('正则表达式为空')
+    return
+  }
+
+  try {
+    let textToCopy = regexString.value
+    if (format === 'js') {
+      textToCopy = `/${regexString.value}/${flags.value.join('')}`
+    }
+
+    await copy(textToCopy)
+    ElMessage.success(format === 'js' ? '已复制 JS 正则字面量' : '已复制纯正则表达式')
+  } catch (err) {
+    ElMessage.error('复制失败')
+  }
 }
 
 onMounted(() => {
