@@ -145,6 +145,12 @@ const routes = [
         name: 'baseConverter',
         component: () => import('@/views/base-converter/index.vue'),
         meta: { title: '进制转换' }
+      },
+      {
+        path: '/regex-tester',
+        name: 'regexTester',
+        component: () => import('@/views/regex-tester/index.vue'),
+        meta: { title: '正则表达式测试' }
       }
     ]
   },

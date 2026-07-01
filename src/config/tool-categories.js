@@ -90,6 +90,19 @@ export const toolCategories = [
         tag: 'New',
         tagType: 'danger',
         tagTip: '个性化启动 Banner 生成工具'
+      },
+      {
+        id: 'regex-tester',
+        name: '正则表达式测试',
+        menuTitle: '正则测试',
+        desc: '在线测试正则表达式，支持全局、忽略大小写匹配，实时展示匹配结果及分组信息。',
+        keywords: ['regex', '正则表达式', '正则测试', '正则匹配', 'regular expression'],
+        route: '/regex-tester',
+        icon: 'Filter',
+        color: '#E6A23C',
+        tag: 'Tool',
+        tagType: 'warning',
+        tagTip: '文本匹配与数据提取辅助工具'
       }
     ]
   },
