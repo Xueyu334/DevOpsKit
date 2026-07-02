@@ -129,9 +129,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { useClipboard } from '@vueuse/core'
+import { useCopyText } from '@/composables/useCopyText'
 
-const { copy, isSupported } = useClipboard()
+const { copyText } = useCopyText({
+  errorMessage: '复制失败',
+  unsupportedMessage: '当前浏览器环境不支持复制'
+})
 
 const regexString = ref('[\\u4e00-\\u9fa5]+')
 const flags = ref(['g'])
@@ -219,27 +222,16 @@ const handleClear = () => {
   errorMsg.value = ''
 }
 
-const handleCopyRegex = async (format = 'raw') => {
-  if (!isSupported.value) {
-    ElMessage.error('当前浏览器环境不支持复制')
-    return
-  }
+const handleCopyRegex = (format = 'raw') => {
   if (!regexString.value) {
     ElMessage.warning('正则表达式为空')
     return
   }
 
-  try {
-    let textToCopy = regexString.value
-    if (format === 'js') {
-      textToCopy = `/${regexString.value}/${flags.value.join('')}`
-    }
-
-    await copy(textToCopy)
-    ElMessage.success(format === 'js' ? '已复制 JS 正则字面量' : '已复制纯正则表达式')
-  } catch (err) {
-    ElMessage.error('复制失败')
-  }
+  const textToCopy = format === 'js' ? `/${regexString.value}/${flags.value.join('')}` : regexString.value
+  return copyText(textToCopy, {
+    successMessage: format === 'js' ? '已复制 JS 正则字面量' : '已复制纯正则表达式'
+  })
 }
 
 onMounted(() => {
