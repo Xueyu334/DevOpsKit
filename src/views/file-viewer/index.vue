@@ -72,9 +72,7 @@
               <span class="url-input-prepend">文件网址</span>
             </template>
             <template #append>
-              <el-button :loading="urlLoading" type="primary" @click="handleUrlPreview">
-                打开预览
-              </el-button>
+              <el-button :loading="urlLoading" type="primary" @click="handleUrlPreview"> 打开预览 </el-button>
             </template>
           </el-input>
           <div class="url-preview-tip">
@@ -302,7 +300,7 @@ const handleUrlPreview = async () => {
     ElMessage.warning('请输入有效的文件链接')
     return
   }
-  
+
   if (!/^https?:\/\/.+/i.test(fileUrl.value)) {
     ElMessage.warning('请输入以 http:// 或 https:// 开头的正确链接')
     return
@@ -315,15 +313,41 @@ const handleUrlPreview = async () => {
       throw new Error(`请求失败，状态码: ${res.status}`)
     }
     const blob = await res.blob()
-    
-    // 从 URL 中解析文件名
+
+    // 从响应头或 URL 中解析文件名
     let fileName = ''
-    try {
-      const urlObj = new URL(fileUrl.value)
-      const pathname = urlObj.pathname
-      fileName = pathname.substring(pathname.lastIndexOf('/') + 1)
-    } catch (_) {}
-    
+
+    // 1. 优先尝试从响应头的 Content-Disposition 中解析
+    const disposition = res.headers.get('Content-Disposition') || res.headers.get('content-disposition')
+    if (disposition) {
+      const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+      const matches = filenameRegex.exec(disposition)
+      if (matches != null && matches[1]) {
+        fileName = matches[1].replace(/['"]/g, '')
+      }
+
+      const filenameStarRegex = /filename\*=utf-8''([^;\n]*)/i
+      const starMatches = filenameStarRegex.exec(disposition)
+      if (starMatches != null && starMatches[1]) {
+        try {
+          fileName = decodeURIComponent(starMatches[1])
+        } catch {
+          // 解码失败时保持原有解析
+        }
+      }
+    }
+
+    // 2. 如果请求头没有或未暴露，则退回到从 URL 中解析
+    if (!fileName) {
+      try {
+        const urlObj = new URL(fileUrl.value)
+        const pathname = urlObj.pathname
+        fileName = pathname.substring(pathname.lastIndexOf('/') + 1)
+      } catch {
+        // 忽略 URL 解析异常
+      }
+    }
+
     if (!fileName) {
       fileName = 'network_file'
     }
