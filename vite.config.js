@@ -151,8 +151,10 @@ export default defineConfig(({ command, mode }) => {
               },
               {
                 name: 'vendor',
-                test: /[\\/]node_modules[\\/]/,
-                priority: 10 // 将其余未被上述规则匹配的 node_modules 依赖统一打包到 vendor chunk 中
+                test: /[\\/]node_modules[\\/](?!prismjs[\\/]components[\\/])/,
+                // 文件预览会动态加载 prismjs/components 下的语言包；这些 UMD 模块依赖
+                // 已由入口初始化的 window.Prism，合入启动 vendor 会导致执行顺序错误。
+                priority: 10
               }
             ]
           }

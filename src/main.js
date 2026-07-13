@@ -1,3 +1,4 @@
+import './utils/init-prism'
 import { createApp } from 'vue'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
