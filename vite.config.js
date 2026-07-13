@@ -69,7 +69,9 @@ export default defineConfig(({ command, mode }) => {
     ].filter(Boolean),
     resolve: {
       alias: {
-        '@': fileURLToPath(new URL('./src', import.meta.url))
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
+        // 文件预览未启用 PSD/PSB 支持，避免引入 ag-psd 的 Node.js 专用依赖。
+        'ag-psd': fileURLToPath(new URL('./src/utils/unsupported-ag-psd.js', import.meta.url))
       }
     },
     base: publicBase, // 部署基本路径将根据环境变量 `.env` 决定，空字符串回退为根路径
@@ -148,6 +150,13 @@ export default defineConfig(({ command, mode }) => {
                 name: 'figlet',
                 test: /[\\/]node_modules[\\/].*figlet/,
                 priority: 20 // 抽离 Figlet 字符画 (ASCII Art) 生成库
+              },
+              {
+                name: 'file-viewer-deps',
+                test: /[\\/]node_modules[\\/](?:@open-file-viewer|pdfjs-dist|@aiden0z|@kenjiuno|@mapbox|docx-preview|dompurify|heic2any|hls\.js|hyparquet|jszip|leaflet|mammoth|marked|pako|postal-mime|seek-bzip|shpjs|three|topojson-client|utif|xlsx|xz-decompress)(?:[\\/]|$)/,
+                // 文件预览页本身由路由异步加载；将其专用依赖移出通用 vendor，避免首屏下载。
+                // prismjs/components 保持不分包，确保其动态语言包在 window.Prism 初始化后执行。
+                priority: 20
               },
               {
                 name: 'vendor',

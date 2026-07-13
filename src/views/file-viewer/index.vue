@@ -191,7 +191,6 @@ import { OpenFileViewer } from '@open-file-viewer/vue'
 import {
   archivePlugin,
   audioPlugin,
-  drawingPlugin,
   emailPlugin,
   epubPlugin,
   fallbackPlugin,
@@ -273,7 +272,6 @@ const plugins = [
   officePlugin(),
   archivePlugin(),
   emailPlugin(),
-  drawingPlugin(),
   model3dPlugin(),
   gisPlugin(),
   epubPlugin(),
