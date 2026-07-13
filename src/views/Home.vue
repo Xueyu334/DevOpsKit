@@ -88,6 +88,7 @@ import IconEpConnection from '~icons/ep/connection'
 import IconEpPicture from '~icons/ep/picture'
 import IconEpFinished from '~icons/ep/finished'
 import IconEpLock from '~icons/ep/lock'
+import IconEpDocument from '~icons/ep/document'
 import Fuse from 'fuse.js'
 import { tagTypeHints, toolCategories } from '../config/tool-categories'
 
@@ -112,7 +113,8 @@ const toolIconMap = {
   Connection: IconEpConnection,
   Picture: IconEpPicture,
   Finished: IconEpFinished,
-  Lock: IconEpLock
+  Lock: IconEpLock,
+  Document: IconEpDocument
 }
 
 const flatTools = computed(() =>

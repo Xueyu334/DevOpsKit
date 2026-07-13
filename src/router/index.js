@@ -151,6 +151,12 @@ const routes = [
         name: 'regexTester',
         component: () => import('@/views/regex-tester/index.vue'),
         meta: { title: '正则表达式测试' }
+      },
+      {
+        path: '/file-viewer',
+        name: 'fileViewer',
+        component: () => import('@/views/file-viewer/index.vue'),
+        meta: { title: '文件在线预览' }
       }
     ]
   },

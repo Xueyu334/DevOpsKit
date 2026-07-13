@@ -13,6 +13,8 @@
     "format": "prettier --write \"src/**/*.{js,vue,json,css,md}\""
   },
   "dependencies": {
+    "@open-file-viewer/core": "^0.1.18",
+    "@open-file-viewer/vue": "^0.1.18",
     "@vueuse/core": "^14.2.1",
     "big.js": "^7.0.1",
     "china-area-data": "^5.0.1",
@@ -26,6 +28,7 @@
     "lamejs": "^1.2.1",
     "mermaid": "^11.14.0",
     "nprogress": "^0.2.0",
+    "pdfjs-dist": "^5.6.205",
     "qrcode.vue": "^3.8.0",
     "vue": "^3.5.30",
     "vue-diff": "^1.2.4",

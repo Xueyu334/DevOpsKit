@@ -103,6 +103,19 @@ export const toolCategories = [
         tag: 'Tool',
         tagType: 'warning',
         tagTip: '文本匹配与数据提取辅助工具'
+      },
+      {
+        id: 'file-viewer',
+        name: '文件在线预览 (File Viewer)',
+        menuTitle: '文件预览',
+        desc: '支持图片、PDF、Office文档、音视频、代码、压缩包等多种本地文件在线预览。',
+        keywords: ['file viewer', 'pdf viewer', 'office preview', '文件预览', '在线预览', 'pdf预览', 'docx预览'],
+        route: '/file-viewer',
+        icon: 'Document',
+        color: '#67C23A',
+        tag: 'New',
+        tagType: 'success',
+        tagTip: '强大的多格式本地文件在线预览'
       }
     ]
   },
