@@ -168,9 +168,7 @@ const decodeHtmlStr = str => {
 
   // 替换数值实体
   let result = str.replace(/&#(x[0-9a-fA-F]+|[0-9]+);/gi, (match, numStr) => {
-    const code = numStr.toLowerCase().startsWith('x')
-      ? parseInt(numStr.slice(1), 16)
-      : parseInt(numStr, 10)
+    const code = numStr.toLowerCase().startsWith('x') ? parseInt(numStr.slice(1), 16) : parseInt(numStr, 10)
     if (code > 0x10ffff) {
       throw new Error(`数值实体 ${match} 的数值超出 Unicode 有效范围`)
     }

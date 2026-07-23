@@ -189,6 +189,19 @@ export const toolCategories = [
         tagTip: '文本与 Unicode 转义及 HTML 字符实体转换'
       },
       {
+        id: 'html-encode',
+        name: 'HTML 编解码',
+        menuTitle: 'HTML 编解码',
+        desc: '对 HTML 特殊字符进行实体转义与还原，避免文本被误识别为标签。',
+        keywords: ['html', 'html encode', 'html decode', 'html实体', '字符引用', '标签转义'],
+        route: '/html-encode',
+        icon: 'Document',
+        color: '#67C23A',
+        tag: 'Encoding',
+        tagType: 'success',
+        tagTip: 'HTML 特殊字符与实体双向转义'
+      },
+      {
         id: 'hash-gen',
         name: 'Hash 生成器',
         menuTitle: 'Hash 生成器',

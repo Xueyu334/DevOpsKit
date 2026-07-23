@@ -93,6 +93,12 @@ const routes = [
         meta: { title: 'Unicode 编码转换' }
       },
       {
+        path: '/html-encode',
+        name: 'htmlEncode',
+        component: () => import('@/views/html-encode/index.vue'),
+        meta: { title: 'HTML 编解码' }
+      },
+      {
         path: '/id-card-generator',
         name: 'idCardGenerator',
         component: () => import('@/views/id-card-generator/index.vue'),
