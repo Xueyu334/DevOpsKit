@@ -1,11 +1,11 @@
 // Element Plus el-tag 的 type 可选值：
 // 'primary', 'success', 'info', 'warning', 'danger'
 export const tagTypeHints = {
-  primary: '主要工具，具有核心生产价值',
-  success: '稳定工具，推荐日常开发使用',
-  info: '转换类工具，适合临时数据处理',
-  warning: '时间与计算类工具，需注意单位规则',
-  danger: '高频热点工具，DevOps 常用首选'
+  danger: '高频热点 / 安全加密工具',
+  primary: '研发核心 / DevOps / 文件解析工具',
+  success: '视觉 UI / 设计绘图 / 样式生成工具',
+  info: '字符编解码 / 格式转义处理工具',
+  warning: '时间计算 / 进制数据 / 便民效率工具'
 }
 
 export const toolCategories = [
@@ -25,7 +25,7 @@ export const toolCategories = [
         color: '#409EFF',
         tag: 'Hot',
         tagType: 'danger',
-        tagTip: '热点工具，支持超大代码比对'
+        tagTip: '高频热点，大文本与代码差异比对'
       },
       {
         id: 'json-tools',
@@ -36,9 +36,9 @@ export const toolCategories = [
         route: '/json-tools',
         icon: 'Tickets',
         color: '#67C23A',
-        tag: 'Dev',
-        tagType: 'primary',
-        tagTip: '前端与 API 开发必备工具'
+        tag: 'Hot',
+        tagType: 'danger',
+        tagTip: '高频热点，JSON 格式化校验与压缩'
       },
       {
         id: 'pdm-parser',
@@ -49,9 +49,9 @@ export const toolCategories = [
         route: '/pdm-parser',
         icon: 'DataAnalysis',
         color: '#0EA5E9',
-        tag: 'New',
-        tagType: 'success',
-        tagTip: 'PowerDesigner 表结构文档解析'
+        tag: 'Parse',
+        tagType: 'primary',
+        tagTip: 'PowerDesigner 模型文件与表结构解析'
       },
       {
         id: 'mermaid-editor',
@@ -64,7 +64,7 @@ export const toolCategories = [
         color: '#FF9900',
         tag: 'Design',
         tagType: 'success',
-        tagTip: '基于代码的图表可视化工具'
+        tagTip: '代码驱动流程图与架构图绘制'
       },
       {
         id: 'ascii-table',
@@ -75,9 +75,9 @@ export const toolCategories = [
         route: '/ascii-table',
         icon: 'Grid',
         color: '#14B8A6',
-        tag: 'Reference',
+        tag: 'Ref',
         tagType: 'info',
-        tagTip: '编码速查类开发者参考工具'
+        tagTip: '字符编码与 0-127 ASCII 码速查'
       },
       {
         id: 'ascii-banner',
@@ -88,9 +88,9 @@ export const toolCategories = [
         route: '/ascii-banner',
         icon: 'EditPen',
         color: '#FF6B6B',
-        tag: 'New',
-        tagType: 'danger',
-        tagTip: '个性化启动 Banner 生成工具'
+        tag: 'Design',
+        tagType: 'success',
+        tagTip: 'Spring Boot 启动 Banner 艺术字生成'
       },
       {
         id: 'regex-tester',
@@ -101,9 +101,9 @@ export const toolCategories = [
         route: '/regex-tester',
         icon: 'Filter',
         color: '#E6A23C',
-        tag: 'Tool',
-        tagType: 'warning',
-        tagTip: '文本匹配与数据提取辅助工具'
+        tag: 'Dev',
+        tagType: 'primary',
+        tagTip: '文本正则表达式实时匹配与分组分析'
       },
       {
         id: 'file-viewer',
@@ -114,9 +114,9 @@ export const toolCategories = [
         route: '/file-viewer',
         icon: 'Document',
         color: '#67C23A',
-        tag: 'New',
-        tagType: 'success',
-        tagTip: '强大的多格式本地文件在线预览'
+        tag: 'Media',
+        tagType: 'primary',
+        tagTip: '多格式本地文件与文档安全在线预览'
       }
     ]
   },
@@ -134,9 +134,9 @@ export const toolCategories = [
         route: '/base64',
         icon: 'Connection',
         color: '#E6A23C',
-        tag: 'Encoding',
+        tag: 'Codec',
         tagType: 'info',
-        tagTip: '二进制协议与字符串转换'
+        tagTip: 'Base64 文本与二进制转义处理'
       },
       {
         id: 'image-to-base64',
@@ -147,9 +147,9 @@ export const toolCategories = [
         route: '/image-to-base64',
         icon: 'Picture',
         color: '#67C23A',
-        tag: 'Encoding',
-        tagType: 'success',
-        tagTip: '前端开发常用图片内嵌方案'
+        tag: 'Codec',
+        tagType: 'info',
+        tagTip: '图片文件转 Base64 与 Data URI'
       },
       {
         id: 'base64-to-image',
@@ -160,9 +160,9 @@ export const toolCategories = [
         route: '/base64-to-image',
         icon: 'Finished',
         color: '#E6A23C',
-        tag: 'Decoding',
+        tag: 'Codec',
         tagType: 'info',
-        tagTip: '快速查看与下载代码中的 Base64 图片'
+        tagTip: 'Base64 / Data URI 还原预览与下载'
       },
       {
         id: 'url-encode',
@@ -173,9 +173,9 @@ export const toolCategories = [
         route: '/url-encode',
         icon: 'Link',
         color: '#909399',
-        tag: 'Network',
+        tag: 'Codec',
         tagType: 'info',
-        tagTip: '网络请求参数转义必备'
+        tagTip: 'URL 链接与网络参数转义处理'
       },
       {
         id: 'unicode-converter',
@@ -186,9 +186,9 @@ export const toolCategories = [
         route: '/unicode-converter',
         icon: 'Switch',
         color: '#0EA5E9',
-        tag: 'Encoding',
+        tag: 'Codec',
         tagType: 'info',
-        tagTip: '文本与 Unicode 转义及 HTML 字符实体转换'
+        tagTip: 'Unicode 转义序列与 HTML 实体转换'
       },
       {
         id: 'html-encode',
@@ -199,9 +199,9 @@ export const toolCategories = [
         route: '/html-encode',
         icon: 'Document',
         color: '#67C23A',
-        tag: 'Encoding',
-        tagType: 'success',
-        tagTip: 'HTML 特殊字符与实体双向转义'
+        tag: 'Codec',
+        tagType: 'info',
+        tagTip: 'HTML 敏感字符与实体标签防注入转换'
       },
       {
         id: 'hash-gen',
@@ -213,8 +213,8 @@ export const toolCategories = [
         icon: 'Key',
         color: '#F56C6C',
         tag: 'Security',
-        tagType: 'primary',
-        tagTip: '数据完整性校验与摘要计算'
+        tagType: 'danger',
+        tagTip: 'MD5 / SHA1 / SHA256 加密摘要计算'
       },
       {
         id: 'password-generator',
@@ -226,8 +226,8 @@ export const toolCategories = [
         icon: 'Lock',
         color: '#F06292',
         tag: 'Security',
-        tagType: 'success',
-        tagTip: '多端账号高强度密码生成'
+        tagType: 'danger',
+        tagTip: '自定义规则高强度随机安全密码生成'
       }
     ]
   },
@@ -247,7 +247,7 @@ export const toolCategories = [
         color: '#FF7043',
         tag: 'Time',
         tagType: 'warning',
-        tagTip: '日志分析与时区调试利器'
+        tagTip: 'Unix 时间戳与全球 27 时区格式化'
       },
       {
         id: 'qrcode-generator',
@@ -258,9 +258,9 @@ export const toolCategories = [
         route: '/qrcode-generator',
         icon: 'Menu',
         color: '#8E44AD',
-        tag: 'Tool',
-        tagType: 'success',
-        tagTip: '多行业通用二维码生成'
+        tag: 'Util',
+        tagType: 'warning',
+        tagTip: '自定义颜色与 Logo 的二维码生成'
       },
       {
         id: 'mp3-cutter',
@@ -271,9 +271,9 @@ export const toolCategories = [
         route: '/mp3-cutter',
         icon: 'Finished',
         color: '#22C55E',
-        tag: 'Audio',
-        tagType: 'success',
-        tagTip: '浏览器本地音频截取工具'
+        tag: 'Media',
+        tagType: 'warning',
+        tagTip: '浏览器本地音频剪辑与片段导出'
       },
       {
         id: 'id-card-generator',
@@ -284,9 +284,9 @@ export const toolCategories = [
         route: '/id-card-generator',
         icon: 'Postcard',
         color: '#5B8FF9',
-        tag: 'Citizen',
-        tagType: 'info',
-        tagTip: '研发模拟数据填充辅助'
+        tag: 'Data',
+        tagType: 'warning',
+        tagTip: '符合 GB11643-1999 校验规则的仿真数据'
       },
       {
         id: 'color-converter',
@@ -299,7 +299,7 @@ export const toolCategories = [
         color: '#F06292',
         tag: 'Design',
         tagType: 'success',
-        tagTip: '前端开发与 UI 设计配色辅助'
+        tagTip: 'HEX / RGB 色值互转与取色调试'
       },
       {
         id: 'css-gradient',
@@ -312,7 +312,7 @@ export const toolCategories = [
         color: '#A855F7',
         tag: 'Design',
         tagType: 'success',
-        tagTip: '漂亮的 CSS 渐变色在线生成与预览'
+        tagTip: '线性与径向 CSS 渐变代码在线生成'
       },
       {
         id: 'base-converter',
@@ -325,7 +325,7 @@ export const toolCategories = [
         color: '#409EFF',
         tag: 'Math',
         tagType: 'warning',
-        tagTip: '开发者必备的基数转换工具'
+        tagTip: '2 / 8 / 10 / 16 进制大数实时转换'
       }
     ]
   },
@@ -343,9 +343,9 @@ export const toolCategories = [
         route: '/docker-commands',
         icon: 'Operation',
         color: '#2496ED',
-        tag: 'Ops',
-        tagType: 'primary',
-        tagTip: '容器化开发与生产运维速查'
+        tag: 'Hot',
+        tagType: 'danger',
+        tagTip: '容器化开发与 Ops 常用命令速查'
       },
       {
         id: 'nginx-reference',
@@ -357,8 +357,8 @@ export const toolCategories = [
         icon: 'Tools',
         color: '#009639',
         tag: 'Ops',
-        tagType: 'success',
-        tagTip: '反向代理与站点部署参考'
+        tagType: 'primary',
+        tagTip: '反向代理、SSL 与 Gzip 配置片段备查'
       }
     ]
   }
