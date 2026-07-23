@@ -176,6 +176,19 @@ export const toolCategories = [
         tagTip: '网络请求参数转义必备'
       },
       {
+        id: 'unicode-converter',
+        name: 'Unicode 编码转换',
+        menuTitle: 'Unicode 编码',
+        desc: '提供文本与 Unicode 转义序列、HTML 字符实体之间的双向转换服务。',
+        keywords: ['unicode', 'unicode escape', 'html entity', '字符实体', '转义', '编码转换'],
+        route: '/unicode-converter',
+        icon: 'Switch',
+        color: '#0EA5E9',
+        tag: 'Encoding',
+        tagType: 'info',
+        tagTip: '文本与 Unicode 转义及 HTML 字符实体转换'
+      },
+      {
         id: 'hash-gen',
         name: 'Hash 生成器',
         menuTitle: 'Hash 生成器',

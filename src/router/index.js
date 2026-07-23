@@ -87,6 +87,12 @@ const routes = [
         meta: { title: 'URL 编解码' }
       },
       {
+        path: '/unicode-converter',
+        name: 'unicodeConverter',
+        component: () => import('@/views/unicode-converter/index.vue'),
+        meta: { title: 'Unicode 编码转换' }
+      },
+      {
         path: '/id-card-generator',
         name: 'idCardGenerator',
         component: () => import('@/views/id-card-generator/index.vue'),
