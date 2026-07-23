@@ -2,7 +2,7 @@
   <div class="app-container text-diff-page">
     <el-form :model="data" class="diff-form" label-position="right" label-suffix=":" label-width="auto" size="default">
       <el-row :gutter="12" justify="start">
-        <el-col v-bind="{ xs: 24, sm: 24, md: 8, lg: 6, xl: 4 }">
+        <el-col v-bind="{ xs: 24, sm: 12, md: 6, lg: 5, xl: 4 }">
           <el-form-item label="差异比对模式" prop="diffMode">
             <el-radio-group v-model="data.diffMode">
               <el-radio size="default" value="split">并排</el-radio>
@@ -10,15 +10,23 @@
             </el-radio-group>
           </el-form-item>
         </el-col>
-        <el-col v-bind="{ xs: 24, sm: 24, md: 8, lg: 6, xl: 6 }">
-          <el-form-item label="是否折叠未变更段" prop="folding">
+        <el-col v-bind="{ xs: 24, sm: 12, md: 6, lg: 5, xl: 5 }">
+          <el-form-item label="折叠未变更段" prop="folding">
             <el-radio-group v-model="data.folding">
               <el-radio :value="true" size="default">是</el-radio>
               <el-radio :value="false" size="default">否</el-radio>
             </el-radio-group>
           </el-form-item>
         </el-col>
-        <el-col v-bind="{ xs: 24, sm: 24, md: 8, lg: 6, xl: 6 }">
+        <el-col v-bind="{ xs: 24, sm: 12, md: 6, lg: 5, xl: 5 }">
+          <el-form-item label="忽略空白/换行" prop="ignoreWhitespace">
+            <el-radio-group v-model="data.ignoreWhitespace">
+              <el-radio :value="true" size="default">是</el-radio>
+              <el-radio :value="false" size="default">否</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-col>
+        <el-col v-bind="{ xs: 24, sm: 12, md: 6, lg: 4, xl: 4 }">
           <el-form-item label="主题" prop="theme">
             <el-radio-group v-model="data.theme">
               <el-radio size="default" value="light">纯白</el-radio>
@@ -26,7 +34,7 @@
             </el-radio-group>
           </el-form-item>
         </el-col>
-        <el-col v-bind="{ xs: 24, sm: 24, md: 8, lg: 6, xl: 6 }">
+        <el-col v-bind="{ xs: 24, sm: 12, md: 6, lg: 5, xl: 6 }">
           <el-form-item label="语言" prop="language">
             <el-select v-model="data.language" class="language-select" placeholder="请选择语言">
               <el-option
@@ -83,12 +91,12 @@
     </div>
     <div class="diff-viewer-wrapper">
       <VueDiff
-        :current="data.currText"
+        :current="currTextForDiff"
         :folding="data.folding"
         :input-delay="data.inputDelay"
         :language="data.language"
         :mode="data.diffMode"
-        :prev="data.prevText"
+        :prev="prevTextForDiff"
         :theme="data.theme"
         :virtual-scroll="virtualScroll"
       />
@@ -114,6 +122,7 @@ const languageOptions = [
 const data = reactive({
   diffMode: 'split',
   folding: false,
+  ignoreWhitespace: false,
   theme: 'dark',
   language: 'plaintext',
   inputDelay: 500,
@@ -128,6 +137,30 @@ onMounted(() => {
   }
 })
 
+const normalizeText = text => {
+  if (!text) return ''
+  return text
+    .split('\n')
+    .map(line => line.trim().replace(/\s+/g, ' '))
+    .filter(line => line.length > 0)
+    .join('\n')
+}
+
+const prevTextForDiff = computed(() => {
+  if (!data.ignoreWhitespace) return data.prevText
+  return normalizeText(data.prevText)
+})
+
+const currTextForDiff = computed(() => {
+  if (!data.ignoreWhitespace) return data.currText
+  return normalizeText(data.currText)
+})
+
+// 计算两个框内的文本是否输入了对应内容且完全一致
+const isIdentical = computed(() => {
+  return prevTextForDiff.value === currTextForDiff.value && prevTextForDiff.value.trim() !== ''
+})
+
 const virtualScroll = computed(() => {
   // 核心修复：使用固定高度，彻底避免高度计算死循环导致的页面崩溃
   return {
@@ -135,11 +168,6 @@ const virtualScroll = computed(() => {
     lineMinHeight: 30,
     delay: 60
   }
-})
-
-// 计算两个框内的文本是否输入了对应内容且完全一致
-const isIdentical = computed(() => {
-  return data.prevText === data.currText && data.prevText.trim() !== ''
 })
 
 // 左右文本对调
