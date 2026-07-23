@@ -14,6 +14,12 @@ const MAX_CHILDREN = 100
 self.onmessage = function (e) {
   const { id, type, content, options, path: partialPath, offset = 0, sourceId } = e.data
 
+  // 处理清理 Worker 内部缓存请求
+  if (type === 'clear') {
+    renderState.clear()
+    return
+  }
+
   // 处理局部加载请求：支持分段增量加载
   if (type === 'partial') {
     const currentState = renderState.get(sourceId)

@@ -27,9 +27,11 @@ const evalResultHtml = ref(EMPTY_STATE_HTML)
 const hasError = ref(false)
 const hasNonStandard = ref(false)
 const currentPath = ref('')
+const isAllExpanded = ref(true)
 
 const leftWidth = ref(400)
 const containerRef = ref(null)
+const resultAreaRef = ref(null)
 let isResizing = false
 let worker = null
 let partialRequestSeed = 0
@@ -44,8 +46,12 @@ const setIdleState = () => {
   hasError.value = false
   hasNonStandard.value = false
   currentPath.value = ''
+  isAllExpanded.value = true
   strictHasNonStandard = false
   relaxedHasNonStandard = false
+  if (worker) {
+    worker.postMessage({ type: 'clear' })
+  }
 }
 
 const escapeHtml = value =>
@@ -247,12 +253,14 @@ const handleCopyPath = () => {
   ElMessage.success('路径已复制')
 }
 
-const handleExpandAll = (expand = true) => {
-  const resultArea = document.querySelector('.result-area')
-  if (!resultArea) return
-  const toggles = resultArea.querySelectorAll('.json-toggle')
-  const trees = resultArea.querySelectorAll('.json-tree')
-  const indicators = resultArea.querySelectorAll('.json-size-indicator')
+const handleToggleExpand = () => {
+  isAllExpanded.value = !isAllExpanded.value
+  const expand = isAllExpanded.value
+
+  if (!resultAreaRef.value) return
+  const toggles = resultAreaRef.value.querySelectorAll('.json-toggle')
+  const trees = resultAreaRef.value.querySelectorAll('.json-tree')
+  const indicators = resultAreaRef.value.querySelectorAll('.json-size-indicator')
 
   toggles.forEach(t => (t.innerText = expand ? '-' : '+'))
   trees.forEach(tree => {
@@ -326,11 +334,11 @@ const handleUnescape = () => {
   val = val
     .replace(/\\"/g, '"')
     .replace(/\\\\/g, '\\')
-    .replace(/\\n/g, '\\n')
-    .replace(/\\r/g, '\\r')
-    .replace(/\\t/g, '\\t')
-    .replace(/\\b/g, '\\b')
-    .replace(/\\f/g, '\\f')
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '\r')
+    .replace(/\\t/g, '\t')
+    .replace(/\\b/g, '\b')
+    .replace(/\\f/g, '\f')
 
   if (val.startsWith('"') && val.endsWith('"')) {
     const inner = val.slice(1, -1)
@@ -469,10 +477,9 @@ onUnmounted(() => {
         <span class="subtitle">(双击任意处自动格式化,支持文件拖拽)</span>
       </div>
       <div class="header-actions">
-        <el-button-group class="mr-2">
-          <el-button plain size="default" @click="handleExpandAll(true)">全部展开</el-button>
-          <el-button plain size="default" @click="handleExpandAll(false)">全部收起</el-button>
-        </el-button-group>
+        <el-button class="mr-2" plain size="default" @click="handleToggleExpand">
+          {{ isAllExpanded ? '全部收起' : '全部展开' }}
+        </el-button>
 
         <el-popover :width="180" placement="bottom-end" title="渲染设置" trigger="click">
           <template #reference>
@@ -535,7 +542,7 @@ onUnmounted(() => {
           <div class="panel-header-cell">String Parse (Strict)</div>
           <div class="panel-header-cell panel-header-cell--offset">JS Eval (Relaxed)</div>
         </div>
-        <div class="result-area">
+        <div ref="resultAreaRef" class="result-area">
           <div
             class="result-col parse-col"
             data-worker-source="strict"
@@ -945,10 +952,6 @@ html.dark .app-container {
   position: relative;
   white-space: pre-wrap;
   word-break: break-all;
-}
-
-:deep(.json-tree li:hover) {
-  background: var(--el-fill-color-light);
 }
 
 :deep(.json-toggle) {
