@@ -47,7 +47,7 @@ const handleLogoClick = () => {
             @select="handleSelect"
           >
             <el-menu-item index="/home">首页</el-menu-item>
-            <el-sub-menu v-for="category in menuCategories" :key="category.menuKey" :index="category.menuKey">
+            <el-sub-menu v-for="category in menuCategories" :key="category.id" :index="category.menuKey">
               <template #title>{{ category.name }}</template>
               <el-menu-item v-for="tool in category.tools" :key="tool.id" :index="tool.route">
                 {{ tool.menuTitle || tool.name }}

@@ -21,8 +21,8 @@
     <div class="tools-section">
       <el-scrollbar class="tools-scrollbar">
         <div class="tools-scroll-content">
-          <div v-for="(category, index) in filteredCategories" :key="index" class="category-block">
-            <h2 v-if="category.tools.length > 0" class="category-title">
+          <div v-for="category in filteredCategories" :key="category.id" class="category-block">
+            <h2 class="category-title">
               {{ category.name }}
             </h2>
             <el-row :gutter="16">
@@ -117,29 +117,24 @@ const toolIconMap = {
   Document: IconEpDocument
 }
 
-const flatTools = computed(() =>
-  toolCategories.flatMap(category =>
-    category.tools.map(tool => ({
-      ...tool,
-      categoryName: category.name
-    }))
-  )
+const flatTools = toolCategories.flatMap(category =>
+  category.tools.map(tool => ({
+    ...tool,
+    categoryName: category.name
+  }))
 )
 
-const toolsFuse = computed(
-  () =>
-    new Fuse(flatTools.value, {
-      includeScore: true,
-      threshold: 0.35,
-      ignoreLocation: true,
-      minMatchCharLength: 2,
-      keys: [
-        { name: 'name', weight: 0.5 },
-        { name: 'desc', weight: 0.3 },
-        { name: 'keywords', weight: 0.2 }
-      ]
-    })
-)
+const toolsFuse = new Fuse(flatTools, {
+  includeScore: true,
+  threshold: 0.35,
+  ignoreLocation: true,
+  minMatchCharLength: 1,
+  keys: [
+    { name: 'name', weight: 0.5 },
+    { name: 'keywords', weight: 0.3 },
+    { name: 'desc', weight: 0.2 }
+  ]
+})
 
 // 过滤搜索逻辑，支持模糊搜索和关键词别名
 const filteredCategories = computed(() => {
@@ -148,15 +143,17 @@ const filteredCategories = computed(() => {
     return toolCategories
   }
 
-  const matchedToolIds = new Set(toolsFuse.value.search(query).map(result => result.item.id))
+  const matchedToolIds = new Set(toolsFuse.search(query).map(result => result.item.id))
 
-  return toolCategories.map(category => ({
-    ...category,
-    tools: category.tools.filter(tool => matchedToolIds.has(tool.id))
-  }))
+  return toolCategories
+    .map(category => ({
+      ...category,
+      tools: category.tools.filter(tool => matchedToolIds.has(tool.id))
+    }))
+    .filter(category => category.tools.length > 0)
 })
 
-const hasNoResults = computed(() => filteredCategories.value.every(cat => cat.tools.length === 0))
+const hasNoResults = computed(() => Boolean(searchQuery.value.trim()) && filteredCategories.value.length === 0)
 
 // 卡片点击跳转逻辑
 const handleNavigate = route => {

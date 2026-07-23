@@ -10,6 +10,7 @@ export const tagTypeHints = {
 
 export const toolCategories = [
   {
+    id: 'dev-text',
     name: '开发与文本处理',
     menuKey: 'dev-text',
     tools: [
@@ -120,6 +121,7 @@ export const toolCategories = [
     ]
   },
   {
+    id: 'encoding-security',
     name: '编解码与安全',
     menuKey: 'encoding-security',
     tools: [
@@ -230,6 +232,7 @@ export const toolCategories = [
     ]
   },
   {
+    id: 'utility',
     name: '数据转换与便民',
     menuKey: 'utility',
     tools: [
@@ -327,6 +330,7 @@ export const toolCategories = [
     ]
   },
   {
+    id: 'ops-deploy',
     name: '运维与部署备查',
     menuKey: 'ops-deploy',
     tools: [
