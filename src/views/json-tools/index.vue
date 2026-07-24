@@ -1,7 +1,7 @@
 <script setup>
 import JSON5 from 'json5'
 import JsonWorker from './json.worker.js?worker'
-import { addNumericKeyOrderPrefix, JSON_ORDER_PREFIX, stringifyJsonPreservingOrder } from '@/utils/json-order'
+import { addNumericKeyOrderPrefix, stringifyJsonPreservingOrder } from './utils/json-like-order'
 
 const STORAGE_KEY = 'devopskit_json_input'
 const OPTIONS_KEY = 'devopskit_json_options'
@@ -153,9 +153,7 @@ const formatPath = pathStr => {
 
     return parts
       .map((part, index) => {
-        // 移除内部渲染用的零宽前缀
-        const displayPart =
-          typeof part === 'string' && part.startsWith(JSON_ORDER_PREFIX) ? part.slice(JSON_ORDER_PREFIX.length) : part
+        const displayPart = part
 
         if (typeof part === 'number') {
           return `[${part}]`

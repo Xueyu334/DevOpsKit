@@ -1,5 +1,5 @@
 import JSON5 from 'json5'
-import { addNumericKeyOrderPrefix, decodeNumericKey } from '@/utils/json-order'
+import { addNumericKeyOrderPrefix, decodeNumericKey, encodeJsonOrderKey } from './utils/json-like-order'
 
 export default function JsonWorker() {}
 
@@ -95,8 +95,8 @@ function getValueByPath(obj, path) {
   let current = obj
   for (const part of parts) {
     if (current == null) return undefined
-    // 再补前缀：仅在内存查找一瞬间为数字键名补齐外壳
-    const realKey = typeof part === 'string' && /^\d+$/.test(part) ? encodeNumericKey(part) : part
+    // 根据统一规则还原内部键，兼容数字键及用户原本以前缀开头的键
+    const realKey = typeof part === 'string' ? encodeJsonOrderKey(part) : part
     current = current[realKey]
   }
   return current
@@ -405,10 +405,6 @@ function renderObjectKeys(obj, keys, offset, end, depth, options, buffer, path) 
         ' 对，点击继续加载</li>'
     )
   }
-}
-
-function encodeNumericKey(key) {
-  return decodeNumericKey(key) === key ? '\u200B' + key : key
 }
 
 function stringifyCompactValue(value) {

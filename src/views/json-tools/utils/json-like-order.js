@@ -1,4 +1,24 @@
+import JSON5 from 'json5'
+
+// JSON/JSON5 输入的键顺序保持与安全序列化工具。
 export const JSON_ORDER_PREFIX = '\u200B'
+
+/**
+ * 将对象键编码为不会触发 JavaScript 整数键重排的内部键。
+ * 用户原本以前缀开头的键会额外转义一层，避免与数字键编码发生碰撞。
+ *
+ * @param {string} key 原始对象键
+ * @return {string} 编码后的内部对象键
+ */
+export function encodeJsonOrderKey(key) {
+  if (typeof key !== 'string') {
+    return key
+  }
+  if (/^\d+$/.test(key) || key.startsWith(JSON_ORDER_PREFIX)) {
+    return JSON_ORDER_PREFIX + key
+  }
+  return key
+}
 
 /**
  * 为指定输入字符串中的 JSON 数字键名添加前缀。
@@ -25,8 +45,11 @@ export function addNumericKeyOrderPrefix(input) {
       if (context?.type === 'object' && context.expectKey) {
         const nextTokenIndex = skipTrivia(input, parsedString.end)
         // 只有确认“当前位置是对象键且后面紧跟冒号”时才补前缀，避免误改字符串内容里的 `123:`
-        if (/^\d+$/.test(parsedString.value) && input[nextTokenIndex] === ':') {
-          result.push(JSON.stringify(JSON_ORDER_PREFIX + parsedString.value))
+        if (
+          input[nextTokenIndex] === ':' &&
+          (/^\d+$/.test(parsedString.value) || parsedString.value.startsWith(JSON_ORDER_PREFIX))
+        ) {
+          result.push(JSON.stringify(encodeJsonOrderKey(parsedString.value)))
         } else {
           result.push(parsedString.raw)
         }
@@ -61,7 +84,7 @@ export function addNumericKeyOrderPrefix(input) {
       const nextTokenIndex = skipTrivia(input, end)
       // 兼容 JSON5 的无引号数字键写法，例如 `{ 123: "ok" }`
       if (input[nextTokenIndex] === ':') {
-        result.push(JSON.stringify(JSON_ORDER_PREFIX + rawKey))
+        result.push(JSON.stringify(encodeJsonOrderKey(rawKey)))
       } else {
         result.push(rawKey)
       }
@@ -132,14 +155,26 @@ export function stringifyJsonPreservingOrder(value, space = 0) {
 }
 
 /**
- * 解码给定的数字键。如果数字键是以指定的前缀开头的字符串，
- * 则去掉该前缀并返回其余部分；否则，直接返回原始键。
+ * 解码内部对象键。双前缀表示用户原本以前缀开头的键；
+ * 单前缀加纯数字表示为防止整数键重排而编码的数字键。
  *
  * @param {string} key 要解码的数字键。
  * @return {string} 解码后的键。如果输入键不是以指定前缀开头的字符串，则返回原始键。
  */
 export function decodeNumericKey(key) {
-  return typeof key === 'string' && key.startsWith(JSON_ORDER_PREFIX) ? key.slice(JSON_ORDER_PREFIX.length) : key
+  if (typeof key !== 'string') return key
+
+  const escapedPrefix = JSON_ORDER_PREFIX + JSON_ORDER_PREFIX
+  if (key.startsWith(escapedPrefix)) {
+    return key.slice(JSON_ORDER_PREFIX.length)
+  }
+
+  const encodedKey = key.slice(JSON_ORDER_PREFIX.length)
+  if (key.startsWith(JSON_ORDER_PREFIX) && /^\d+$/.test(encodedKey)) {
+    return encodedKey
+  }
+
+  return key
 }
 
 /**
@@ -235,10 +270,7 @@ function readQuotedString(input, startIndex) {
  */
 function tryParseStringValue(raw) {
   try {
-    if (raw.startsWith("'")) {
-      return JSON.parse(`"${raw.slice(1, -1).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`)
-    }
-    return JSON.parse(raw)
+    return raw.startsWith("'") ? JSON5.parse(raw) : JSON.parse(raw)
   } catch {
     return raw.slice(1, -1)
   }
