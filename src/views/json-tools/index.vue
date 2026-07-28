@@ -224,14 +224,12 @@ const handleClick = e => {
       // 再次点击同一路径：解除锁定
       selectedElement = null
       lockedPath.value = ''
-      ElMessage.info({ message: '路径锁定已解除', duration: 1000 })
     } else {
       // 点击新路径：执行锁定
       selectedElement = pathNode
       selectedElement.classList.add('json-selected-node')
       lockedPath.value = pathNode.getAttribute('data-path') || '[]'
       currentPath.value = lockedPath.value
-      ElMessage.success({ message: '路径已锁定，可点击下方复制', duration: 1000 })
     }
   } else {
     // 点击空白区域：解除当前锁定
