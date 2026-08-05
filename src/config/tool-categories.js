@@ -228,6 +228,19 @@ export const toolCategories = [
         tag: 'Security',
         tagType: 'danger',
         tagTip: '自定义规则高强度随机安全密码生成'
+      },
+      {
+        id: 'jwt-tools',
+        name: 'JWT 解码与校验',
+        menuTitle: 'JWT 工具',
+        desc: 'JWT (JSON Web Token) 在线解码、Claims 解析、过期时间倒计时、HMAC/RSA 签名校验与 Token 生成。',
+        keywords: ['jwt', 'jwt decode', 'jwt verify', 'jwt token', 'json web token', 'jwt解码', 'jwt校验', 'jwt签名'],
+        route: '/jwt-tools',
+        icon: 'Key',
+        color: '#8E44AD',
+        tag: 'Hot',
+        tagType: 'danger',
+        tagTip: 'JWT 客户端解码、Claims 拆解分析与签名验证'
       }
     ]
   },

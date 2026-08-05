@@ -99,6 +99,12 @@ const routes = [
         meta: { title: 'HTML 编解码' }
       },
       {
+        path: '/jwt-tools',
+        name: 'jwtTools',
+        component: () => import('@/views/jwt-tools/index.vue'),
+        meta: { title: 'JWT 解码与校验' }
+      },
+      {
         path: '/id-card-generator',
         name: 'idCardGenerator',
         component: () => import('@/views/id-card-generator/index.vue'),
