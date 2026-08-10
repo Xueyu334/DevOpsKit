@@ -175,6 +175,12 @@ const routes = [
         name: 'fileViewer',
         component: () => import('@/views/file-viewer/index.vue'),
         meta: { title: '文件在线预览' }
+      },
+      {
+        path: '/dummy-file-generator',
+        name: 'dummyFileGenerator',
+        component: () => import('@/views/dummy-file-generator/index.vue'),
+        meta: { title: '测试文件生成器' }
       }
     ]
   },

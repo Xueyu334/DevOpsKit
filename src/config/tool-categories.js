@@ -339,6 +339,19 @@ export const toolCategories = [
         tag: 'Math',
         tagType: 'warning',
         tagTip: '2 / 8 / 10 / 16 进制大数实时转换'
+      },
+      {
+        id: 'dummy-file-generator',
+        name: '测试文件生成器',
+        menuTitle: '测试文件生成',
+        desc: '指定大小(Byte/KB/MB/GB)自动填充并极速下载 txt 测试文件。',
+        keywords: ['dummy file', 'test file', '文件生成', '测试文件', '指定大小文件', 'byte', 'kb', 'mb', 'gb'],
+        route: '/dummy-file-generator',
+        icon: 'Files',
+        color: '#10B981',
+        tag: 'Util',
+        tagType: 'warning',
+        tagTip: '指定大小与填充内容的极速 txt 测试文件生成器'
       }
     ]
   },
