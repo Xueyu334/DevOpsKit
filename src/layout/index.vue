@@ -86,6 +86,10 @@ const handleLogoClick = () => {
         <span class="divider">/</span>
         <a href="https://github.com/Xueyu334/DevOpsKit" target="_blank" class="footer-link">GitHub</a>
         <span class="divider">/</span>
+        <a href="https://github.com/Xueyu334/DevOpsKit/blob/main/LICENSE" target="_blank" class="footer-link">
+          许可证
+        </a>
+        <span class="divider">/</span>
         <a href="https://github.com/Xueyu334/DevOpsKit/issues" target="_blank" class="footer-link">问题反馈</a>
       </div>
     </el-footer>

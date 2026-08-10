@@ -1,6 +1,7 @@
 {
   "name": "devopskit",
   "version": "1.0.0",
+  "license": "MulanPSL-2.0",
   "private": true,
   "type": "module",
   "scripts": {
