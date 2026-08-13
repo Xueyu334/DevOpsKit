@@ -321,11 +321,9 @@ const handleCopy = async () => {
                   >
                     <template #default="{ item }">
                       <div class="region-suggestion">
+                        <span class="region-suggestion-title">{{ item.label }}</span>
+                        <span :title="item.path" class="region-suggestion-meta">{{ item.meta }}</span>
                         <span class="region-suggestion-code">{{ item.value }}</span>
-                        <div class="region-suggestion-body">
-                          <span class="region-suggestion-title">{{ item.label }}</span>
-                          <span :title="item.path" class="region-suggestion-meta">{{ item.meta }}</span>
-                        </div>
                       </div>
                     </template>
                   </el-autocomplete>
@@ -461,64 +459,48 @@ const handleCopy = async () => {
 
 .region-suggestion {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  line-height: 1.2;
+  align-items: center;
+  gap: 8px;
   overflow: hidden;
 }
 
-.region-suggestion-code {
-  flex: none;
-  min-width: 54px;
-  padding: 3px 7px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--el-color-primary) 10%, white);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--el-color-primary) 16%, transparent);
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.1;
-  text-align: center;
-  color: var(--el-color-primary-dark-2);
-}
-
-.region-suggestion-body {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
 .region-suggestion-title {
+  flex: none;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--el-text-color-primary);
 }
 
 .region-suggestion-meta {
   flex: 1;
   min-width: 0;
-  font-size: 11px;
-  color: var(--el-text-color-secondary);
+  font-size: 12px;
+  color: var(--el-text-color-placeholder);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.region-suggestion-code {
+  flex: none;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+}
+
 :deep(.region-code-popper.el-popper) {
-  border-radius: 14px;
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+  border-radius: 8px;
+  box-shadow: var(--el-box-shadow-light);
 }
 
 :deep(.region-code-popper .el-autocomplete-suggestion__wrap) {
-  padding: 6px;
+  padding: 4px;
 }
 
 :deep(.region-code-popper .el-autocomplete-suggestion__list li) {
   height: auto;
-  padding: 10px 12px;
-  border-radius: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
   line-height: normal;
 }
 
