@@ -211,7 +211,11 @@
 </template>
 
 <script setup>
-import { colord } from 'colord'
+import { colord, extend as colordExtend } from 'colord'
+import mixPlugin from 'colord/plugins/mix'
+
+// 注册混色插件，为色阶生成功能提供 mix() 方法
+colordExtend([mixPlugin])
 
 // --- 数据定义 ---
 
