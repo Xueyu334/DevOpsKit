@@ -7,8 +7,6 @@ import 'dayjs/locale/zh-cn'
 
 import App from './App.vue'
 import router from './router'
-import VueDiff from 'vue-diff'
-import 'vue-diff/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import './assets/global.css'
 
@@ -28,11 +26,6 @@ const app = createApp(App)
 
 // 注册路由，使页面能够基于地址进行切换
 app.use(router)
-
-// 注册文本差异对比组件，统一暴露为 VueDiff
-app.use(VueDiff, {
-  componentName: 'VueDiff'
-})
 
 // 挂载根组件，启动整个应用
 app.mount('#app')

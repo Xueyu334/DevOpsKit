@@ -105,6 +105,8 @@
 </template>
 
 <script setup>
+import { Diff as VueDiff } from 'vue-diff'
+import 'vue-diff/dist/index.css'
 import { text1, text2 } from '@/views/text-diff/ext.js'
 
 // 定义全局文本最大长度限制常量
