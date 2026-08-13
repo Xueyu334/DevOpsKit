@@ -35,10 +35,10 @@ const handleLogoClick = () => {
     <!-- 全局头部 -->
     <el-header class="app-header">
       <el-row align="middle" class="header-row">
-        <el-col :xl="2" :lg="3" :md="4" :sm="0" :xs="0">
+        <el-col :lg="3" :md="4" :sm="0" :xl="2" :xs="0">
           <div class="logo" @click="handleLogoClick">DevOpsKit</div>
         </el-col>
-        <el-col :xl="18" :lg="17" :md="16" :sm="20" :xs="20">
+        <el-col :lg="17" :md="16" :sm="20" :xl="18" :xs="20">
           <el-menu
             :default-active="route.path"
             :ellipsis="true"
@@ -55,7 +55,7 @@ const handleLogoClick = () => {
             </el-sub-menu>
           </el-menu>
         </el-col>
-        <el-col :xl="4" :lg="4" :md="4" :sm="4" :xs="4" class="header-actions">
+        <el-col :lg="4" :md="4" :sm="4" :xl="4" :xs="4" class="header-actions">
           <el-tooltip :content="themeTooltip" placement="bottom">
             <el-switch v-model="isDark" class="theme-switch" inline-prompt>
               <template #active-action>
@@ -84,13 +84,13 @@ const handleLogoClick = () => {
       <div class="footer-inner">
         <span>© {{ new Date().getFullYear() }} DevOpsKit</span>
         <span class="divider">/</span>
-        <a href="https://github.com/Xueyu334/DevOpsKit" target="_blank" class="footer-link">GitHub</a>
+        <a class="footer-link" href="https://github.com/Xueyu334/DevOpsKit" target="_blank">GitHub</a>
         <span class="divider">/</span>
-        <a href="https://github.com/Xueyu334/DevOpsKit/blob/main/LICENSE" target="_blank" class="footer-link">
+        <a class="footer-link" href="https://github.com/Xueyu334/DevOpsKit/blob/main/LICENSE" target="_blank">
           许可证
         </a>
         <span class="divider">/</span>
-        <a href="https://github.com/Xueyu334/DevOpsKit/issues" target="_blank" class="footer-link">问题反馈</a>
+        <a class="footer-link" href="https://github.com/Xueyu334/DevOpsKit/issues" target="_blank">问题反馈</a>
       </div>
     </el-footer>
   </el-container>
