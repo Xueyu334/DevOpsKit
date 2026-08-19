@@ -12,6 +12,69 @@ const isDark = useDark({
 })
 const themeTooltip = computed(() => (isDark.value ? '切换为浅色模式' : '切换为深色模式'))
 
+const toggleTheme = event => {
+  const isAppearanceTransition =
+    document.startViewTransition && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  if (!isAppearanceTransition || !event) {
+    isDark.value = !isDark.value
+    return
+  }
+
+  const x = event.clientX
+  const y = event.clientY
+
+  const transition = document.startViewTransition(async () => {
+    isDark.value = !isDark.value
+    await nextTick()
+
+    // 确保 View Transition 捕获新快照前，html.dark 已同步更新。
+    // 某些响应式更新时序下，仅等待 nextTick 仍可能晚于快照捕获时机。
+    if (isDark.value) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  })
+
+  transition.ready
+    .then(() => {
+      const width = window.innerWidth
+      const height = window.innerHeight
+
+      const xPercent = (x / width) * 100
+      const yPercent = (y / height) * 100
+
+      const maxDistance = Math.hypot(Math.max(x, width - x), Math.max(y, height - y))
+
+      // CSS circle() 规范中 100% 半径对应的标准化对角线：sqrt(width^2 + height^2) / sqrt(2)
+      const normalizedDiagonal = Math.hypot(width, height) / Math.SQRT2
+      const radiusPercent = (maxDistance / normalizedDiagonal) * 100
+
+      const clipPath = [
+        `circle(0% at ${xPercent}% ${yPercent}%)`,
+        `circle(${radiusPercent}% at ${xPercent}% ${yPercent}%)`
+      ]
+
+      const clipPathToUse = isDark.value ? [...clipPath].reverse() : clipPath
+      const pseudoElementToUse = isDark.value ? '::view-transition-old(root)' : '::view-transition-new(root)'
+
+      document.documentElement.animate(
+        {
+          clipPath: clipPathToUse
+        },
+        {
+          duration: 400,
+          easing: 'ease-in',
+          pseudoElement: pseudoElementToUse
+        }
+      )
+    })
+    .catch(err => {
+      console.error('[Theme Toggle] transition.ready Promise rejected:', err)
+    })
+}
+
 const menuCategories = computed(() =>
   toolCategories
     .map(category => ({
@@ -57,7 +120,13 @@ const handleLogoClick = () => {
         </el-col>
         <el-col :lg="4" :md="4" :sm="4" :xl="4" :xs="4" class="header-actions">
           <el-tooltip :content="themeTooltip" placement="bottom">
-            <el-switch v-model="isDark" class="theme-switch" inline-prompt>
+            <el-switch
+              :before-change="() => false"
+              :model-value="isDark"
+              class="theme-switch"
+              inline-prompt
+              @click="toggleTheme"
+            >
               <template #active-action>
                 <IconEpMoon />
               </template>
