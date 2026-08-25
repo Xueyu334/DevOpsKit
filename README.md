@@ -46,6 +46,8 @@ DevOpsKit 是一个基于 Vue 3 + Vite + Element Plus 构建的前端工具箱�
 | 颜色转换器 | `/color-converter` | 支持 HEX / RGB / HSL 联动转换，自动生成衍生色（Tints/Shades）及 UI 状态色。 |
 | 进制转换 | `/base-converter` | 支持 2, 8, 10, 16 进制实时互转，支持 BigInt 大数及分段预览。 |
 | CSS 渐变生成器 | `/css-gradient` | 本地生成跨浏览器兼容的线性/径向渐变代码，支持多色预设与随机化。 |
+| 测试文件生成器 | `/dummy-file-generator` | 指定大小(Byte/KB/MB/GB)自动填充并极速下载 txt 测试文件。 |
+| 图片转 ICO | `/image-to-ico` | 纯前端将 PNG、JPG、WebP、SVG 等图片转换为多尺寸 Windows/Favicon .ico 图标。 |
 
 ### 🚀 运维与部署备查
 
@@ -98,10 +100,13 @@ src/
 │  ├─ jwt-tools/             # JWT 解码、签名校验与生成 (New!)
 │  ├─ css-gradient/         # CSS 渐变生成器 (New!)
 │  ├─ file-viewer/          # 文件在线预览 (New!)
+│  ├─ dummy-file-generator/ # 测试文件生成器 (New!)
+│  ├─ image-to-ico/         # 图片转 ICO (New!)
 │  ├─ ...                   # 其他工具页面
 ├─ layout/                  # 响应式布局组件
 ├─ router/                  # 动态路由配置
 ├─ utils/
+│  ├─ ico/                  # ICO 二进制编码与图像转换核心模块 (New!)
 │  └─ nprogress.js          # 增强型进度条控制 (带防抖优化)
 ├─ App.vue
 └─ main.js                  # 入口文件
@@ -115,7 +120,7 @@ src/
 
 ## 注意事项
 
-- **数据隐私**: 所有转换逻辑（如 Hash、密码、图片处理、JWT 解析校验）均在浏览器本地完成，**绝不上传**您的任何隐私数据与密钥。
+- **数据隐私**: 所有转换逻辑（如 Hash、密码、图片处理、ICO 编码、JWT 解析校验）均在浏览器本地完成，**绝不上传**您的任何隐私数据与密钥。
 - **合规使用**: 身份证生成等工具仅供研发调试使用，严禁用于任何非法途径。
 
 ## 🛣️ 发展路线图 (Roadmap)
@@ -135,9 +140,11 @@ src/
 - [x] **JWT 解码与签名校验**：支持 JWT 结构色彩拆分、RFC 7519 7个标准字段分析、Claims 过期时间计算，以及 HMAC (HS256/384/512) 与 RSA (RS256/384/512) 本地签名校验与生成
 
 ### 📊 数据转换与实用功能
+- [x] **图片转 ICO (Favicon) 生成器**：纯前端将 PNG/JPG/WebP/SVG 转为包含 16~256 多尺寸的标准 Windows/Web ICO 图标
 - [x] **全球 27 时区时间戳转换**：接入 Day.js 提供精准全球时区转换与格式化
 - [x] **多进制转换器**：支持 2 / 8 / 10 / 16 进制大数实时互转
 - [x] **CSS 渐变生成器**：支持线性/径向渐变在线预览与 CSS 代码一键导出
+- [x] **测试文件生成器**：指定大小快速生成并下载测试文本文件
 
 ### 📌 规划中功能 (Upcoming Features)
 - [ ] **图片在线压缩与裁剪**：支持质量调优、常用尺寸压制与 WebP 格式导出
