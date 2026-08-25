@@ -181,6 +181,12 @@ const routes = [
         name: 'dummyFileGenerator',
         component: () => import('@/views/dummy-file-generator/index.vue'),
         meta: { title: '测试文件生成器' }
+      },
+      {
+        path: '/image-to-ico',
+        name: 'imageToIco',
+        component: () => import('@/views/image-to-ico/index.vue'),
+        meta: { title: '图片转 ICO' }
       }
     ]
   },

@@ -352,6 +352,19 @@ export const toolCategories = [
         tag: 'Util',
         tagType: 'warning',
         tagTip: '指定大小与填充内容的极速 txt 测试文件生成器'
+      },
+      {
+        id: 'image-to-ico',
+        name: '图片转 ICO (Image to ICO)',
+        menuTitle: '图片转 ICO',
+        desc: '纯前端将 PNG、JPG、WebP、SVG 等图片转换为多尺寸 Windows/Favicon .ico 图标。',
+        keywords: ['ico', 'image to ico', 'favicon', 'svg to ico', 'png to ico', '图标转换', '图片转ico', '网站图标'],
+        route: '/image-to-ico',
+        icon: 'Picture',
+        color: '#10B981',
+        tag: 'Design',
+        tagType: 'success',
+        tagTip: '多尺寸与矢量 SVG 纯前端本地 ICO 图标生成'
       }
     ]
   },
