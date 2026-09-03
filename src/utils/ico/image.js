@@ -1,14 +1,6 @@
-import type { ParsedImageInfo, RenderedIconFrame } from './types'
-
 /** 支持的输入文件 MIME 类型及扩展名映射 */
 const SUPPORTED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.svg']
-const SUPPORTED_MIME_TYPES = [
-  'image/png',
-  'image/jpeg',
-  'image/pjpeg',
-  'image/webp',
-  'image/svg+xml'
-]
+const SUPPORTED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/pjpeg', 'image/webp', 'image/svg+xml']
 
 /** 单文件默认最大限制：20 MB */
 export const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024
@@ -16,14 +8,11 @@ export const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024
 /**
  * 校验上传的文件是否为支持的图片格式及大小
  *
- * @param file 待校验的 File 对象
- * @param maxSizeBytes 最大文件限制（字节，默认 20MB）
- * @returns 校验结果及错误描述
+ * @param {File} file 待校验的 File 对象
+ * @param {number} [maxSizeBytes=MAX_FILE_SIZE_BYTES] 最大文件限制（字节，默认 20MB）
+ * @returns {{ valid: boolean, error?: string }} 校验结果及错误描述
  */
-export function validateImageFile(
-  file: File,
-  maxSizeBytes: number = MAX_FILE_SIZE_BYTES
-): { valid: boolean; error?: string } {
+export function validateImageFile(file, maxSizeBytes = MAX_FILE_SIZE_BYTES) {
   if (!file) {
     return { valid: false, error: '请选择需要转换的文件' }
   }
@@ -49,22 +38,21 @@ export function validateImageFile(
 
 /**
  * 检查文件是否为 SVG
+ *
+ * @param {File} file
+ * @returns {boolean}
  */
-export function isSvgFile(file: File): boolean {
-  return (
-    file.type.toLowerCase() === 'image/svg+xml' ||
-    file.name.toLowerCase().endsWith('.svg')
-  )
+export function isSvgFile(file) {
+  return file.type.toLowerCase() === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg')
 }
 
 /**
  * 处理 SVG 字符串，补全缺失的 width / height / viewBox / xmlns，并提升渲染分辨率基准，确保在各尺寸下极致清晰
+ *
+ * @param {string} svgText
+ * @returns {{ normalizedSvg: string, width: number, height: number }}
  */
-function normalizeSvgXml(svgText: string): {
-  normalizedSvg: string
-  width: number
-  height: number
-} {
+function normalizeSvgXml(svgText) {
   const parser = new DOMParser()
   const doc = parser.parseFromString(svgText, 'image/svg+xml')
   const svgEl = doc.querySelector('svg')
@@ -127,10 +115,10 @@ function normalizeSvgXml(svgText: string): {
 /**
  * 解析并读取上传的图片/SVG 信息
  *
- * @param file 上传的 File 对象
- * @returns ParsedImageInfo 包含尺寸、预览 DataURL 等信息
+ * @param {File} file 上传的 File 对象
+ * @returns {Promise<{ name: string, size: number, type: string, width: number, height: number, previewUrl: string, isSvg: boolean, rawFile: File }>}
  */
-export async function parseImageInfo(file: File): Promise<ParsedImageInfo> {
+export async function parseImageInfo(file) {
   const isSvg = isSvgFile(file)
 
   if (isSvg) {
@@ -175,8 +163,11 @@ export async function parseImageInfo(file: File): Promise<ParsedImageInfo> {
 
 /**
  * 通过 URL 异步加载 Image 获取自然宽高
+ *
+ * @param {string} url
+ * @returns {Promise<{ width: number, height: number }>}
  */
-function getImageDimensionsFromUrl(url: string): Promise<{ width: number; height: number }> {
+function getImageDimensionsFromUrl(url) {
   return new Promise((resolve, reject) => {
     const img = new Image()
     img.onload = () => {
@@ -194,8 +185,11 @@ function getImageDimensionsFromUrl(url: string): Promise<{ width: number; height
 
 /**
  * 异步加载 Image 元素
+ *
+ * @param {string} url
+ * @returns {Promise<HTMLImageElement>}
  */
-export function loadImageElement(url: string): Promise<HTMLImageElement> {
+export function loadImageElement(url) {
   return new Promise((resolve, reject) => {
     const img = new Image()
     img.crossOrigin = 'anonymous'
@@ -208,18 +202,13 @@ export function loadImageElement(url: string): Promise<HTMLImageElement> {
 /**
  * 等比居中绘制图像到指定大小的 Canvas 上
  *
- * @param sourceImage 图像源 (HTMLImageElement)
- * @param sourceWidth 原图宽度
- * @param sourceHeight 原图高度
- * @param targetSize 目标正方形边长 (px)
- * @returns 渲染完成的 HTMLCanvasElement
+ * @param {CanvasImageSource} sourceImage 图像源 (HTMLImageElement)
+ * @param {number} sourceWidth 原图宽度
+ * @param {number} sourceHeight 原图高度
+ * @param {number} targetSize 目标正方形边长 (px)
+ * @returns {HTMLCanvasElement} 渲染完成的 HTMLCanvasElement
  */
-export function renderAspectFitToCanvas(
-  sourceImage: CanvasImageSource,
-  sourceWidth: number,
-  sourceHeight: number,
-  targetSize: number
-): HTMLCanvasElement {
+export function renderAspectFitToCanvas(sourceImage, sourceWidth, sourceHeight, targetSize) {
   const canvas = document.createElement('canvas')
   canvas.width = targetSize
   canvas.height = targetSize
@@ -252,10 +241,11 @@ export function renderAspectFitToCanvas(
 
 /**
  * 将 Canvas 转为 PNG 格式的 Blob 和 Uint8Array
+ *
+ * @param {HTMLCanvasElement} canvas
+ * @returns {Promise<{ blob: Blob, bytes: Uint8Array }>}
  */
-export async function canvasToPngData(
-  canvas: HTMLCanvasElement
-): Promise<{ blob: Blob; bytes: Uint8Array }> {
+export async function canvasToPngData(canvas) {
   return new Promise((resolve, reject) => {
     canvas.toBlob(async blob => {
       if (!blob) {
@@ -276,16 +266,13 @@ export async function canvasToPngData(
 }
 
 /**
- * 针对所有目标尺寸渲染出图标数据帧 (RenderedIconFrame)
+ * 针对所有目标尺寸渲染出图标数据帧
  *
- * @param file 源文件
- * @param sizes 目标尺寸数组，例如 [16, 32, 48, 64, 128, 256]
- * @returns 渲染完成的所有帧列表
+ * @param {File} file 源文件
+ * @param {number[]} sizes 目标尺寸数组，例如 [16, 32, 48, 64, 128, 256]
+ * @returns {Promise<Array<{ size: number, width: number, height: number, pngData: Uint8Array, blob: Blob, previewUrl: string }>>} 渲染完成的所有帧列表
  */
-export async function renderFramesForSizes(
-  file: File,
-  sizes: number[]
-): Promise<RenderedIconFrame[]> {
+export async function renderFramesForSizes(file, sizes) {
   if (!sizes || sizes.length === 0) {
     throw new Error('至少需要选择一个 ICO 尺寸')
   }
@@ -317,15 +304,10 @@ export async function renderFramesForSizes(
     }
 
     const imageElement = await loadImageElement(workingUrl)
-    const frames: RenderedIconFrame[] = []
+    const frames = []
 
     for (const size of sizes) {
-      const canvas = renderAspectFitToCanvas(
-        imageElement,
-        sourceWidth,
-        sourceHeight,
-        size
-      )
+      const canvas = renderAspectFitToCanvas(imageElement, sourceWidth, sourceHeight, size)
 
       const { blob, bytes } = await canvasToPngData(canvas)
       const previewUrl = URL.createObjectURL(blob)

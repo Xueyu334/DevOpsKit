@@ -1,14 +1,4 @@
 /**
- * 图像帧输入接口
- */
-export interface EncodeFrameInput {
-  /** 尺寸（例如 16, 32, 48, 64, 128, 256） */
-  size: number
-  /** 该尺寸对应的 PNG 二进制字节流 */
-  pngData: Uint8Array
-}
-
-/**
  * 将多个尺寸的 PNG 图像数据编码组装为符合微软标准的 .ico 二进制 Blob
  *
  * ICO 文件二进制结构：
@@ -16,10 +6,10 @@ export interface EncodeFrameInput {
  * - ICONDIRENTRY[] (每个尺寸 16 字节)
  * - IMAGE_DATA[] (各尺寸 PNG 数据顺序排列)
  *
- * @param frames 包含尺寸与 PNG 二进制数据的帧数组
- * @returns image/x-icon 格式的 Blob 对象
+ * @param {Array<{ size: number, pngData: Uint8Array }>} frames 包含尺寸与 PNG 二进制数据的帧数组
+ * @returns {Blob} image/x-icon 格式的 Blob 对象
  */
-export function encodeIco(frames: EncodeFrameInput[]): Blob {
+export function encodeIco(frames) {
   if (!frames || frames.length === 0) {
     throw new Error('无法生成 ICO：至少需要包含一个尺寸的图像数据')
   }
