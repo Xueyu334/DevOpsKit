@@ -8,13 +8,6 @@ export {}
 declare global {
   const EffectScope: typeof import('vue').EffectScope
   const ElMessage: typeof import('element-plus/es').ElMessage
-  const IconEpCreditCard: typeof import('~icons/ep/credit-card').default
-  const IconEpDocumentCopy: typeof import('~icons/ep/document-copy').default
-  const IconEpKey: typeof import('~icons/ep/key').default
-  const IconEpLink: typeof import('~icons/ep/link').default
-  const IconEpPostcard: typeof import('~icons/ep/postcard').default
-  const IconEpTickets: typeof import('~icons/ep/tickets').default
-  const IconEpTimer: typeof import('~icons/ep/timer').default
   const asyncComputed: typeof import('@vueuse/core').asyncComputed
   const autoResetRef: typeof import('@vueuse/core').autoResetRef
   const computed: typeof import('vue').computed

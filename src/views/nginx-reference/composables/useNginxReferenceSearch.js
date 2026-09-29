@@ -24,13 +24,19 @@ export const useNginxReferenceSearch = sectionsSource => {
     highlightClass: 'nginx-highlight'
   })
 
+  const typeFilter = ref('all') // 'all' | 'command' | 'config'
+
   const filteredSections = computed(() => {
     const sections = unref(sectionsSource) || []
 
     return sections
       .map(section => ({
         ...section,
-        items: section.items.filter(item => matchedIds.value.has(item.id))
+        items: section.items.filter(item => {
+          const matchesKeyword = matchedIds.value.has(item.id)
+          const matchesType = typeFilter.value === 'all' || item.type === typeFilter.value
+          return matchesKeyword && matchesType
+        })
       }))
       .filter(section => section.items.length > 0)
   })
@@ -39,20 +45,36 @@ export const useNginxReferenceSearch = sectionsSource => {
     (unref(sectionsSource) || []).reduce((total, section) => total + section.items.length, 0)
   )
 
+  const totalCommandCount = computed(() => flatItems.value.filter(item => item.type === 'command').length)
+
+  const totalConfigCount = computed(() => flatItems.value.filter(item => item.type === 'config').length)
+
   const filteredItemCount = computed(() =>
     filteredSections.value.reduce((total, section) => total + section.items.length, 0)
   )
 
   const hasResults = computed(() => filteredItemCount.value > 0)
 
+  const hasActiveFilters = computed(() => hasKeyword.value || typeFilter.value !== 'all')
+
+  const resetFilters = () => {
+    clearKeyword()
+    typeFilter.value = 'all'
+  }
+
   return {
     keyword,
     hasKeyword,
+    typeFilter,
+    hasActiveFilters,
     hasResults,
     filteredSections,
     totalItemCount,
+    totalCommandCount,
+    totalConfigCount,
     filteredItemCount,
     clearKeyword,
+    resetFilters,
     highlightText
   }
 }
