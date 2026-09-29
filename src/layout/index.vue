@@ -11,8 +11,11 @@ const isDark = useDark({
   storageKey: 'devopskit-color-mode'
 })
 const themeTooltip = computed(() => (isDark.value ? '切换为浅色模式' : '切换为深色模式'))
+let themeTransitionInProgress = false
 
 const toggleTheme = event => {
+  if (themeTransitionInProgress) return
+
   const isAppearanceTransition =
     document.startViewTransition && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -23,7 +26,13 @@ const toggleTheme = event => {
 
   const x = event.clientX
   const y = event.clientY
+  const maxDistance = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y))
+  const rootStyle = document.documentElement.style
+  rootStyle.setProperty('--theme-transition-x', `${x}px`)
+  rootStyle.setProperty('--theme-transition-y', `${y}px`)
+  rootStyle.setProperty('--theme-transition-radius', `${maxDistance}px`)
 
+  themeTransitionInProgress = true
   const transition = document.startViewTransition(async () => {
     isDark.value = !isDark.value
     await nextTick()
@@ -37,42 +46,10 @@ const toggleTheme = event => {
     }
   })
 
-  transition.ready
-    .then(() => {
-      const width = window.innerWidth
-      const height = window.innerHeight
-
-      const xPercent = (x / width) * 100
-      const yPercent = (y / height) * 100
-
-      const maxDistance = Math.hypot(Math.max(x, width - x), Math.max(y, height - y))
-
-      // CSS circle() 规范中 100% 半径对应的标准化对角线：sqrt(width^2 + height^2) / sqrt(2)
-      const normalizedDiagonal = Math.hypot(width, height) / Math.SQRT2
-      const radiusPercent = (maxDistance / normalizedDiagonal) * 100
-
-      const clipPath = [
-        `circle(0% at ${xPercent}% ${yPercent}%)`,
-        `circle(${radiusPercent}% at ${xPercent}% ${yPercent}%)`
-      ]
-
-      const clipPathToUse = isDark.value ? [...clipPath].reverse() : clipPath
-      const pseudoElementToUse = isDark.value ? '::view-transition-old(root)' : '::view-transition-new(root)'
-
-      document.documentElement.animate(
-        {
-          clipPath: clipPathToUse
-        },
-        {
-          duration: 400,
-          easing: 'ease-in',
-          pseudoElement: pseudoElementToUse
-        }
-      )
-    })
-    .catch(err => {
-      console.error('[Theme Toggle] transition.ready Promise rejected:', err)
-    })
+  const finishTransition = () => {
+    themeTransitionInProgress = false
+  }
+  transition.finished.then(finishTransition, finishTransition)
 }
 
 const menuCategories = computed(() =>

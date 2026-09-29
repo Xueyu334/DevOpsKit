@@ -27,10 +27,21 @@ body,
 }
 
 /* 主题切换扩散动画 */
+:root {
+  --theme-transition-x: 50vw;
+  --theme-transition-y: 50vh;
+  --theme-transition-radius: 100vmax;
+}
+
+::view-transition-image-pair(root) {
+  isolation: auto;
+}
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+  display: block;
 }
 
 ::view-transition-old(root) {
@@ -43,9 +54,33 @@ body,
 
 .dark::view-transition-old(root) {
   z-index: 9999;
+  animation: theme-transition-contract 400ms ease-in both;
 }
 
 .dark::view-transition-new(root) {
   z-index: 1;
 }
 
+.light::view-transition-new(root) {
+  animation: theme-transition-expand 400ms ease-in both;
+}
+
+@keyframes theme-transition-contract {
+  from {
+    clip-path: circle(var(--theme-transition-radius) at var(--theme-transition-x) var(--theme-transition-y));
+  }
+
+  to {
+    clip-path: circle(0px at var(--theme-transition-x) var(--theme-transition-y));
+  }
+}
+
+@keyframes theme-transition-expand {
+  from {
+    clip-path: circle(0px at var(--theme-transition-x) var(--theme-transition-y));
+  }
+
+  to {
+    clip-path: circle(var(--theme-transition-radius) at var(--theme-transition-x) var(--theme-transition-y));
+  }
+}
