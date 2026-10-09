@@ -46,8 +46,7 @@ const setIdleState = () => {
   evalResultHtml.value = EMPTY_STATE_HTML
   hasError.value = false
   hasNonStandard.value = false
-  currentPath.value = ''
-  isAllExpanded.value = true
+  resetResultInteraction()
   strictHasNonStandard = false
   relaxedHasNonStandard = false
   if (worker) {
@@ -193,6 +192,7 @@ const handleClick = e => {
         if (indicator) indicator.style.display = 'inline'
         target.innerText = '+'
       }
+      syncExpandState()
     }
     return
   }
@@ -250,10 +250,8 @@ const handleCopyPath = () => {
   ElMessage.success('路径已复制')
 }
 
-const handleToggleExpand = () => {
-  isAllExpanded.value = !isAllExpanded.value
-  const expand = isAllExpanded.value
-
+const setResultExpanded = expand => {
+  isAllExpanded.value = expand
   if (!resultAreaRef.value) return
   const toggles = resultAreaRef.value.querySelectorAll('.json-toggle')
   const trees = resultAreaRef.value.querySelectorAll('.json-tree')
@@ -265,6 +263,23 @@ const handleToggleExpand = () => {
     else tree.classList.add('folded')
   })
   indicators.forEach(ind => (ind.style.display = expand ? 'none' : 'inline'))
+}
+
+const syncExpandState = () => {
+  isAllExpanded.value = !resultAreaRef.value?.querySelector('.json-tree.folded')
+}
+
+const resetResultInteraction = () => {
+  selectedElement?.classList.remove('json-selected-node')
+  selectedElement = null
+  lockedPath.value = ''
+  currentPath.value = ''
+  // 新结果默认展开，同时展开另一列仍保留的旧节点，避免按钮与两列状态不一致。
+  setResultExpanded(true)
+}
+
+const handleToggleExpand = () => {
+  setResultExpanded(!isAllExpanded.value)
 }
 
 const handleDrop = e => {
@@ -304,6 +319,18 @@ const handleClear = () => {
 
 const handleFormat = () => {
   transformParsedInput(obj => stringifyJsonPreservingOrder(obj, 2), '格式化完成', '格式化失败')
+}
+
+const handleEditorKeydown = event => {
+  if (event.isComposing) return
+
+  const key = event.key.toLowerCase()
+  const isShiftFormat = (event.ctrlKey || event.metaKey) && event.shiftKey && !event.altKey && key === 'f'
+  const isAltFormat = (event.ctrlKey || event.metaKey) && event.altKey && !event.shiftKey && key === 'l'
+  if (!isShiftFormat && !isAltFormat) return
+
+  event.preventDefault()
+  if (!event.repeat) handleFormat()
 }
 
 const handleCompress = () => {
@@ -427,6 +454,7 @@ onMounted(() => {
           el.insertAdjacentHTML('beforebegin', html)
           // 移除旧的占位符（Worker 返回的新 HTML 中如果还有剩余，会包含一个新的占位符）
           el.remove()
+          syncExpandState()
         } else {
           el.removeAttribute('data-request-id')
           el.innerText = '加载失败，点击重试'
@@ -438,6 +466,7 @@ onMounted(() => {
     }
 
     if (id === 'strict') {
+      resetResultInteraction()
       if (success) {
         stringResultHtml.value = html
         hasError.value = false
@@ -452,6 +481,7 @@ onMounted(() => {
     }
 
     if (id === 'relaxed') {
+      resetResultInteraction()
       relaxedHasNonStandard = success ? !!nonStandard : false
       hasNonStandard.value = strictHasNonStandard || relaxedHasNonStandard
     }
@@ -520,7 +550,14 @@ onUnmounted(() => {
         <div class="panel-header">
           <div class="panel-title">RAW INPUT</div>
           <div class="panel-actions">
-            <el-button plain size="small" @click="handleFormat">格式化</el-button>
+            <el-button
+              plain
+              size="small"
+              title="格式化（Ctrl/Cmd + Shift + F 或 Ctrl/Cmd + Alt + L）"
+              @click="handleFormat"
+            >
+              格式化
+            </el-button>
             <el-button plain size="small" @click="handleCompress">压缩</el-button>
             <el-button plain size="small" @click="handleEscape">转义</el-button>
             <el-button plain size="small" @click="handleUnescape">去转义</el-button>
@@ -534,11 +571,12 @@ onUnmounted(() => {
         <textarea
           v-model="rawInput"
           class="editor-area"
-          placeholder="在此输入或粘贴您的 JSON 数据... (双击任意处自动格式化，支持拖拽 .json 文件)"
+          placeholder="在此输入或粘贴您的 JSON 数据...（双击、Ctrl/Cmd + Shift + F 或 Ctrl/Cmd + Alt + L 格式化，支持拖拽 .json 文件）"
           spellcheck="false"
           @dblclick="handleFormat"
           @drop="handleDrop"
           @input="debouncedUpdate"
+          @keydown="handleEditorKeydown"
           @dragover.prevent
         ></textarea>
       </div>
