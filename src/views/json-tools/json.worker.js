@@ -1,4 +1,5 @@
 import JSON5 from 'json5'
+import { JsonNumber, parseJsonPreservingNumbers } from './utils/json-number'
 import { addNumericKeyOrderPrefix, decodeNumericKey, encodeJsonOrderKey } from './utils/json-like-order'
 
 export default function JsonWorker() {}
@@ -56,14 +57,16 @@ self.onmessage = function (e) {
 
   try {
     let obj
+    // 必须先校验原文，避免键顺序预处理将非标准数字键改写为合法 JSON。
+    if (type === 'strict') JSON.parse(content)
     const patchedContent =
       content && (type === 'strict' || type === 'relaxed') ? addNumericKeyOrderPrefix(content) : content
 
     if (type === 'strict') {
-      obj = JSON.parse(patchedContent)
+      obj = parseJsonPreservingNumbers(patchedContent, JSON.parse)
     } else if (type === 'relaxed') {
       try {
-        obj = JSON5.parse(patchedContent)
+        obj = parseJsonPreservingNumbers(patchedContent, JSON5.parse)
       } catch (err) {
         throw new Error('解析失败：' + err.message)
       }
@@ -76,7 +79,12 @@ self.onmessage = function (e) {
     const hasNonStandard = checkNonStandard(obj)
     const htmlBuffer = []
     renderJSON(obj, 0, options, htmlBuffer, '[]')
-    self.postMessage({ id, success: true, html: htmlBuffer.join(''), hasNonStandard })
+    self.postMessage({
+      id,
+      success: true,
+      html: htmlBuffer.join(''),
+      hasNonStandard
+    })
   } catch (err) {
     renderState.delete(id)
     self.postMessage({ id, success: false, error: err.message })
@@ -152,6 +160,7 @@ function parsePath(path) {
  * @returns {Boolean} 如果包含非标值返回 true，否则返回 false
  */
 function checkNonStandard(obj) {
+  if (obj instanceof JsonNumber) return false
   if (obj === undefined || (typeof obj === 'number' && (isNaN(obj) || !isFinite(obj)))) {
     return true
   }
@@ -214,8 +223,14 @@ function renderJSON(obj, depth = 0, options, buffer, path = '[]') {
     if (showType) buffer.push(' <span class="json-type type-null">null</span>')
     return
   }
-  if (typeof obj === 'number') {
-    buffer.push('<span class="json-number" data-path="' + escapedPath + '">' + obj + '</span>')
+  if (typeof obj === 'number' || obj instanceof JsonNumber) {
+    buffer.push(
+      '<span class="json-number" data-path="' +
+        escapedPath +
+        '">' +
+        (obj instanceof JsonNumber ? obj.raw : obj) +
+        '</span>'
+    )
     if (showType) buffer.push(' <span class="json-type type-number">number</span>')
     return
   }
@@ -408,6 +423,7 @@ function renderObjectKeys(obj, keys, offset, end, depth, options, buffer, path) 
 }
 
 function stringifyCompactValue(value) {
+  if (value instanceof JsonNumber) return value.raw
   if (value === null) return 'null'
   if (value === undefined) return 'undefined'
 

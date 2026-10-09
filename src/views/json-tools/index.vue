@@ -2,6 +2,7 @@
 import JSON5 from 'json5'
 import JsonWorker from './json.worker.js?worker'
 import { addNumericKeyOrderPrefix, stringifyJsonPreservingOrder } from './utils/json-like-order'
+import { parseJsonPreservingNumbers } from './utils/json-number'
 
 const STORAGE_KEY = 'devopskit_json_input'
 const OPTIONS_KEY = 'devopskit_json_options'
@@ -78,10 +79,10 @@ const buildErrorHtml = (message, modifierClass = '') =>
 const parseJsonLike = value => {
   const normalizedValue = addNumericKeyOrderPrefix(value)
   try {
-    return JSON.parse(normalizedValue)
+    return parseJsonPreservingNumbers(normalizedValue, JSON.parse)
   } catch {
     // 降级使用 JSON5 解析，支持注释、单引号、未加引号键等，且绝对安全
-    return JSON5.parse(normalizedValue)
+    return parseJsonPreservingNumbers(normalizedValue, JSON5.parse)
   }
 }
 
@@ -314,6 +315,16 @@ const handleUnescape = () => {
   if (!val) return
 
   try {
+    const parsed = parseJsonLike(val)
+    if (typeof parsed !== 'string') {
+      ElMessage.info('当前内容无需去转义')
+      return
+    }
+  } catch {
+    // 非完整 JSON 继续尝试去除外层转义。
+  }
+
+  try {
     if (val.startsWith('"') && val.endsWith('"')) {
       const parsed = JSON.parse(val)
       if (typeof parsed === 'string') {
@@ -353,7 +364,8 @@ const handleEscape = () => {
   if (!val) return
 
   try {
-    val = stringifyJsonPreservingOrder(parseJsonLike(val)) ?? val
+    const obj = parseJsonLike(val)
+    val = stringifyJsonPreservingOrder(obj) ?? val
   } catch {
     // ignore
   }

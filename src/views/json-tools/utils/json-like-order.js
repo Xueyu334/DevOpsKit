@@ -1,4 +1,5 @@
 import JSON5 from 'json5'
+import { JsonNumber } from './json-number'
 
 // JSON/JSON5 输入的键顺序保持与安全序列化工具。
 export const JSON_ORDER_PREFIX = '\u200B'
@@ -126,6 +127,7 @@ export function addNumericKeyOrderPrefix(input) {
  * @return {any} 处理后的值，移除了对象键名中的数字顺序前缀。
  */
 export function stripNumericKeyOrderPrefix(value) {
+  if (value instanceof JsonNumber) return value
   if (Array.isArray(value)) {
     return value.map(item => stripNumericKeyOrderPrefix(item))
   }
@@ -322,6 +324,7 @@ function isDigit(char) {
  *                              如果输入值是 `BigInt` 类型，将抛出一个 `TypeError`。
  */
 function serializeJsonValue(value, indentSize, depth) {
+  if (value instanceof JsonNumber) return value.raw
   if (value === null) return 'null'
 
   const valueType = typeof value
