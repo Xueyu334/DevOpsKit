@@ -5,7 +5,7 @@
       <div class="header-left">
         <h3 class="page-title">
           <el-icon class="title-icon">
-            <IconEpDocument/>
+            <IconEpDocument />
           </el-icon>
           文件在线预览
         </h3>
@@ -17,7 +17,7 @@
       <div class="header-actions">
         <el-button v-if="file" plain type="warning" @click="handleClearFile">
           <el-icon>
-            <IconEpRefreshLeft/>
+            <IconEpRefreshLeft />
           </el-icon>
           重新选择文件
         </el-button>
@@ -30,23 +30,23 @@
         <el-form :inline="true" class="config-form" size="default">
           <el-form-item label="适应模式">
             <el-select v-model="fit" placeholder="适应模式" style="width: 130px">
-              <el-option label="等宽自适应" value="width"/>
-              <el-option label="等高自适应" value="height"/>
-              <el-option label="包含 (Contain)" value="contain"/>
-              <el-option label="覆盖 (Cover)" value="cover"/>
-              <el-option label="实际大小" value="actual"/>
-              <el-option label="缩减适应" value="scale-down"/>
+              <el-option label="等宽自适应" value="width" />
+              <el-option label="等高自适应" value="height" />
+              <el-option label="包含 (Contain)" value="contain" />
+              <el-option label="覆盖 (Cover)" value="cover" />
+              <el-option label="实际大小" value="actual" />
+              <el-option label="缩减适应" value="scale-down" />
             </el-select>
           </el-form-item>
           <el-form-item label="预览主题">
             <el-select v-model="theme" placeholder="预览主题" style="width: 110px">
-              <el-option label="跟随系统" value="auto"/>
-              <el-option label="浅色" value="light"/>
-              <el-option label="深色" value="dark"/>
+              <el-option label="跟随系统" value="auto" />
+              <el-option label="浅色" value="light" />
+              <el-option label="深色" value="dark" />
             </el-select>
           </el-form-item>
           <el-form-item label="显示工具栏">
-            <el-switch v-model="toolbar"/>
+            <el-switch v-model="toolbar" />
           </el-form-item>
           <el-form-item label="预览高度">
             <el-radio-group v-model="heightMode" @change="handleHeightModeChange">
@@ -66,11 +66,11 @@
         <!-- 网络文件链接预览输入区 -->
         <div class="url-preview-box">
           <el-input
-              v-model="fileUrl"
-              class="url-preview-input"
-              clearable
-              placeholder="请输入以 http:// 或 https:// 开头的文件链接"
-              @keyup.enter="handleUrlPreview"
+            v-model="fileUrl"
+            class="url-preview-input"
+            clearable
+            placeholder="请输入以 http:// 或 https:// 开头的文件链接"
+            @keyup.enter="handleUrlPreview"
           >
             <template #prepend>
               <span class="url-input-prepend">文件网址</span>
@@ -85,15 +85,15 @@
         </div>
 
         <el-upload
-            :auto-upload="false"
-            :on-change="handleFileChange"
-            :show-file-list="false"
-            action="#"
-            class="viewer-uploader"
-            drag
+          :auto-upload="false"
+          :on-change="handleFileChange"
+          :show-file-list="false"
+          action="#"
+          class="viewer-uploader"
+          drag
         >
           <el-icon class="el-icon--upload">
-            <IconEpUploadFilled/>
+            <IconEpUploadFilled />
           </el-icon>
           <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
           <template #tip>
@@ -101,11 +101,11 @@
               <h4 class="formats-title">支持的常见格式</h4>
               <el-row :gutter="12" class="formats-row">
                 <el-col
-                    v-for="group in formatGroups"
-                    :key="group.label"
-                    :md="group.class === 'format-code' ? 16 : 8"
-                    :sm="12"
-                    :xs="24"
+                  v-for="group in formatGroups"
+                  :key="group.label"
+                  :md="group.class === 'format-code' ? 16 : 8"
+                  :sm="12"
+                  :xs="24"
                 >
                   <div :class="group.class" class="format-group">
                     <span class="group-label">{{ group.label }}</span>
@@ -143,17 +143,17 @@
       <!-- 2. 已选择文件：文件渲染区域 -->
       <div v-else :style="{ height: viewerHeight }" class="preview-wrapper">
         <OpenFileViewer
-            :file="file"
-            :file-name="file.name"
-            :fit="fit"
-            :plugins="plugins"
-            :theme="theme"
-            :toolbar="computedToolbar"
-            height="100%"
-            locale="zh-CN"
-            width="100%"
-            @error="handleLoadError"
-            @load="handleLoadSuccess"
+          :file="file"
+          :file-name="file.name"
+          :fit="fit"
+          :plugins="plugins"
+          :theme="theme"
+          :toolbar="computedToolbar"
+          height="100%"
+          locale="zh-CN"
+          width="100%"
+          @error="handleLoadError"
+          @load="handleLoadSuccess"
         />
       </div>
     </div>
@@ -161,7 +161,7 @@
 </template>
 
 <script setup>
-import {OpenFileViewer} from '@open-file-viewer/vue'
+import { OpenFileViewer } from '@open-file-viewer/vue'
 import {
   archivePlugin,
   audioPlugin,
@@ -180,14 +180,14 @@ import {
 } from '@open-file-viewer/core'
 import '@open-file-viewer/core/style.css'
 import pdfWorkerSrc from 'pdfjs-dist/build/pdf.worker.mjs?url'
-import {sampleFiles} from './sample-files'
+import { sampleFiles } from './sample-files'
 
 const formatGroups = [
-  {label: '图像', class: 'format-image', formats: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp']},
-  {label: '文档', class: 'format-document', formats: ['pdf', 'docx', 'xlsx', 'pptx', 'epub']},
-  {label: '音视频', class: 'format-media', formats: ['mp4', 'webm', 'mp3', 'wav', 'ogg']},
-  {label: '文本与代码', class: 'format-code', formats: ['txt', 'md', 'html', 'css', 'js', 'ts', 'json', 'xml']},
-  {label: '压缩包', class: 'format-archive', formats: ['zip']}
+  { label: '图像', class: 'format-image', formats: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp'] },
+  { label: '文档', class: 'format-document', formats: ['pdf', 'docx', 'xlsx', 'pptx', 'epub'] },
+  { label: '音视频', class: 'format-media', formats: ['mp4', 'webm', 'mp3', 'wav', 'ogg'] },
+  { label: '文本与代码', class: 'format-code', formats: ['txt', 'md', 'html', 'css', 'js', 'ts', 'json', 'xml'] },
+  { label: '压缩包', class: 'format-archive', formats: ['zip'] }
 ]
 
 // 配置参数响应式变量
@@ -251,7 +251,7 @@ const plugins = [
   videoPlugin(),
   audioPlugin(),
   textPlugin(),
-  pdfPlugin({workerSrc: pdfWorkerSrc}),
+  pdfPlugin({ workerSrc: pdfWorkerSrc }),
   officePlugin(),
   archivePlugin(),
   emailPlugin(),
@@ -283,7 +283,7 @@ const openPreview = async selectedFile => {
       query: router.currentRoute.value.query,
       hash: router.currentRoute.value.hash,
       force: true,
-      state: {fileViewerPreview: true}
+      state: { fileViewerPreview: true }
     })
     if (failure) return
   }
@@ -356,7 +356,7 @@ const handleUrlPreview = async () => {
       fileName = 'network_file'
     }
 
-    await openPreview(new File([blob], fileName, {type: blob.type}))
+    await openPreview(new File([blob], fileName, { type: blob.type }))
     ElMessage.success('链接拉取成功，已启动预览')
   } catch (err) {
     console.error('拉取网络文件出错:', err)
@@ -502,9 +502,9 @@ const handleSampleSelect = async sample => {
   border: 1px solid var(--el-border-color-extra-light);
   border-radius: 12px;
   background: linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--el-color-primary) 5%, var(--el-bg-color)),
-      var(--el-bg-color) 65%
+    135deg,
+    color-mix(in srgb, var(--el-color-primary) 5%, var(--el-bg-color)),
+    var(--el-bg-color) 65%
   );
   text-align: left;
 }
@@ -622,8 +622,9 @@ const handleSampleSelect = async sample => {
   min-width: 0;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s ease,
-  border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .sample-card:hover {
