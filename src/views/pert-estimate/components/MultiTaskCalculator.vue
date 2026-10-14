@@ -217,6 +217,7 @@
               <el-icon><QuestionFilled /></el-icon>
             </el-tooltip>
           </div>
+          <div class="column-unit">{{ currentUnit }}</div>
         </template>
         <template #default="{ row }">
           <el-input-number
@@ -240,6 +241,7 @@
               <el-icon><QuestionFilled /></el-icon>
             </el-tooltip>
           </div>
+          <div class="column-unit">{{ currentUnit }}</div>
         </template>
         <template #default="{ row }">
           <el-input-number
@@ -263,6 +265,7 @@
               <el-icon><QuestionFilled /></el-icon>
             </el-tooltip>
           </div>
+          <div class="column-unit">{{ currentUnit }}</div>
         </template>
         <template #default="{ row }">
           <el-input-number
@@ -286,6 +289,7 @@
               <el-icon><QuestionFilled /></el-icon>
             </el-tooltip>
           </div>
+          <div class="column-unit">{{ currentUnit }}</div>
         </template>
         <template #default="{ row }">
           <span class="calc-text te-text font-mono">
@@ -302,6 +306,7 @@
               <el-icon><QuestionFilled /></el-icon>
             </el-tooltip>
           </div>
+          <div class="column-unit">{{ currentUnit }}</div>
         </template>
         <template #default="{ row }">
           <span class="calc-text sd-text font-mono">
@@ -318,6 +323,7 @@
               <el-icon><QuestionFilled /></el-icon>
             </el-tooltip>
           </div>
+          <div class="column-unit">{{ currentUnit }}²</div>
         </template>
         <template #default="{ row }">
           <span class="calc-text var-text font-mono">
@@ -366,6 +372,8 @@
       </el-table-column>
     </el-table>
 
+    <TaskEstimateCharts :aggregate="aggregate" :unit="currentUnit" :precision="currentPrecision" />
+
     <!-- 多任务串联置信区间与承诺概率预测看板 -->
     <ConfidenceIntervalCard :aggregate="aggregate" :unit="currentUnit" :precision="currentPrecision" />
   </div>
@@ -390,8 +398,9 @@ import {
   QuestionFilled,
   WarningFilled
 } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import ConfidenceIntervalCard from './ConfidenceIntervalCard.vue'
+import TaskEstimateCharts from './TaskEstimateCharts.vue'
 import { calculateAggregate, formatNum, demoProjectCases } from '../utils/pert'
 
 const props = defineProps({
@@ -505,12 +514,26 @@ const clearAllTasks = () => {
 }
 
 // 加载示例数据集
-const loadDemo = caseIdx => {
+const loadDemo = async caseIdx => {
   const selectedCase = demoProjectCases[caseIdx]
-  if (selectedCase) {
-    tasks.value = JSON.parse(JSON.stringify(selectedCase.tasks))
-    ElMessage.success(`已载入示例项目：${selectedCase.name}`)
+  if (!selectedCase) return
+
+  try {
+    await ElMessageBox.confirm(
+      `加载“${selectedCase.name}”将覆盖当前所有任务数据，覆盖后不可恢复。是否继续？`,
+      '确认加载示例项目',
+      {
+        confirmButtonText: '覆盖并加载',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+  } catch {
+    return
   }
+
+  tasks.value = JSON.parse(JSON.stringify(selectedCase.tasks))
+  ElMessage.success(`已载入示例项目：${selectedCase.name}`)
 }
 
 // 复制 Markdown 表格
@@ -693,7 +716,6 @@ const copyFullReport = () => {
 .setting-label {
   font-size: 13px;
   color: var(--el-text-color-regular);
-  white-space: nowrap;
 }
 
 /* KPI 看板样式 */
@@ -847,15 +869,25 @@ const copyFullReport = () => {
 }
 
 .col-header-with-tip {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   font-size: 13px;
+  line-height: 18px;
+  white-space: nowrap;
 }
 
 .highlight-header {
   color: var(--el-color-primary);
   font-weight: bold;
+}
+
+.column-unit {
+  font-size: 11px;
+  font-weight: normal;
+  line-height: 14px;
+  color: var(--el-text-color-secondary);
 }
 
 .calc-text {

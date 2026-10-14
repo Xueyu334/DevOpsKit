@@ -190,6 +190,12 @@
           </div>
         </el-col>
       </el-row>
+      <BudgetProbabilityChart
+        :aggregate="aggregate"
+        :target-effort="targetEffort ?? 0"
+        :unit="unit"
+        :precision="precision"
+      />
     </el-card>
   </div>
 </template>
@@ -198,6 +204,7 @@
 import { ref, computed, watch } from 'vue'
 import { TrendCharts, Calendar, Opportunity, InfoFilled } from '@element-plus/icons-vue'
 import { calculateDeliveryProbability, formatNum } from '../utils/pert'
+import BudgetProbabilityChart from './BudgetProbabilityChart.vue'
 
 const props = defineProps({
   aggregate: {
