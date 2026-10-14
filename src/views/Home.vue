@@ -34,7 +34,7 @@
               >
                 <div class="tool-card" @click="handleNavigate(tool.route)">
                   <div :style="{ background: tool.color + '1A', color: tool.color }" class="card-icon">
-                    <component :is="toolIconMap[tool.icon] || IconEpTools" class="tool-icon" />
+                    <component :is="toolIconMap[tool.icon] || defaultToolIcon" class="tool-icon" />
                   </div>
                   <div class="card-content">
                     <div class="card-header">
@@ -71,51 +71,12 @@
 </template>
 
 <script setup>
-import IconEpCreditCard from '~icons/ep/credit-card'
-import IconEpDocumentCopy from '~icons/ep/document-copy'
-import IconEpKey from '~icons/ep/key'
-import IconEpLink from '~icons/ep/link'
-import IconEpPostcard from '~icons/ep/postcard'
-import IconEpTickets from '~icons/ep/tickets'
-import IconEpTimer from '~icons/ep/timer'
-import IconEpMenu from '~icons/ep/menu'
-import IconEpBrush from '~icons/ep/brush'
-import IconEpOperation from '~icons/ep/operation'
-import IconEpTools from '~icons/ep/tools'
-import IconEpDataAnalysis from '~icons/ep/data-analysis'
-import IconEpGrid from '~icons/ep/grid'
-import IconEpConnection from '~icons/ep/connection'
-import IconEpPicture from '~icons/ep/picture'
-import IconEpFinished from '~icons/ep/finished'
-import IconEpLock from '~icons/ep/lock'
-import IconEpDocument from '~icons/ep/document'
 import Fuse from 'fuse.js'
-import { tagTypeHints, toolCategories } from '../config/tool-categories'
+import { defaultToolIcon, tagTypeHints, toolCategories, toolIconMap } from '../config/tool-categories'
 
 const router = useRouter()
 
 const searchQuery = ref('')
-
-const toolIconMap = {
-  CreditCard: IconEpCreditCard,
-  DocumentCopy: IconEpDocumentCopy,
-  Key: IconEpKey,
-  Link: IconEpLink,
-  Postcard: IconEpPostcard,
-  Tickets: IconEpTickets,
-  Timer: IconEpTimer,
-  Menu: IconEpMenu,
-  Brush: IconEpBrush,
-  Operation: IconEpOperation,
-  Tools: IconEpTools,
-  DataAnalysis: IconEpDataAnalysis,
-  Grid: IconEpGrid,
-  Connection: IconEpConnection,
-  Picture: IconEpPicture,
-  Finished: IconEpFinished,
-  Lock: IconEpLock,
-  Document: IconEpDocument
-}
 
 const flatTools = toolCategories.flatMap(category =>
   category.tools.map(tool => ({

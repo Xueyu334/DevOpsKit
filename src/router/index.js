@@ -187,6 +187,12 @@ const routes = [
         name: 'imageToIco',
         component: () => import('@/views/image-to-ico/index.vue'),
         meta: { title: '图片转 ICO' }
+      },
+      {
+        path: '/pert-estimate',
+        name: 'pertEstimate',
+        component: () => import('@/views/pert-estimate/index.vue'),
+        meta: { title: '工作量评估 (PERT)' }
       }
     ]
   },

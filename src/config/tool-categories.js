@@ -1,3 +1,57 @@
+import IconEpBrush from '~icons/ep/brush'
+import IconEpConnection from '~icons/ep/connection'
+import IconEpCreditCard from '~icons/ep/credit-card'
+import IconEpDataAnalysis from '~icons/ep/data-analysis'
+import IconEpDocument from '~icons/ep/document'
+import IconEpDocumentCopy from '~icons/ep/document-copy'
+import IconEpEditPen from '~icons/ep/edit-pen'
+import IconEpFiles from '~icons/ep/files'
+import IconEpFilter from '~icons/ep/filter'
+import IconEpFinished from '~icons/ep/finished'
+import IconEpGrid from '~icons/ep/grid'
+import IconEpKey from '~icons/ep/key'
+import IconEpLink from '~icons/ep/link'
+import IconEpLock from '~icons/ep/lock'
+import IconEpMagicStick from '~icons/ep/magic-stick'
+import IconEpMenu from '~icons/ep/menu'
+import IconEpOperation from '~icons/ep/operation'
+import IconEpPicture from '~icons/ep/picture'
+import IconEpPostcard from '~icons/ep/postcard'
+import IconEpSwitch from '~icons/ep/switch'
+import IconEpTickets from '~icons/ep/tickets'
+import IconEpTimer from '~icons/ep/timer'
+import IconEpTools from '~icons/ep/tools'
+import IconEpTrendCharts from '~icons/ep/trend-charts'
+
+export const defaultToolIcon = IconEpTools
+
+export const toolIconMap = {
+  CreditCard: IconEpCreditCard,
+  DocumentCopy: IconEpDocumentCopy,
+  Key: IconEpKey,
+  Link: IconEpLink,
+  Postcard: IconEpPostcard,
+  Tickets: IconEpTickets,
+  Timer: IconEpTimer,
+  Menu: IconEpMenu,
+  Brush: IconEpBrush,
+  Operation: IconEpOperation,
+  Tools: IconEpTools,
+  DataAnalysis: IconEpDataAnalysis,
+  Grid: IconEpGrid,
+  Connection: IconEpConnection,
+  Picture: IconEpPicture,
+  Finished: IconEpFinished,
+  Lock: IconEpLock,
+  Document: IconEpDocument,
+  TrendCharts: IconEpTrendCharts,
+  EditPen: IconEpEditPen,
+  Filter: IconEpFilter,
+  Switch: IconEpSwitch,
+  MagicStick: IconEpMagicStick,
+  Files: IconEpFiles
+}
+
 // Element Plus el-tag 的 type 可选值：
 // 'primary', 'success', 'info', 'warning', 'danger'
 export const tagTypeHints = {
@@ -117,6 +171,30 @@ export const toolCategories = [
         tag: 'Media',
         tagType: 'primary',
         tagTip: '多格式本地文件与文档安全在线预览'
+      },
+      {
+        id: 'pert-estimate',
+        name: '工作量评估 (PERT 估算)',
+        menuTitle: '工作量评估',
+        desc: '基于 PERT 三点估算法（乐观/最可能/悲观）评估工时与工作量，计算期望值、标准差与方差，支持多任务串联风险合成与置信度预测。',
+        keywords: [
+          'pert',
+          '工作量评估',
+          '工时估算',
+          '三点估算',
+          '项目管理',
+          '风险评估',
+          'workload',
+          'te',
+          '标准差',
+          '方差'
+        ],
+        route: '/pert-estimate',
+        icon: 'TrendCharts',
+        color: '#409EFF',
+        tag: 'Plan',
+        tagType: 'primary',
+        tagTip: 'PERT 三点估算法、工作量期望值与多任务方差合成'
       }
     ]
   },
