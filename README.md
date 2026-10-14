@@ -19,6 +19,7 @@ DevOpsKit 是一个基于 Vue 3 + Vite + Element Plus 构建的前端工具箱�
 | ASCII 码对照表 | `/ascii-table` | 完整的 ASCII 码表速查，支持多种进制和控制字符的模糊搜索。 |
 | ASCII 艺术字 | `/ascii-banner` | 生成 Spring Boot 风格的艺术字 Banner，支持多种字体及中文支持。 |
 | 正则测试 | `/regex-tester` | 在线测试正则表达式，支持全局、忽略大小写匹配，实时展示匹配结果及分组信息。 |
+| 工作量评估 (PERT) | `/pert-estimate` | 支持单任务三点估算、多任务工作量与风险汇总，提供任务估算区间、方差贡献排名和预算达成概率图表。 |
 | 文件在线预览 | `/file-viewer` | 支持 PDF、Office 文档、图片、音视频、代码/文本及压缩包的在线预览。支持本地文件拖拽与网络 URL 链接解析预览（自动处理 Content-Disposition 请求头获取文件名）。 |
 
 ### 🔐 编解码与安全
@@ -56,14 +57,23 @@ DevOpsKit 是一个基于 Vue 3 + Vite + Element Plus 构建的前端工具箱�
 | Docker 备查 | `/docker-commands` | 镜像、容器、网络、Compose 等分类整理的常用 Docker 命令集。 |
 | Nginx 备查 | `/nginx-reference` | 包含常用 CLI 命令及反向代理、SSL 等常用配置模板。 |
 
+## PERT 工作量评估
+
+- **三点估算**：输入乐观值 O、最可能值 M、悲观值 P，支持经典 PERT、算术平均及自定义 M 权重，计算期望值、标准差、方差和风险等级。
+- **多任务评估**：支持添加、复制、排序和删除任务，切换工作量单位与显示精度；仅将有效任务计入汇总，按任务方差相加后开平方计算总标准差。
+- **图表分析**：使用 ECharts 展示 O～P 估算区间及 M、Te 标记、任务方差贡献排名，以及与目标预算输入联动的达成概率曲线；支持深浅色主题和多任务滚动查看。
+- **示例与导出**：加载示例项目前需确认覆盖当前任务数据；支持复制 Markdown 表格、导出 CSV 和复制评估总结报告。
+- **模型边界**：预算达成概率基于任务独立假设与正态近似。当前各权重模式均沿用 `σ = (P - O) / 6` 的标准差口径，不代表严格的三角分布模拟；人天、人时及故事点等工作量预算不等同于实际交付日期。
+
 ## 技术栈
 
 - **框架**: [Vue 3](https://vuejs.org/) (Composition API + `<script setup>`)
-- **构建**: [Vite 7](https://vitejs.dev/)
+- **构建**: [Vite 8](https://vitejs.dev/)
 - **UI**: [Element Plus](https://element-plus.org/)
 - **工具库**: [VueUse](https://vueuse.org/), [Day.js](https://day.js.org/) (时区处理)
+- **统计图表**: [Apache ECharts](https://echarts.apache.org/) (PERT 估算与风险分析)
 - **工程化**: [unplugin-auto-import](https://github.com/unplugin/unplugin-auto-import), [unplugin-vue-components](https://github.com/unplugin/unplugin-vue-components), [unplugin-icons](https://github.com/unplugin/unplugin-icons)
-- **算法/解析**: `mermaid`, `hash-wasm`, `figlet`, `canvas`, `vue-diff`, `pdfjs-dist`, `@open-file-viewer/vue`
+- **算法/解析**: `mermaid`, `hash-wasm`, `figlet`, `canvas`, `vue-diff`, `pdfjs-dist`, `@open-file-viewer/vue`, `big.js` (PERT 高精度计算)
 
 ## 快速开始
 
@@ -90,6 +100,7 @@ src/
 │  ├─ ascii-banner/         # ASCII 艺术字生成 (New!)
 │  ├─ pdm-parser/           # PDM 解析 (New!)
 │  ├─ regex-tester/         # 正则表达式测试 (New!)
+│  ├─ pert-estimate/        # PERT 工作量估算与统计图表
 │  ├─ mp3-cutter/           # MP3 音频截取 (New!)
 │  ├─ base-converter/       # 进制转换
 │  ├─ image-to-base64/      # 图片转 Base64
@@ -131,6 +142,7 @@ src/
 - [x] **PowerDesigner 解析**：本地解析 PDM 文件提取表结构并导出文档
 - [x] **文件在线预览**：支持 PDF、Office 文档、图片、音视频及压缩包本地在线预览
 - [x] **正则在线测试**：支持实时分组匹配与常用正则表达式库
+- [x] **PERT 工作量评估**：支持三点估算、多任务方差合成、任务区间与方差贡献图表及预算达成概率分析
 
 ### 🔐 编解码与安全
 - [x] **Base64 编解码**：支持文本/图片双向转换与 Data URI 生成
