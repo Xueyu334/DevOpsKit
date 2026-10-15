@@ -19,10 +19,11 @@ import Big from 'big.js'
  *    - 总标准差：sigma_total = sqrt(V_total)
  *    注意：多任务汇总时，标准差不能直接相加，必须先将各任务的方差相加，再开平方！
  *
- * 本模块全程采用 Big.js 进行高精度浮点数四则运算，规避 JavaScript 浮点数累加与除法精度丢失。
+ * 单任务指标与多任务汇总在内部使用 Big.js 运算，对外返回 Number 供展示。
+ * 除法与开方受 Big.DP 精度限制；概率计算中的 Math.exp 等步骤仍采用 Number 近似。
  */
 
-// 配置 Big.js 默认除法精度为 20 位有效小数
+// 配置 Big.js 除法与开方保留 20 位小数
 Big.DP = 20
 
 /**
@@ -88,11 +89,16 @@ export function normalCdf(z) {
 }
 
 /**
- * 计算单个任务的 PERT 指标（全流程使用 Big.js 进行高精度计算）
+ * 计算单个任务的 PERT 指标（内部使用 Big.js，对外返回 Number）
  * @param {Object} task 任务对象 { o, m, p, weightMode, customWeight }
  * @param {Object} globalOptions 全局选项 { defaultWeightMode, defaultCustomWeight }
  */
 export function calculateSingleTask(task, globalOptions = {}) {
+  return calculateTaskResult(task, globalOptions).result
+}
+
+// 同一次计算同时保留内部高精度指标和对外数值结果，汇总不回读 Number。
+function calculateTaskResult(task, globalOptions = {}) {
   const oBig = toBig(task.o, 0)
   const mBig = toBig(task.m, 0)
   const pBig = toBig(task.p, 0)
@@ -192,7 +198,7 @@ export function calculateSingleTask(task, globalOptions = {}) {
     riskDescription = '存在一定外部依赖或技术试错成本，具备中度风险'
   }
 
-  return {
+  const result = {
     o,
     m,
     p,
@@ -210,6 +216,8 @@ export function calculateSingleTask(task, globalOptions = {}) {
     validationMessage,
     isValuesEntered
   }
+
+  return { result, teBig, sdBig, varianceBig }
 }
 
 /**
@@ -231,12 +239,12 @@ export function calculateAggregate(tasks = [], globalOptions = {}) {
   }
 
   const computedTasks = tasks.map((task, index) => {
-    const calc = calculateSingleTask(task, aggregateOptions)
+    const { result: calc, teBig, sdBig, varianceBig } = calculateTaskResult(task, aggregateOptions)
     if (calc.isValid && calc.isValuesEntered) {
       validCount++
-      totalTeBig = totalTeBig.plus(calc.te)
-      totalVarianceBig = totalVarianceBig.plus(calc.variance)
-      directSdSumBig = directSdSumBig.plus(calc.sd)
+      totalTeBig = totalTeBig.plus(teBig)
+      totalVarianceBig = totalVarianceBig.plus(varianceBig)
+      directSdSumBig = directSdSumBig.plus(sdBig)
       highRiskCount[calc.riskLevel]++
     } else if (!calc.isValid) {
       invalidCount++
