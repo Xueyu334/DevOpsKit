@@ -1,10 +1,10 @@
 # DevOpsKit
 
-DevOpsKit 是一个基于 Vue 3 + Vite + Element Plus 构建的前端工具箱，面向研发、测试和运维场景，提供文本处理、字符编码速查、编解码、摘要计算、时间戳转换和测试数据生成等常用能力。
+DevOpsKit 是一个基于 Vue 3 + Vite + Element Plus 构建的前端工具箱，面向研发、测试和运维场景，提供文本处理、字符编码速查、编解码、摘要计算、时间戳转换、图片转换、拼豆图纸和测试数据生成等常用能力。
 
 **演示地址：[https://www.xueyu123.work/dev-ops-kit](https://www.xueyu123.work/dev-ops-kit)**
 
-项目当前以 SPA 形式运行，首页和顶部导航由配置驱动，集成高度自动化的工程化工具，新增功能极其方便。
+项目当前以 SPA 形式运行，首页和顶部导航由配置驱动，支持关键词搜索、热门工具推荐，以及基于本地访问记录的常用工具展示。
 
 ## 当前功能
 
@@ -49,6 +49,7 @@ DevOpsKit 是一个基于 Vue 3 + Vite + Element Plus 构建的前端工具箱�
 | CSS 渐变生成器 | `/css-gradient` | 本地生成跨浏览器兼容的线性/径向渐变代码，支持多色预设与随机化。 |
 | 测试文件生成器 | `/dummy-file-generator` | 指定大小(Byte/KB/MB/GB)自动填充并极速下载 txt 测试文件。 |
 | 图片转 ICO | `/image-to-ico` | 纯前端将 PNG、JPG、WebP、SVG 等图片转换为多尺寸 Windows/Favicon .ico 图标。 |
+| 拼豆图纸生成器 | `/bead-pattern` | 图片转 ARTKAL 拼豆图纸，支持参数自动更新、行列坐标与色号、缩放预览、用料统计及 PNG / CSV 导出。 |
 
 ### 🚀 运维与部署备查
 
@@ -56,6 +57,26 @@ DevOpsKit 是一个基于 Vue 3 + Vite + Element Plus 构建的前端工具箱�
 | --- | --- | --- |
 | Docker 备查 | `/docker-commands` | 镜像、容器、网络、Compose 等分类整理的常用 Docker 命令集。 |
 | Nginx 备查 | `/nginx-reference` | 包含常用 CLI 命令及反向代理、SSL 等常用配置模板。 |
+
+## 首页与常用工具
+
+- **热门工具**：默认推荐 JSON 工具、拼豆图纸、文本比对和二维码生成器，可通过 `src/config/tool-categories.js` 中的 `popularToolIds` 调整顺序与内容。
+- **常用工具**：按成功进入工具页面的访问次数排序，同次数时最近访问的优先，最多显示 4 个；没有访问记录时隐藏该区域。记录覆盖首页卡片、导航菜单、直接打开链接、刷新和再次进入，不统计首页、未知工具、失败导航，以及同一工具内仅查询参数或锚点的变化。
+- **本地记录**：通过 `localStorage` 的 `devopskit-tool-usage` 保存工具 ID、访问次数和最近访问时间，无需登录；首页支持清空记录，同一站点的浏览器标签页可同步变化，记录不跨浏览器或设备同步。
+- **异常处理**：自动忽略损坏或无效记录；浏览器禁止存储或写入失败时，降级为当前会话内统计，不影响工具访问。
+- **搜索**：按名称、描述和关键词模糊匹配。搜索时只展示匹配的工具分类，避免常用区与热门区重复展示。
+
+访问统计由独立 Hook `src/composables/useToolUsage.js` 管理：`useToolUsage()` 提供 `frequentTools` 和 `clearUsage()`，路由在成功切换到工具页面后调用 `recordToolVisit(path)`。数据校验、次数更新与排序逻辑位于 `src/utils/tool-usage.js`。
+
+## 拼豆图纸生成器
+
+- **图片与尺寸**：支持 PNG、JPG、WebP，单张不超过 20MB、4000 万像素；提供完整图片和居中正方形两种范围，最大边长可设为 16–512 格，另一边按比例计算。
+- **采样与配色**：使用 ARTKAL S 5mm 的 S01–S64 参考色卡，提供 16 / 24 / 32 / 64 色子集；支持平均取色、中心取色，以及透明区域留空或铺白底。屏幕颜色仅供预览，备料请核对实物色卡。
+- **自动更新**：上传后自动生成图纸，调整参数后约 300ms 更新；连续调整会取消旧任务，只保留最新结果。更新时显示 loading，完成前禁用导出，失败时展示提示。
+- **预览与定位**：显示行列坐标、逐格色号与每 5 / 10 格辅助线；点击格子查看行、列和色号，坐标从左上角的 1 开始。支持自动适应、百分比快捷按钮、下拉选择及 Ctrl / Cmd + 鼠标滚轮缩放。
+- **用料与导出**：在弹窗内查看颜色用量，支持按数量或色号排序；可导出带坐标、色号和用料图例的 PNG 图纸，以及 CSV 用料清单。所有图片处理均在浏览器本地完成。
+
+色卡与配色思路参考 [AsZer0s/PinDouStudio](https://github.com/AsZer0s/PinDouStudio)，相关上游内容采用 [MIT 许可](https://github.com/AsZer0s/PinDouStudio/blob/main/LICENSE)。
 
 ## PERT 工作量评估
 
@@ -95,8 +116,13 @@ DevOpsKit 是一个基于 Vue 3 + Vite + Element Plus 构建的前端工具箱�
 ```text
 src/
 ├─ config/
-│  └─ tool-categories.js    # 导航、分类及工具元数据配置 (驱动型)
+│  └─ tool-categories.js    # 导航、分类、热门工具及工具元数据配置
+├─ composables/
+│  ├─ useToolUsage.js       # 工具访问统计、常用排序与本地存储 Hook
+│  └─ ...                  # 其他通用组合式逻辑
 ├─ views/
+│  ├─ Home.vue              # 首页搜索、常用工具及热门推荐
+│  ├─ bead-pattern/         # 图片转拼豆图纸、预览与用料导出
 │  ├─ ascii-banner/         # ASCII 艺术字生成 (New!)
 │  ├─ pdm-parser/           # PDM 解析 (New!)
 │  ├─ regex-tester/         # 正则表达式测试 (New!)
@@ -118,6 +144,7 @@ src/
 ├─ router/                  # 动态路由配置
 ├─ utils/
 │  ├─ ico/                  # ICO 二进制编码与图像转换核心模块 (New!)
+│  ├─ tool-usage.js         # 访问记录校验、次数更新与常用排序
 │  └─ nprogress.js          # 增强型进度条控制 (带防抖优化)
 ├─ App.vue
 └─ main.js                  # 入口文件
@@ -127,6 +154,7 @@ src/
 
 - **自动导入**: 项目已启用全量自动导入，Vue API、Element Plus 组件、VueUse 方法、Iconify 图标（前缀为 `IconEp`）等**无需手动 import**。
 - **配置驱动**: 新增工具需在 `src/config/tool-categories.js` 补充元数据，首页和菜单将自动渲染。
+- **访问统计**: 工具访问统一由路由成功切换后的钩子记录，不要在首页点击或工具组件中重复计数；常用工具状态通过 `useToolUsage()` 获取。
 - **命名规范**: 页面目录使用 `kebab-case`，路由名使用 `camelCase`。
 
 ## 注意事项
@@ -152,11 +180,17 @@ src/
 - [x] **JWT 解码与签名校验**：支持 JWT 结构色彩拆分、RFC 7519 7个标准字段分析、Claims 过期时间计算，以及 HMAC (HS256/384/512) 与 RSA (RS256/384/512) 本地签名校验与生成
 
 ### 📊 数据转换与实用功能
+- [x] **拼豆图纸生成器**：图片本地转换、ARTKAL 参考配色、参数自动更新、坐标与色号预览、用料弹窗及 PNG / CSV 导出
 - [x] **图片转 ICO (Favicon) 生成器**：纯前端将 PNG/JPG/WebP/SVG 转为包含 16~256 多尺寸的标准 Windows/Web ICO 图标
 - [x] **全球 27 时区时间戳转换**：接入 Day.js 提供精准全球时区转换与格式化
 - [x] **多进制转换器**：支持 2 / 8 / 10 / 16 进制大数实时互转
 - [x] **CSS 渐变生成器**：支持线性/径向渐变在线预览与 CSS 代码一键导出
 - [x] **测试文件生成器**：指定大小快速生成并下载测试文本文件
+
+### 🏠 首页体验
+
+- [x] **热门工具推荐**：通过配置维护首页热门工具入口
+- [x] **常用工具**：基于路由访问次数与最近访问时间排序，支持本地保存、标签页同步及清空记录
 
 ### 📌 规划中功能 (Upcoming Features)
 - [ ] **图片在线压缩与裁剪**：支持质量调优、常用尺寸压制与 WebP 格式导出
