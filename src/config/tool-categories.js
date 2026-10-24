@@ -443,6 +443,19 @@ export const toolCategories = [
         tag: 'Design',
         tagType: 'success',
         tagTip: '多尺寸与矢量 SVG 纯前端本地 ICO 图标生成'
+      },
+      {
+        id: 'bead-pattern',
+        name: '拼豆图纸生成器',
+        menuTitle: '拼豆图纸',
+        desc: '图片转 ARTKAL 拼豆图纸，支持行列坐标、逐格色号、用料统计和 PNG / CSV 导出。',
+        keywords: ['拼豆', '拼豆坐标', '拼豆图纸', '像素画', 'bead', 'perler', 'artkal'],
+        route: '/bead-pattern',
+        icon: 'Grid',
+        color: '#E6A23C',
+        tag: 'Design',
+        tagType: 'success',
+        tagTip: '浏览器本地图片转拼豆坐标图纸与用料清单'
       }
     ]
   },

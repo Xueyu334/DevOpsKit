@@ -189,6 +189,12 @@ const routes = [
         meta: { title: '图片转 ICO' }
       },
       {
+        path: '/bead-pattern',
+        name: 'beadPattern',
+        component: () => import('@/views/bead-pattern/index.vue'),
+        meta: { title: '拼豆图纸生成器' }
+      },
+      {
         path: '/pert-estimate',
         name: 'pertEstimate',
         component: () => import('@/views/pert-estimate/index.vue'),
