@@ -21,9 +21,20 @@
     <div class="tools-section">
       <el-scrollbar class="tools-scrollbar">
         <div class="tools-scroll-content">
-          <div v-for="category in filteredCategories" :key="category.id" class="category-block">
+          <div v-for="category in displayedCategories" :key="category.id" class="category-block">
             <h2 class="category-title">
+              <el-icon v-if="category.id === 'popular'" class="popular-icon"><IconEpStarFilled /></el-icon>
               {{ category.name }}
+              <el-button
+                v-if="category.id === 'frequent'"
+                class="clear-usage"
+                type="info"
+                link
+                size="small"
+                @click="clearUsage"
+              >
+                清空记录
+              </el-button>
             </h2>
             <el-row :gutter="16">
               <el-col
@@ -50,6 +61,9 @@
                       </el-tooltip>
                     </div>
                     <p :title="tool.desc" class="tool-desc">{{ tool.desc }}</p>
+                    <p v-if="category.id === 'frequent'" class="visit-count">
+                      访问 {{ tool.visitCount.toLocaleString() }} 次
+                    </p>
                   </div>
                 </div>
               </el-col>
@@ -72,9 +86,11 @@
 
 <script setup>
 import Fuse from 'fuse.js'
-import { defaultToolIcon, tagTypeHints, toolCategories, toolIconMap } from '../config/tool-categories'
+import { defaultToolIcon, popularToolIds, tagTypeHints, toolCategories, toolIconMap } from '../config/tool-categories'
+import { useToolUsage } from '@/composables/useToolUsage'
 
 const router = useRouter()
+const { frequentTools, clearUsage } = useToolUsage()
 
 const searchQuery = ref('')
 
@@ -115,6 +131,16 @@ const filteredCategories = computed(() => {
 })
 
 const hasNoResults = computed(() => Boolean(searchQuery.value.trim()) && filteredCategories.value.length === 0)
+
+const popularTools = popularToolIds.map(id => flatTools.find(tool => tool.id === id)).filter(Boolean)
+const displayedCategories = computed(() => {
+  if (searchQuery.value.trim()) return filteredCategories.value
+  return [
+    ...(frequentTools.value.length ? [{ id: 'frequent', name: '常用工具', tools: frequentTools.value }] : []),
+    ...(popularTools.length ? [{ id: 'popular', name: '热门工具', tools: popularTools }] : []),
+    ...filteredCategories.value
+  ]
+})
 
 // 卡片点击跳转逻辑
 const handleNavigate = route => {
@@ -271,6 +297,9 @@ const handleNavigate = route => {
 }
 
 .category-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 16px;
   font-weight: 600;
   color: var(--el-text-color-primary);
@@ -278,6 +307,21 @@ const handleNavigate = route => {
   padding-left: 10px;
   position: relative;
   letter-spacing: 0.5px;
+}
+
+.popular-icon {
+  color: var(--el-color-warning);
+  font-size: 18px;
+}
+
+.clear-usage {
+  margin-left: auto;
+}
+
+.visit-count {
+  margin: 8px 0 0;
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
 }
 
 .category-title::before {

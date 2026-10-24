@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import Layout from '@/layout/index.vue'
 import progress from '@/utils/nprogress'
+import { recordToolVisit } from '@/composables/useToolUsage'
 
 /**
  * 路由配置数组。
@@ -228,8 +229,9 @@ router.beforeEach(to => {
 })
 
 // 添加路由后置守卫关闭进度条
-router.afterEach(() => {
+router.afterEach((to, from, failure) => {
   progress.done() // 使用增强版 done
+  if (!failure && to.path !== from.path) recordToolVisit(to.path)
 })
 
 // 处理路由解析错误，防止进度条卡死

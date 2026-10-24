@@ -62,6 +62,8 @@ export const tagTypeHints = {
   warning: '时间计算 / 进制数据 / 便民效率工具'
 }
 
+export const popularToolIds = ['json-tools', 'bead-pattern', 'text-diff', 'qrcode-generator']
+
 export const toolCategories = [
   {
     id: 'dev-text',
