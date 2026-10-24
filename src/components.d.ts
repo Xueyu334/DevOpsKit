@@ -113,6 +113,7 @@ declare module 'vue' {
     IconEpTop: typeof import('~icons/ep/top')['default']
     IconEpUploadFilled: typeof import('~icons/ep/upload-filled')['default']
     IconEpWarning: typeof import('~icons/ep/warning')['default']
+    IconEpWarningFilled: typeof import('~icons/ep/warning-filled')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
@@ -224,6 +225,7 @@ declare global {
   const IconEpTop: typeof import('~icons/ep/top')['default']
   const IconEpUploadFilled: typeof import('~icons/ep/upload-filled')['default']
   const IconEpWarning: typeof import('~icons/ep/warning')['default']
+  const IconEpWarningFilled: typeof import('~icons/ep/warning-filled')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
 }

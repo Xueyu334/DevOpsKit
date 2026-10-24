@@ -33,7 +33,7 @@ function updateOptions(value) {
 <template>
   <div class="bead-pattern-page">
     <el-alert v-if="error" class="error-note" :title="error" type="error" show-icon :closable="false"/>
-    <el-row :gutter="20">
+    <el-row :gutter="20" class="workspace-row">
       <el-col :xs="24" :lg="8" class="controls-column">
         <PatternControls
             :source="source"
@@ -45,10 +45,11 @@ function updateOptions(value) {
             @clear="clear"
         />
       </el-col>
-      <el-col :xs="24" :lg="16">
+      <el-col :xs="24" :lg="16" class="preview-column">
         <PatternPreview
             :pattern="pattern"
             :stale="stale"
+            :failed="!!error && !!pattern && !generating && !loading"
             :busy="generating || loading"
             :exporting="exporting"
             @export-png="exportPng"
@@ -99,6 +100,38 @@ function updateOptions(value) {
   color: var(--el-text-color-secondary);
   line-height: 1.8;
   margin: 12px 0 0;
+  flex-shrink: 0;
+}
+
+@media (min-width: 1200px) {
+  .bead-pattern-page {
+    --bead-panel-height: 100%;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .workspace-row {
+    flex: 1;
+    flex-wrap: nowrap;
+    min-height: 0;
+  }
+
+  .controls-column,
+  .preview-column {
+    display: flex;
+    min-height: 0;
+  }
+
+  .controls-column > *,
+  .preview-column > * {
+    width: 100%;
+  }
+
+  .error-note {
+    flex-shrink: 0;
+  }
 }
 
 .source-note .el-link {

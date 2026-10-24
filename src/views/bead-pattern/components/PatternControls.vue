@@ -23,28 +23,36 @@ function update(key, value) {
     </template>
     <el-scrollbar class="settings-scrollbar" always>
       <div class="settings-content">
-        <el-upload
-          class="source-uploader"
-          v-loading="loading"
-          drag
-          action="#"
-          :auto-upload="false"
-          :show-file-list="false"
-          accept="image/png,image/jpeg,image/webp"
-          aria-label="上传拼豆原图"
-          @change="$emit('upload', $event)"
-        >
-          <img v-if="source" class="source-image" :src="source.url" alt="拼豆原图，点击替换图片" />
-          <template v-else>
-            <el-icon class="upload-icon"><IconEpUploadFilled /></el-icon>
-            <div class="el-upload__text">拖入图片，或 <em>点击选择</em></div>
-          </template>
-          <div class="hint">PNG / JPG / WebP · 最大 20MB、4000 万像素</div>
-        </el-upload>
-        <div v-if="source" class="file-info">
-          <span class="filename" :title="source.name">{{ source.name }}</span>
-          <el-tag size="small" type="info">{{ source.width }} × {{ source.height }} px</el-tag>
-        </div>
+        <el-row :gutter="16" align="middle" class="source-row">
+          <el-col :xs="24" :sm="source ? 10 : 24">
+            <el-upload
+              class="source-uploader"
+              v-loading="loading"
+              drag
+              action="#"
+              :auto-upload="false"
+              :show-file-list="false"
+              accept="image/png,image/jpeg,image/webp"
+              aria-label="上传拼豆原图"
+              @change="$emit('upload', $event)"
+            >
+              <img v-if="source" class="source-image" :src="source.url" alt="拼豆原图，点击替换图片" />
+              <template v-else>
+                <el-icon class="upload-icon"><IconEpUploadFilled /></el-icon>
+                <div class="el-upload__text">拖入图片，或 <em>点击选择</em></div>
+              </template>
+              <div v-if="source" class="hint">点击或拖拽替换</div>
+              <div v-else class="hint">PNG / JPG / WebP · 最大 20MB、4000 万像素</div>
+            </el-upload>
+          </el-col>
+          <el-col v-if="source" :xs="24" :sm="14">
+            <div class="file-info">
+              <span class="filename" :title="source.name">{{ source.name }}</span>
+              <el-tag size="small" type="info">{{ source.width }} × {{ source.height }} px</el-tag>
+              <span class="hint">PNG / JPG / WebP · 最大 20MB、4000 万像素</span>
+            </div>
+          </el-col>
+        </el-row>
         <el-form label-position="top" class="settings-form" :disabled="loading">
           <el-form-item label="图片范围">
             <el-radio-group :model-value="options.crop" @update:model-value="update('crop', $event)">
@@ -104,9 +112,10 @@ function update(key, value) {
 
 <style scoped>
 .controls-card {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  height: min(720px, calc(100dvh - 160px));
+  height: var(--bead-panel-height, min(720px, calc(100dvh - 160px)));
 }
 .controls-card :deep(.el-card__header),
 .controls-card :deep(.el-card__footer) {
@@ -141,7 +150,7 @@ function update(key, value) {
 .source-image {
   display: block;
   max-width: 100%;
-  height: 110px;
+  height: 90px;
   object-fit: contain;
   margin: 0 auto 8px;
 }
@@ -159,12 +168,13 @@ function update(key, value) {
 }
 .file-info {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 8px;
-  margin-top: 12px;
+  min-width: 0;
 }
 .filename {
+  display: block;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -187,5 +197,10 @@ function update(key, value) {
 .privacy {
   text-align: center;
   margin-bottom: 0;
+}
+@media (max-width: 767px) {
+  .source-row .file-info {
+    margin-top: 12px;
+  }
 }
 </style>
