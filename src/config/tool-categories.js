@@ -330,6 +330,19 @@ export const toolCategories = [
     menuKey: 'utility',
     tools: [
       {
+        id: 'loan-calculator',
+        name: '贷款分期计算器',
+        menuTitle: '贷款分期计算器',
+        desc: '支持等额本息、等额本金、先息后本、等本等息，测算提前结清与实际年化利率。',
+        keywords: ['贷款', '分期', '还款', '等额本息', '等额本金', '先息后本', '等本等息', '手续费', 'IRR'],
+        route: '/loan-calculator',
+        icon: 'CreditCard',
+        color: '#409EFF',
+        tag: 'Finance',
+        tagType: 'warning',
+        tagTip: '按月还款明细、提前结清与现金流 IRR 测算'
+      },
+      {
         id: 'timestamp-converter',
         name: '时间戳转换',
         menuTitle: '时间戳转换',

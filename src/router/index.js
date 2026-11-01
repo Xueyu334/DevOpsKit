@@ -196,6 +196,12 @@ const routes = [
         meta: { title: '拼豆图纸生成器' }
       },
       {
+        path: '/loan-calculator',
+        name: 'loanCalculator',
+        component: () => import('@/views/loan-calculator/index.vue'),
+        meta: { title: '贷款分期计算器' }
+      },
+      {
         path: '/pert-estimate',
         name: 'pertEstimate',
         component: () => import('@/views/pert-estimate/index.vue'),
