@@ -89,7 +89,7 @@ export default defineConfig(({ command, mode }) => {
       // }
     },
     build: {
-      outDir: 'dist', // 打包输出的文件夹名
+      outDir: 'dist/devopskit', // 构建产物放在 dist 子目录中，与压缩包分开
       sourcemap: false, // 生产环境是否生成 source map（建议为 false，减少体积、防源码泄露）
       chunkSizeWarningLimit: 1500, // 触发大文件体积警告的阈值 (单位 kb)
       rolldownOptions: {
