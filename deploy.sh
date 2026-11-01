@@ -6,13 +6,19 @@ readonly DIST_DIR="${DEPLOY_DIR}/dist"
 readonly BACKUP_DIR="${DEPLOY_DIR}/backup"
 readonly ARCHIVE="${DEPLOY_DIR}/devopskit.tar.gz"
 
+action=${1:-deploy}
+if (( $# > 1 )) || [[ "$action" != 'deploy' && "$action" != 'backup' ]]; then
+  printf '用法：%s [deploy|backup]（默认 deploy）\n' "$0" >&2
+  exit 2
+fi
+
 staging_dir=''
 backup_path=''
 
 cleanup() {
   local status=$?
   # 备份移走后若新目录未发布成功，恢复原目录。
-  if (( status != 0 )) && [[ -n "$backup_path" && ! -e "$DIST_DIR" ]]; then
+  if (( status != 0 )) && [[ "$action" == 'deploy' && -n "$backup_path" && ! -e "$DIST_DIR" ]]; then
     printf '部署失败，正在恢复备份：%s\n' "$backup_path" >&2
     if ! mv -- "$backup_path" "$DIST_DIR"; then
       printf '自动恢复失败，请手动恢复：%s\n' "$backup_path" >&2
@@ -28,12 +34,27 @@ trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
-if [[ ! -f "$ARCHIVE" ]]; then
-  printf '未找到部署包：%s\n' "$ARCHIVE" >&2
-  exit 1
-fi
 if [[ -L "$DIST_DIR" || ( -e "$DIST_DIR" && ! -d "$DIST_DIR" ) ]]; then
   printf '部署目标须为普通目录：%s\n' "$DIST_DIR" >&2
+  exit 1
+fi
+
+if [[ "$action" == 'backup' ]]; then
+  if [[ ! -d "$DIST_DIR" ]]; then
+    printf '未找到需要备份的目录：%s\n' "$DIST_DIR" >&2
+    exit 1
+  fi
+  mkdir -p -- "$BACKUP_DIR"
+  backup_path="${BACKUP_DIR}/dist-$(date +%Y%m%d_%H%M%S)-$$"
+  staging_dir=$(mktemp -d "${BACKUP_DIR}/.backup.XXXXXXXX")
+  cp -a -- "$DIST_DIR" "${staging_dir}/dist"
+  mv -- "${staging_dir}/dist" "$backup_path"
+  printf '备份完成：%s\n当前 dist 保持不变。\n' "$backup_path"
+  exit 0
+fi
+
+if [[ ! -f "$ARCHIVE" ]]; then
+  printf '未找到部署包：%s\n' "$ARCHIVE" >&2
   exit 1
 fi
 
