@@ -202,6 +202,12 @@ const routes = [
         meta: { title: '贷款分期计算器' }
       },
       {
+        path: '/bmi-calculator',
+        name: 'bmiCalculator',
+        component: () => import('@/views/bmi-calculator/index.vue'),
+        meta: { title: 'BMI 计算' }
+      },
+      {
         path: '/pert-estimate',
         name: 'pertEstimate',
         component: () => import('@/views/pert-estimate/index.vue'),

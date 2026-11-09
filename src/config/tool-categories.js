@@ -330,6 +330,19 @@ export const toolCategories = [
     menuKey: 'utility',
     tools: [
       {
+        id: 'bmi-calculator',
+        name: 'BMI 计算',
+        menuTitle: 'BMI 计算',
+        desc: '输入身高和体重，计算 BMI 指数，并按中国成人标准了解体重状况。',
+        keywords: ['bmi', 'BMI计算', '体质指数', '身体质量指数', '身高', '体重', '健康', '肥胖'],
+        route: '/bmi-calculator',
+        icon: 'TrendCharts',
+        color: '#67C23A',
+        tag: 'Health',
+        tagType: 'warning',
+        tagTip: '中国成人 BMI 指数与体重分类'
+      },
+      {
         id: 'loan-calculator',
         name: '贷款分期计算器',
         menuTitle: '贷款分期计算器',
