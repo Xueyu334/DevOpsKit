@@ -214,6 +214,12 @@ const routes = [
         meta: { title: '温度转换' }
       },
       {
+        path: '/number-case-converter',
+        name: 'numberCaseConverter',
+        component: () => import('@/views/number-case-converter/index.vue'),
+        meta: { title: '数字大小写转换' }
+      },
+      {
         path: '/pert-estimate',
         name: 'pertEstimate',
         component: () => import('@/views/pert-estimate/index.vue'),

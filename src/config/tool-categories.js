@@ -330,6 +330,19 @@ export const toolCategories = [
     menuKey: 'utility',
     tools: [
       {
+        id: 'number-case-converter',
+        name: '数字大小写转换',
+        menuTitle: '数字大小写转换',
+        desc: '数字金额与人民币中文大写双向转换，精确到分，支持负数、千分位和一键复制。',
+        keywords: ['数字大小写', '金额大写', '人民币', '大写转换', '小写转换', '财务', 'rmb', 'money'],
+        route: '/number-case-converter',
+        icon: 'CreditCard',
+        color: '#A078DA',
+        tag: 'Finance',
+        tagType: 'warning',
+        tagTip: '人民币金额大小写双向转换'
+      },
+      {
         id: 'temperature-converter',
         name: '温度转换',
         menuTitle: '温度转换',
