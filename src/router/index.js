@@ -208,6 +208,12 @@ const routes = [
         meta: { title: 'BMI 计算' }
       },
       {
+        path: '/temperature-converter',
+        name: 'temperatureConverter',
+        component: () => import('@/views/temperature-converter/index.vue'),
+        meta: { title: '温度转换' }
+      },
+      {
         path: '/pert-estimate',
         name: 'pertEstimate',
         component: () => import('@/views/pert-estimate/index.vue'),

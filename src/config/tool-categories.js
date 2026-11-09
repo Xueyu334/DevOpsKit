@@ -330,6 +330,37 @@ export const toolCategories = [
     menuKey: 'utility',
     tools: [
       {
+        id: 'temperature-converter',
+        name: '温度转换',
+        menuTitle: '温度转换',
+        desc: '摄氏度、华氏度、开尔文、兰氏度、列氏度实时互转，支持小数与绝对零度校验。',
+        keywords: [
+          '温度',
+          '温度转换',
+          '摄氏度',
+          '华氏度',
+          '开式度',
+          '开氏度',
+          '开尔文',
+          '兰式度',
+          '兰氏度',
+          '列式度',
+          '列氏度',
+          'temperature',
+          'celsius',
+          'fahrenheit',
+          'kelvin',
+          'rankine',
+          'reaumur'
+        ],
+        route: '/temperature-converter',
+        icon: 'Switch',
+        color: '#E6A23C',
+        tag: 'Unit',
+        tagType: 'warning',
+        tagTip: '五种温标实时换算与公式参考'
+      },
+      {
         id: 'bmi-calculator',
         name: 'BMI 计算',
         menuTitle: 'BMI 计算',
