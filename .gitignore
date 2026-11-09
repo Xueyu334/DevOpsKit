@@ -37,8 +37,6 @@ __screenshots__/
 # Vite
 *.timestamp-*-*.mjs
 
-AGENTS.md
-
 # 自动生成或导入的声明/配置文件
 stats.html
 /.junie/
