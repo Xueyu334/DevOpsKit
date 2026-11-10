@@ -55,21 +55,22 @@ self.onmessage = function (e) {
     return
   }
 
+  let parsedContent = content
+  const keyReplacements = []
   try {
     let obj
     // 必须先校验原文，避免键顺序预处理将非标准数字键改写为合法 JSON。
     if (type === 'strict') JSON.parse(content)
     const patchedContent =
-      content && (type === 'strict' || type === 'relaxed') ? addNumericKeyOrderPrefix(content) : content
+      content && (type === 'strict' || type === 'relaxed')
+        ? addNumericKeyOrderPrefix(content, (start, end, length) => keyReplacements.push({ start, end, length }))
+        : content
+    parsedContent = patchedContent
 
     if (type === 'strict') {
       obj = parseJsonPreservingNumbers(patchedContent, JSON.parse)
     } else if (type === 'relaxed') {
-      try {
-        obj = parseJsonPreservingNumbers(patchedContent, JSON5.parse)
-      } catch (err) {
-        throw new Error('解析失败：' + err.message)
-      }
+      obj = parseJsonPreservingNumbers(patchedContent, JSON5.parse)
     }
 
     renderState.set(id, {
@@ -83,12 +84,58 @@ self.onmessage = function (e) {
       id,
       success: true,
       html: htmlBuffer.join(''),
-      hasNonStandard
+      hasNonStandard,
+      content
     })
   } catch (err) {
     renderState.delete(id)
-    self.postMessage({ id, success: false, error: err.message })
+    self.postMessage({
+      id,
+      success: false,
+      content,
+      error: err.message,
+      location: getErrorLocation(err, content, parsedContent, keyReplacements)
+    })
   }
+}
+
+function getErrorLocation(error, content, parsedContent, replacements) {
+  if (!(error instanceof SyntaxError)) return null
+  let offset
+  const positionMatch = error.message.match(/\bposition\s+(\d+)/i)
+  const lineMatch = error.message.match(/\bline\s+(\d+)\s+column\s+(\d+)/i)
+  const line = error.lineNumber ?? (lineMatch ? Number(lineMatch[1]) : undefined)
+  const column = error.columnNumber ?? (lineMatch ? Number(lineMatch[2]) : undefined)
+  if (positionMatch) {
+    offset = Number(positionMatch[1])
+  } else if (line != null && column != null) {
+    offset = 0
+    for (let currentLine = 1; currentLine < line; currentLine++) {
+      const nextLine = parsedContent.indexOf('\n', offset)
+      if (nextLine < 0) return null
+      offset = nextLine + 1
+    }
+    offset += Math.max(0, column - 1)
+  } else if (/end of (?:JSON )?input/i.test(error.message)) {
+    offset = parsedContent.length
+  } else {
+    return null
+  }
+
+  // 将键名编码后的偏移还原到用户输入，避免数字键、转义键导致列号偏移。
+  let delta = 0
+  for (const { start, end, length } of replacements) {
+    if (offset < start + delta) break
+    if (offset < start + delta + length) {
+      offset = start
+      delta = 0
+      break
+    }
+    delta += length - (end - start)
+  }
+  offset = Math.max(0, Math.min(content.length, offset - delta))
+  const before = content.slice(0, offset)
+  return { offset, line: before.split('\n').length, column: offset - before.lastIndexOf('\n') }
 }
 
 /**

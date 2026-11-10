@@ -6,6 +6,7 @@ import { parseJsonPreservingNumbers } from './utils/json-number'
 
 const STORAGE_KEY = 'devopskit_json_input'
 const OPTIONS_KEY = 'devopskit_json_options'
+const AUTO_SAVE_KEY = 'devopskit_json_auto_save'
 const EMPTY_STATE_HTML = '<span class="status-tip">等待输入...</span>'
 
 const renderOptionItems = [
@@ -16,6 +17,10 @@ const renderOptionItems = [
 ]
 
 const rawInput = ref('')
+const autoSave = ref(true)
+const storageWarning = ref('')
+const editorRef = ref(null)
+const errorInputs = new Map()
 const options = reactive({
   color: true,
   compress: false,
@@ -42,6 +47,7 @@ let relaxedHasNonStandard = false
 const { copy } = useClipboard()
 
 const setIdleState = () => {
+  errorInputs.clear()
   stringResultHtml.value = EMPTY_STATE_HTML
   evalResultHtml.value = EMPTY_STATE_HTML
   hasError.value = false
@@ -62,8 +68,12 @@ const escapeHtml = value =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;')
 
-const buildErrorHtml = (message, modifierClass = '') =>
-  `<div class="error-box${modifierClass ? ` ${modifierClass}` : ''}">${escapeHtml(message)}</div>`
+const buildErrorHtml = (message, location, modifierClass = '') =>
+  `<div class="error-box${modifierClass ? ` ${modifierClass}` : ''}">${escapeHtml(message)}${
+    location
+      ? `<div>第 ${location.line} 行，第 ${location.column} 列 <button class="json-error-location" type="button" data-error-offset="${location.offset}">定位到输入</button></div>`
+      : ''
+  }</div>`
 
 /**
  * 一个用于解析近似 JSON 格式字符串的函数。
@@ -93,27 +103,29 @@ function debounce(func, wait) {
   }
 }
 
-const update = () => {
-  const val = rawInput.value.trim()
-
-  // 数据持久化：完全依赖 try-catch（方案 A）
+const persistInput = () => {
   try {
-    if (val) {
-      localStorage.setItem(STORAGE_KEY, val)
+    if (autoSave.value && rawInput.value.trim()) {
+      localStorage.setItem(STORAGE_KEY, rawInput.value)
     } else {
       localStorage.removeItem(STORAGE_KEY)
     }
+    localStorage.setItem(AUTO_SAVE_KEY, String(autoSave.value))
     localStorage.setItem(OPTIONS_KEY, JSON.stringify(options))
+    storageWarning.value = ''
   } catch (e) {
-    // 如果超出存储配额（QuotaExceededError），则优雅降级，仅在控制台警告
-    if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
-      console.warn('JSON 自动保存失败：内容超出 LocalStorage 存储上限。')
-    } else {
-      console.error('持久化失败:', e)
-    }
+    storageWarning.value =
+      e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED'
+        ? '自动保存失败：本地存储空间不足。'
+        : '本地存储不可用，保存设置或清除历史输入失败。'
   }
+}
 
-  if (!val) {
+const update = () => {
+  const val = rawInput.value
+  persistInput()
+
+  if (!val.trim()) {
     setIdleState()
     return
   }
@@ -173,6 +185,23 @@ const formatPath = pathStr => {
 
 const handleClick = e => {
   const target = e.target
+  const errorButton = target.closest('.json-error-location')
+  if (errorButton) {
+    const sourceId = errorButton.closest('[data-worker-source]')?.getAttribute('data-worker-source')
+    if (errorInputs.get(sourceId) !== rawInput.value) {
+      ElMessage.info('输入已变化，请等待新的解析结果')
+      return
+    }
+    const offset = Number(errorButton.getAttribute('data-error-offset'))
+    const editor = editorRef.value
+    editor.focus()
+    const selectionStart = rawInput.value.slice(0, offset).replace(/\r\n?/g, '\n').length
+    editor.setSelectionRange(selectionStart, Math.min(selectionStart + 1, editor.value.length))
+    const lineHeight = parseFloat(getComputedStyle(editor).lineHeight)
+    const line = rawInput.value.slice(0, offset).split('\n').length
+    editor.scrollTop = Math.max(0, (line - 1) * lineHeight - editor.clientHeight / 2)
+    return
+  }
   const isToggle = target?.classList.contains('json-toggle')
   const isLoadMore = target?.classList.contains('json-load-more')
 
@@ -314,7 +343,7 @@ const transformParsedInput = (formatter, successMessage, errorPrefix) => {
 const handleClear = () => {
   rawInput.value = ''
   setIdleState()
-  localStorage.removeItem(STORAGE_KEY)
+  persistInput()
 }
 
 const handleFormat = () => {
@@ -431,19 +460,20 @@ onMounted(() => {
   worker = new JsonWorker()
 
   // 从本地存储加载历史数据
-  const savedInput = localStorage.getItem(STORAGE_KEY)
-  const savedOptions = localStorage.getItem(OPTIONS_KEY)
-  if (savedInput) rawInput.value = savedInput
-  if (savedOptions) {
-    try {
+  try {
+    autoSave.value = localStorage.getItem(AUTO_SAVE_KEY) !== 'false'
+    const savedInput = autoSave.value ? localStorage.getItem(STORAGE_KEY) : null
+    const savedOptions = localStorage.getItem(OPTIONS_KEY)
+    if (savedInput) rawInput.value = savedInput
+    if (savedOptions) {
       Object.assign(options, JSON.parse(savedOptions))
-    } catch {
-      /* 忽略格式错误的备份 */
     }
+  } catch {
+    storageWarning.value = '无法读取本地保存内容或设置。'
   }
 
   worker.onmessage = e => {
-    const { id, success, html, error, hasNonStandard: nonStandard, type } = e.data
+    const { id, success, html, error, location, content, hasNonStandard: nonStandard, type } = e.data
 
     if (type === 'partial') {
       const selector = `.json-load-more[data-request-id="${id}"]`
@@ -465,6 +495,10 @@ onMounted(() => {
       return
     }
 
+    if (content !== rawInput.value) return
+    if (success) errorInputs.delete(id)
+    else errorInputs.set(id, content)
+
     if (id === 'strict') {
       resetResultInteraction()
       if (success) {
@@ -472,7 +506,7 @@ onMounted(() => {
         hasError.value = false
         strictHasNonStandard = !!nonStandard
       } else {
-        stringResultHtml.value = buildErrorHtml(`Error: ${error}`)
+        stringResultHtml.value = buildErrorHtml(`Error: ${error}`, location)
         hasError.value = true
         strictHasNonStandard = false
       }
@@ -486,7 +520,7 @@ onMounted(() => {
       hasNonStandard.value = strictHasNonStandard || relaxedHasNonStandard
     }
 
-    evalResultHtml.value = success ? html : buildErrorHtml(`Eval error: ${error}`, 'error-box--italic')
+    evalResultHtml.value = success ? html : buildErrorHtml(`Eval error: ${error}`, location, 'error-box--italic')
   }
 
   document.addEventListener('mousemove', handleMouseMove)
@@ -531,6 +565,11 @@ onUnmounted(() => {
             </el-button>
           </template>
           <div class="settings-panel">
+            <el-tooltip content="关闭后清除已保存输入，保留编辑区内容。" placement="top">
+              <el-checkbox v-model="autoSave" class="settings-checkbox" @change="persistInput">
+                自动保存输入
+              </el-checkbox>
+            </el-tooltip>
             <el-checkbox
               v-for="item in renderOptionItems"
               :key="item.key"
@@ -544,6 +583,8 @@ onUnmounted(() => {
         </el-popover>
       </div>
     </div>
+
+    <el-alert v-if="storageWarning" :title="storageWarning" type="warning" :closable="false" show-icon />
 
     <div ref="containerRef" class="panel-container">
       <div :style="{ flexBasis: `${leftWidth}px` }" class="panel left-panel">
@@ -569,6 +610,7 @@ onUnmounted(() => {
           </div>
         </div>
         <textarea
+          ref="editorRef"
           v-model="rawInput"
           class="editor-area"
           placeholder="在此输入或粘贴您的 JSON 数据...（双击、Ctrl/Cmd + Shift + F 或 Ctrl/Cmd + Alt + L 格式化，支持拖拽 .json 文件）"
@@ -730,6 +772,17 @@ html.dark .app-container {
 
 .settings-checkbox {
   margin-right: 0;
+}
+
+:deep(.json-error-location) {
+  margin-top: 8px;
+  padding: 2px 6px;
+  border: 1px solid var(--el-color-danger);
+  border-radius: 4px;
+  color: var(--el-color-danger);
+  background: var(--el-bg-color);
+  cursor: pointer;
+  font: inherit;
 }
 
 .panel-container {

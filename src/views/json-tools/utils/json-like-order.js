@@ -27,10 +27,11 @@ export function encodeJsonOrderKey(key) {
  *
  * @param {string} input 输入的 JSON 格式字符串。
  * 如果传入的值不是字符串或为空值，将直接返回原值。
+ * @param {Function} [onKeyReplaced] 接收原始键的起止偏移与替换长度，用于还原错误位置。
  *
  * @return {string} 返回修改后的 JSON 字符串，如果无修改需求则返回原字符串。
  */
-export function addNumericKeyOrderPrefix(input) {
+export function addNumericKeyOrderPrefix(input, onKeyReplaced) {
   if (typeof input !== 'string' || !input) return input
 
   const result = []
@@ -50,7 +51,9 @@ export function addNumericKeyOrderPrefix(input) {
           input[nextTokenIndex] === ':' &&
           (/^\d+$/.test(parsedString.value) || parsedString.value.startsWith(JSON_ORDER_PREFIX))
         ) {
-          result.push(JSON.stringify(encodeJsonOrderKey(parsedString.value)))
+          const replacement = JSON.stringify(encodeJsonOrderKey(parsedString.value))
+          result.push(replacement)
+          onKeyReplaced?.(index, parsedString.end, replacement.length)
         } else {
           result.push(parsedString.raw)
         }
@@ -85,7 +88,9 @@ export function addNumericKeyOrderPrefix(input) {
       const nextTokenIndex = skipTrivia(input, end)
       // 兼容 JSON5 的无引号数字键写法，例如 `{ 123: "ok" }`
       if (input[nextTokenIndex] === ':') {
-        result.push(JSON.stringify(encodeJsonOrderKey(rawKey)))
+        const replacement = JSON.stringify(encodeJsonOrderKey(rawKey))
+        result.push(replacement)
+        onKeyReplaced?.(index, end, replacement.length)
       } else {
         result.push(rawKey)
       }
