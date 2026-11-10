@@ -628,7 +628,7 @@ onUnmounted(() => {
       <div class="panel right-panel">
         <div :class="{ 'error-header': hasError }" class="panel-header panel-header--split">
           <div class="panel-header-cell">String Parse (Strict)</div>
-          <div class="panel-header-cell panel-header-cell--offset">JS Eval (Relaxed)</div>
+          <div class="panel-header-cell panel-header-cell--offset">JSON5 Parse (Relaxed)</div>
         </div>
         <div ref="resultAreaRef" class="result-area">
           <div
